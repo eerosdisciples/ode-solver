@@ -1,20 +1,22 @@
 /* Test program */
 
 #include <stdio.h>
-#include "include/matrix.h"
+#include "include/vector.h"
 
-void printm(matrix m) {
-	printf("[%f %f %f]\n", m.val[0][0], m.val[1][0], m.val[2][0]);
+void printv(vector v) {
+	printf("[%f %f %f]\n", v.val[0], v.val[1], v.val[2]);
 }
 int main(){
-	matrix a = mnew(3,1), b = mnew(3,1);
-	a.val[0][0] = 1, a.val[1][0] = 2, a.val[2][0] = 3;
-	b.val[0][0] = 1, b.val[1][0] = 2, b.val[2][0] = 3;
+	/*vector a = vnew(3,1), b = vnew(3,1);
+	a.val[0] = 1, a.val[1] = 2, a.val[2] = 3;
+	b.val[0] = 1, b.val[1] = 2, b.val[2] = 3;*/
+	vector a = vinit(3, 1.0,2.0,3.0),
+		   b = vinit(3, 1.0,2.0,3.0);
 	
-	matrix m = madd(a,b);
+	vector v = vadd(a,b);
 	
-	printm(m);
-	printm(mmuls(10.0, a));
+	printv(v);
+	printv(vmuls(10.0, a));
 
 	return 0;
 }

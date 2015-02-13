@@ -6,7 +6,7 @@ LD=gcc
 LFLAGS=
 
 TARGET=solver
-OBJECTS=main.o matrix.o
+OBJECTS=main.o vector.o
 
 all: $(TARGET)
 
