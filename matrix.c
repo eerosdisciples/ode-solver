@@ -1,5 +1,6 @@
 /* Matrix operations */
 
+#include <stdlib.h>
 #include "include/matrix.h"
 
 /*
@@ -10,14 +11,17 @@
  * RETURNS: A new m-by-n matrix
  */
 matrix mnew(unsigned int m, unsigned int n) {
+	/* Declare matrix */
 	matrix nm;
 
+	/* Set size of matrix */
 	nm.m = m, nm.n = n;
+
+	/* Allocate memory for matrix */
 	nm.data = malloc(sizeof(double*)*m);
 	int i;
-
 	for (i = 0; i < m; i++) {
-		nm.data[i] = malloc(sizeof(double)*n);
+		nm.val[i] = malloc(sizeof(double)*n);
 	}
 
 	return nm;
@@ -30,7 +34,24 @@ matrix mnew(unsigned int m, unsigned int n) {
  * RETURNS: A new matrix with
  * elements equal to a+b
  */ 
-matrix madd(matrix a, matrix b) {}
+matrix madd(matrix a, matrix b) {
+	/* Make sure a and b are of the same size */
+	if (a.m != b.m || a.n != b.n)
+		return NULL;
+	
+	/* Declare sum matrix */
+	matrix nm = mnew(a.m, a.n);
+
+	/* Sum over all elements */
+	int i, j;
+	for (i = 0; i < a.m; i++) {
+		for (j = 0; j < a.n; j++) {
+			nm[i][j] = a.val[i][j] + b.val[i][j];
+		}
+	}
+
+	return nm;
+}
 
 /*
  * Multiply each element of a matrix
