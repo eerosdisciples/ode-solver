@@ -9,7 +9,19 @@
  * n: Number of columns
  * RETURNS: A new m-by-n matrix
  */
-matrix mnew(unsigned int m, unsigned int n) {}
+matrix mnew(unsigned int m, unsigned int n) {
+	matrix nm;
+
+	nm.m = m, nm.n = n;
+	nm.data = malloc(sizeof(double*)*m);
+	int i;
+
+	for (i = 0; i < m; i++) {
+		nm.data[i] = malloc(sizeof(double)*n);
+	}
+
+	return nm;
+}
 /* 
  * Add two matrices
  *
