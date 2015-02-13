@@ -8,4 +8,8 @@ typedef struct {
 	unsigned int n;		/* Number of columns */
 } matrix;
 
+matrix mnew(unsigned int, unsigned int);
+matrix madd(matrix, matrix);
+matrix mmuls(double, matrix);
+
 #endif/*_MATRIX_H*/

@@ -18,8 +18,8 @@ matrix mnew(unsigned int m, unsigned int n) {
 	nm.m = m, nm.n = n;
 
 	/* Allocate memory for matrix */
-	nm.data = malloc(sizeof(double*)*m);
-	int i;
+	nm.val = malloc(sizeof(double*)*m);
+	unsigned int i;
 	for (i = 0; i < m; i++) {
 		nm.val[i] = malloc(sizeof(double)*n);
 	}
@@ -37,16 +37,16 @@ matrix mnew(unsigned int m, unsigned int n) {
 matrix madd(matrix a, matrix b) {
 	/* Make sure a and b are of the same size */
 	if (a.m != b.m || a.n != b.n)
-		return NULL;
+		return (matrix){NULL,0,0};
 	
 	/* Declare sum matrix */
 	matrix nm = mnew(a.m, a.n);
 
 	/* Sum over all elements */
-	int i, j;
+	unsigned int i, j;
 	for (i = 0; i < a.m; i++) {
 		for (j = 0; j < a.n; j++) {
-			nm[i][j] = a.val[i][j] + b.val[i][j];
+			nm.val[i][j] = a.val[i][j] + b.val[i][j];
 		}
 	}
 
