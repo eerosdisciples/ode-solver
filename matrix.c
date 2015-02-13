@@ -4,6 +4,27 @@
 #include "include/matrix.h"
 
 /*
+ * Initialize matrix with values from a double**
+ * 
+ * m: Number of rows
+ * n: Number of columns
+ * v: Primitive matrix to copy data from
+ * RETURNS: A new matrix containing the same elements
+ * as v
+ */
+/*matrix minit(unsigned int m, unsigned int n, double v[m][n]) {
+	matrix nm = mnew(m, n);
+
+	unsigned int i, j;
+	for (i = 0; i < m; i++) {
+		for (j = 0; j < n; j++) {
+			nm.val[i][j] = v[i][j];
+		}
+	}
+
+	return nm;
+}*/
+/*
  * Create a new m-by-n matrix
  *
  * m: Number of rows
