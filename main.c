@@ -14,5 +14,7 @@ int main(){
 	matrix m = madd(a,b);
 	
 	printm(m);
+	printm(mmuls(10.0, a));
+
 	return 0;
 }

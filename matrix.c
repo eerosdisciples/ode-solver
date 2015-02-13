@@ -81,4 +81,15 @@ matrix madd(matrix a, matrix b) {
  * scalar: Scalar to multiply with
  * a: Matrix to multiply with
  */
-matrix mmuls(double scalar, matrix a) {}
+matrix mmuls(double scalar, matrix a) {
+	matrix mn = mnew(a.m, a.n);
+
+	unsigned int i, j;
+	for (i = 0; i < a.m; i++) {
+		for (j = 0; j < a.n; j++) {
+			mn.val[i][j] = scalar * a.val[i][j];
+		}
+	}
+
+	return mn;
+}
