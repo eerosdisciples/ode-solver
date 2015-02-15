@@ -1,12 +1,12 @@
 # ODE Solver Makefile
 
 CC=gcc
-CFLAGS=-Wall -Wextra -g -O0 -c
+CFLAGS=-Wall -Wextra -g -O0 -c -I include
 LD=gcc
 LFLAGS=
 
 TARGET=solver
-OBJECTS=main.o vector.o
+OBJECTS=magnetic_field.o main.o vector.o
 
 all: $(TARGET)
 

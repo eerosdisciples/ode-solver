@@ -2,7 +2,7 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
-#include "include/vector.h"
+#include "vector.h"
 
 /*
  * Create a new n-dimensional vector

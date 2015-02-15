@@ -1,7 +1,7 @@
 /* Matrix operations */
 
 #include <stdlib.h>
-#include "include/matrix.h"
+#include "matrix.h"
 
 /*
  * Initialize matrix with values from a double**

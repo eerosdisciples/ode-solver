@@ -1,7 +1,8 @@
 /* Test program */
 
 #include <stdio.h>
-#include "include/vector.h"
+#include "magnetic_field.h"
+#include "vector.h"
 
 void printv(vector v) {
 	printf("[%f %f %f]\n", v.val[0], v.val[1], v.val[2]);
@@ -17,6 +18,8 @@ int main(){
 	
 	printv(v);
 	printv(vmuls(10.0, a));
+
+	load_magnetic_field("/home/mathias/Skrivbord/iter2d.bkg");
 
 	return 0;
 }
