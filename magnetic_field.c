@@ -119,5 +119,8 @@ void load_magnetic_field(char *filename) {
 	/* Read B_z */
 	read_mf(B_z, f);
 
+	double br10 = B_r[nz];
+	printf("B_r(r=1,z=0) = %2.10f\n", br10);
+
 	/* DONE */
 }
