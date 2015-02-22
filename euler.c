@@ -8,7 +8,7 @@
 
 
 
-/*Finds the cylidrical coorddinates cooresponding to the cartesian
+/*Finds the cylindrical coordinates corresponding to the cartesian
 cacoord[]-array with cartesian coords
 cclcoord[]-array with cylindrical coords
 
@@ -134,7 +134,6 @@ if (z==0.0){
     double   zd=(z-z0)/(z1-z0);
 		
 	/*Approximate in B, independent of l(thus y)*/
-	/*Använd Round istället för att konveretra från int till double!*/
 	double c00=B[x0+z0]*(1-xd)+B[3*x1+z0]*xd;
 	double c10=B[3*x0+z0]*(1-xd)+B[3*x1+z0]*xd;
 	double c01=B[3*x0+z1]*(1-xd)+B[3*x1+z1];
