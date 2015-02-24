@@ -17,11 +17,11 @@ typedef struct {
 } domain;
 
 /* Load the domain coordinates from file */
-domain *domain_load(char*);
+domain *domain_load(char*); // * för att spara plats
 /* Check if the given point lies within,
  * outside or on the border of the domain
  */
-int domain_check(domain*, double, double);
+int domain_check(domain*, double*, double*);
 /* Function for testing the module */
 void domain_test(void);
 
