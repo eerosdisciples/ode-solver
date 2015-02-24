@@ -1,126 +1,37 @@
-/* Magnetic field management */
+/* Magnetic field reader */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "magnetic_field.h"
 #include "vector.h"
 
-#define BUFFER_SIZE 1024
-
-double *B_r, *B_phi, *B_z,
-		rmin, rmax, zmin, zmax;
-int nr, nz;
-char buffer[BUFFER_SIZE+1];
+/**
+ * Load magnetic field data from the given file.
+ *
+ * filename: File to load magnetic field data from
+ *
+ * RETURNS a magnetic_field containing the loaded data
+ */
+magnetic_field *magnetic_field_load(char*) {
+	return NULL;
+}
 
 /**
- * Reads the next word from file into the buffer.
- * If buffer is empty after a call to word(),
- * an empty line has been discovered.
+ * Calculates the magnetic field strength in a given point
+ * `xyz'.
  *
- * f: Pointer to file to read from
- * RETURNS 1 IF EMPTY LINE WAS ENCOUNTERED
+ * B: The magnetic field
+ * xyz: The point (in cartesian coordinates) in which the field
+ *   strength should be evaluated.
+ *
+ * RETURNS the field strength at the given point in
+ * cartesian coordinates
  */
-int word(FILE *f) {
-	int c, i=0;
-
-	/* Get character */
-	while (i<BUFFER_SIZE && (c=fgetc(f))!=EOF) {
-		/* If newline... */
-		if (c == '\n')
-			break;		/* ...stop... */
-		/* If space or tab... */
-		else if (c == ' ' || c == '\t') {
-			/* If buffer is empty... */
-			if (i == 0) continue;	/* ...do nothing and continue */
-			else break;		/* ...stop... */
-		} else	/* Append char to buffer and continue */
-			buffer[i++] = (char)c;
-	}
-
-	buffer[i] = 0;
-	return (i == 0);
+vector *magnetic_field_get(magnetic_field *B, vector *xyz) {
+	return NULL;
 }
+
 /**
- * Skip a given number of lines
- *
- * n: Number of lines to skip
- * f: Pointer to file to read from
+ * Function for testing this module
  */
-void skip_lines(int n, FILE *f) {
-	int c;
-	/* While all lines have not been skipped,
-	 * and we haven't reached the end-of-file
-	 */
-	while (n>0 && (c=fgetc(f))!=EOF) {
-		/* If c = newline, decrease counter */
-		if (c == '\n') n--;
-	}
-}
-/**
- * Reads magnetic field values into the given
- * double-array until empty line is found
- * (or file ends).
- *
- * B: array to load data into
- * f: Pointer to file to read from
- */
-void read_mf(double *B, FILE *f) {
-	int i = 0;
-	/* While no empty line is encountered... */
-	while (!word(f)) {
-		/* Read magnetic field value */
-		B[i++] = atof(buffer);
-	}
-}
-/**
- * Loads magnetic field data from the file
- * with the given name. The data will then
- * be available in the arrays
- * B_r, B_phi and B_z (rmin, rmax, zmin, zmax,
- * nr and nz are also loaded)
- *
- * filename: Name of file containing data
- */
-void load_magnetic_field(char *filename) {
-	/* Open file */
-	FILE *f;
-	f = fopen(filename, "r");
-	/* TODO: Better error management... */
-	if (!f) return;
+void magnetic_field_test(void) {}
 
-	/* Read 6 first words */
-	word(f); word(f); word(f);		/* "rmin", "rmax", "nr" */
-	/* Identify rmin, rmax, nr */
-	word(f); rmin = atof(buffer);/* rmin value */
-	word(f); rmax = atof(buffer);/* rmax value */
-	word(f); nr   = atoi(buffer);/* nr value */
-
-	/* Read next 6 words */
-	word(f); word(f); word(f);		/* "zmin", "zmax", "nz" */
-	/* Identify zmin, zmax, nz */
-	word(f); zmin = atof(buffer);/* zmin value */
-	word(f); zmax = atof(buffer);/* zmax value */
-	word(f); nz   = atoi(buffer);/* nz value */
-
-	/* Calculate size of B-fields */
-	int size = nr*nz;
-	/* Allocate memory */
-	B_r = malloc(size*sizeof(double));
-	B_phi=malloc(size*sizeof(double));
-	B_z = malloc(size*sizeof(double));
-
-	/* Skip 2 lines */
-	skip_lines(2, f);
-
-	/* Read B_r */
-	read_mf(B_r, f);
-	/* Read B_phi */
-	read_mf(B_phi, f);
-	/* Read B_z */
-	read_mf(B_z, f);
-
-	double br10 = B_r[nz];
-	printf("B_r(r=1,z=0) = %2.10f\n", br10);
-
-	/* DONE */
-}
