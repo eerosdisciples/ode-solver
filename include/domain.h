@@ -2,8 +2,7 @@
 #define _DOMAIN_H
 
 /* Return values of `domain_check' */
-#define DOMAIN_WITHIN -1
-#define DOMAIN_ONDOMAIN 0
+#define DOMAIN_WITHIN 0
 #define DOMAIN_OUTSIDE 1
 
 /**
