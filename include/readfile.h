@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 /* Read one word from file (returns empty string if empty line) */
-char *word(FILE*);
+char *readfile_word(FILE*);
 /* Skip the given number of lines */
-void skip_lines(int, FILE*);
+void readfile_skip_lines(int, FILE*);
 
 #endif/*_READFILE_H*/
