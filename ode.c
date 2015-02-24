@@ -1,5 +1,6 @@
 /* ODE Solver */
 
+#include <stdlib.h>
 #include "ode.h"
 #include "vector.h"
 
@@ -19,7 +20,7 @@ vector *ode_solve(
 	vector *(equation)(double, vector*),
 	double t0, vector *z0, unsigned int n
 ) {
-	
+	return NULL;
 }
 
 /* Test function for this module */

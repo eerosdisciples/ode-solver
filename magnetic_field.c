@@ -11,7 +11,7 @@
  *
  * RETURNS a magnetic_field containing the loaded data
  */
-magnetic_field *magnetic_field_load(char*) {
+magnetic_field *magnetic_field_load(char *filename) {
 	return NULL;
 }
 

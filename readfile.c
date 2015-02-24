@@ -16,7 +16,7 @@ char file_buffer[BUFFER_SIZE+1];
 char *word(FILE *f) {
 	int c, i=0;
 
-	/* Get character */
+/* Get character */
 	while (i<BUFFER_SIZE && (c=fgetc(f))!=EOF) {
 		/* If newline... */
 		if (c == '\n')
@@ -27,11 +27,11 @@ char *word(FILE *f) {
 			if (i == 0) continue;	/* ...do nothing and continue */
 			else break;		/* ...stop... */
 		} else	/* Append char to buffer and continue */
-			buffer[i++] = (char)c;
+			file_buffer[i++] = (char)c;
 	}
 
-	buffer[i] = 0;
-	return buffer;
+	file_buffer[i] = 0;
+	return file_buffer;
 }
 /**
  * Skip a given number of lines of file

@@ -1,5 +1,6 @@
 /* Domain manager */
 
+#include <stdlib.h>
 #include "domain.h"
 
 /**
