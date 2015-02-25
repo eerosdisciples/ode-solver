@@ -105,7 +105,7 @@ int domain_check(domain *d, double *r, double* z) {
 	int i;
 	
 	/* Check if matrix is zero */
-	if (x00-x10==0 && y00-y01==0)
+	if (x00-x10==0 && y00-y10==0)
 		return DOMAIN_OUTSIDE;
 
 	for (i=0;i<d->n;i++){
@@ -134,5 +134,8 @@ int domain_check(domain *d, double *r, double* z) {
 /**
  * Function for testing the module
  */
-void domain_test(void) {}
+void domain_test(void) {
+	domain *d = domain_load("iter.wall_2d");
+	printf("%d\n", d->n);
+}
 
