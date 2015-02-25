@@ -117,8 +117,11 @@ int domain_check(domain *d, double *r, double* z) {
 		/* Calculates the determinant */
 		det=x11*y01-x01*y11;
 		
-		/* Calculates s and t */
+		/* Check if determinant is zero */
+		if (det==0)
+		return DOMAIN_WITHIN;
 		
+		/* Calculates s and t */
 		s=1/det*((x00-x10)*y01-(y00-y10)*x01);
 		t=1/det*(-(-x00+x10)*y11+(y00-y10)*x11);
 		
