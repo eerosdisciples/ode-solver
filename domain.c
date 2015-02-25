@@ -88,42 +88,57 @@ domain *domain_load(char *filename) {
  * domain
  */
 int domain_check(domain *d, double *r, double* z) { 
-		double det;/* Determinant */
+	/*Råkade blanda ihop linjerna är av formen uo+tv0=(x00,y00)+t(x01,y01) */
 	
-	/* Variables used in method */
+	/* Determinant */
+	double det;
+	//printf("Just a check, z[1] is %f and z[2] is %f\n",z[0],z[1]);
+	//printf("Just a check, r[1] is %f and r[2] is %f\nma",r[0],r[1]);
+	
+	/* Parametrisation*/
+	
 	double x00=r[0];
-	double x10=r[1];
+	double x01=r[1]-x00;
 	double y00=z[0];
-	double y10=z[1];
-	double x01;
-	double y01;
+	double y01=z[1]-y00;
+	
+	double x10;
+	double y10;
 	double x11;
 	double y11;
 	double s;
 	double t;
 	/* Used in loop */  
 	int i;
+	//printf("x00 is %f x10 is %f y00 is %f y10 is %f \n",x00,x10,y00,y10);
 	
 	/* Check if matrix is zero */
 	if (x00-x10==0 && y00-y10==0)
 		return DOMAIN_OUTSIDE;
 
 	for (i=0;i<d->n;i++){
-		x01=d->r[i];
-		x11=d->r[i+1];
-		y01=d->z[i];
-		y11=d->z[i+1];
+		x10=d->r[i];
+		x11=d->r[i+1]-x10;
+		y10=d->z[i];
+		y11=d->z[i+1]-y10;
+		
+		//printf("x01 is %f x11 is %f y01 is %f y11 is %f \n",x01,x11,y01,y11);
+		
 		
 		/* Calculates the determinant */
 		det=x11*y01-x01*y11;
+		
+	//	printf("Determinant is %f\n",det);
 		
 		/* Check if determinant is zero */
 		if (det==0)
 		return DOMAIN_WITHIN;
 		
 		/* Calculates s and t */
-		s=1/det*((x00-x10)*y01-(y00-y10)*x01);
-		t=1/det*(-(-x00+x10)*y11+(y00-y10)*x11);
+		s=(1/det)*((x00-x10)*y01-(y00-y10)*x01);
+		t=(1/det)*(-(-(x00-x10)*y11+(y00-y10)*x11));
+		
+		//printf("s is %f and t is %f\n",s,t);
 		
 		/* If s and t are between 0 and 1 => intersection */
 		if (s>=0 && s<=1 && t>=0 && t<=1)
