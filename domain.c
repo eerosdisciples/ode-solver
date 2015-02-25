@@ -151,5 +151,53 @@ if (count % 2)
 /**
  * Function for testing the module
  */
-void domain_test(void) {}
+void domain_test(void) {
+	
+	/* Test points */
+	double r; 
+	double z;
+	
+	/* To convert from int to certain message */
+	char *location[]={"Inside","Outside"}; 
+	/* Indicating the result */
+	int is;
+	/* Indicating what the result should be*/
+	int should;
+	char* filename="iter.wall_2d";
+	
+	/* Read file */
+ domain *d=domain_load(filename);
+ 
+	
+ /* TEST BEGINS */
+	 printf(" ********* TEST BEGINS ********%\n");
+	 
+ /* TESTPOINT 1 */
+	 r=10;
+	 z=10;
+	 should=1;
+	 is=domain_check(d, r, z);
+
+	 printf("Should be %s is %s\n",location[should],location[is]);
+		if (should!=is){
+			printf("INCORRECT!!!\n"); return;}
+			printf("CORRECT!!!\n\n");
+		
+ /* TESTPOINT 2 */
+	   r=5;
+	   z=2;
+	   should=0;
+	   is=domain_check(d, r, z);
+
+	  printf("Should be %s is %s\n",location[should],location[is]);
+	   	if (should!=is){
+	   		printf("INCORRECT!!!\n"); return;}
+			printf("CORRERCT!!!\n\n");
+			
+ /* END OF TEST */	
+	   	 printf(" ********* END OF TEST ********%\n");
+				
+		 printf("TEST DONE, WELL DONE!\n");
+		
+}
 
