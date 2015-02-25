@@ -192,7 +192,7 @@ void domain_test(void) {
 	  printf("Should be %s is %s\n",location[should],location[is]);
 	   	if (should!=is){
 	   		printf("INCORRECT!!!\n"); return;}
-			printf("CORRERCT!!!\n\n");
+			printf("CORRECT!!!\n\n");
 			
  /* END OF TEST */	
 	   	 printf(" ********* END OF TEST ********%\n");
