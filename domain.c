@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <time.h>
 #include "domain.h"
 #include "readfile.h"
 
@@ -139,6 +140,13 @@ int domain_check(domain *d, double *r, double* z) {
  */
 void domain_test(void) {
 	domain *d = domain_load("iter.wall_2d");
-	printf("%d\n", d->n);
+
+	srand(time(NULL));
+	int i = rand() % (d->n);
+
+	printf("Number of points: %d\n", d->n);
+	printf("First point:      i=0 , r=%f, z=%f\n", d->r[0], d->z[0]);
+	printf("Random point:     i=%2d, r=%f, z=%f\n", i, d->r[i], d->z[i]);
+	printf("Last point:       i=%2d, r=%f, z=%f\n", d->n-1, d->r[d->n-1], d->z[d->n-1]);
 }
 
