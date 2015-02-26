@@ -13,6 +13,8 @@ extern int errno;
  * f: The C file object to read through
  * d: Domain object to load data into
  * n: Number of points to read
+ * 
+ * Called from domain_load
  */
 void domain_read_data(FILE *f, domain *d, unsigned int n) {
 	unsigned int i;
