@@ -15,7 +15,7 @@ typedef struct {
 
 particle* particle_new();
 particle* particle_init(double, double, double, double, double, double);
-particle* particle_add(particle, particle);
+particle* particle_add(particle*, particle*);
 
 double particle_get_position_x(particle*);
 double particle_get_position_y(particle*);
