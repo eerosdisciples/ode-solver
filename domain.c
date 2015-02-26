@@ -26,6 +26,7 @@ void domain_read_data(FILE *f, domain *d, unsigned int n) {
 		/* Read R value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->r+i);
+                /* Read Z value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->z+i);
 		readfile_word(f);
@@ -84,10 +85,9 @@ domain *domain_load(char *filename) {
  * r: next Radial coordinate
  * z: next Z-coordinate
  *
- * RETURNS one of DOMAIN_WITHIN, DOMAIN_ONDOMAIN or
- * DOMAIN_OUTSIDE depending on wether the given point
- * is inside or outside the given
- * domain
+ * RETURNS DOMAIN_WITHIN or
+ * DOMAIN_OUTSIDE depending on whether the given point
+ * is inside or outside the given domain
  */
 int domain_check(domain *d, double r, double z) { 
 	
@@ -96,7 +96,7 @@ int domain_check(domain *d, double r, double z) {
 	
 	/* Parametrization*/
 	
-	/* A point inside the conotur */
+	/* A point inside the domain */
 	double x00=6.5;
 	double y00=2.3;
 	
@@ -143,7 +143,7 @@ int domain_check(domain *d, double r, double z) {
 			//return DOMAIN_OUTSIDE;
 		
 	}
-	/* If nbr of intersections is odd, then the point is outside */
+	/* If nr of intersections is odd, then the point is outside */
 if (count % 2)
 	return DOMAIN_OUTSIDE;
 		
@@ -174,24 +174,25 @@ void domain_test(void) {
  /* TEST BEGINS */
 	 printf(" ********* TEST BEGINS ********%\n");
 	 
- /* TESTPOINT 1 */
+ /* TEST POINT 1 */
 	 r=10;
 	 z=10;
 	 should=1;
 	 is=domain_check(d, r, z);
 
-	 printf("Should be %s is %s\n",location[should],location[is]);
+	 printf("Should be %s, is %s\n",location[should],location[is]);
 		if (should!=is){
-			printf("INCORRECT!!!\n"); return;}
+			printf("INCORRECT!!!\n"); return;
+                }
 			printf("CORRECT!!!\n\n");
 		
- /* TESTPOINT 2 */
+ /* TEST POINT 2 */
 	   r=5;
 	   z=2;
 	   should=0;
 	   is=domain_check(d, r, z);
 
-	  printf("Should be %s is %s\n",location[should],location[is]);
+	  printf("Should be %s, is %s\n",location[should],location[is]);
 	   	if (should!=is){
 	   		printf("INCORRECT!!!\n"); return;}
 			printf("CORRECT!!!\n\n");
