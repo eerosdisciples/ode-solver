@@ -16,6 +16,9 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS)
 	$(LD) $(LFLAGS) -o $@ $(OBJECTS)
 
+test:
+	make -C tests
+
 clean:
 	rm *.o $(UTILS)
 

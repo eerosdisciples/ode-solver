@@ -2,6 +2,7 @@
 #include "readfile.h"
 #include "domain.h"
 #include <stdio.h>
+#include "domain.h"
 
 int main(int argc, char *argv[]) {// argc- hur många argument och argv själva filen
 	 domain *d=domain_load(argv[1]);
@@ -18,5 +19,4 @@ if (inside==0)
 printf("In Domain\n");
 	 // domain_test();
 
-	return 0;
 }

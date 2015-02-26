@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <time.h>
 #include "domain.h"
 #include "readfile.h"
 
@@ -13,6 +14,8 @@ extern int errno;
  * f: The C file object to read through
  * d: Domain object to load data into
  * n: Number of points to read
+ * 
+ * Called from domain_load
  */
 void domain_read_data(FILE *f, domain *d, unsigned int n) {
 	unsigned int i;
@@ -24,6 +27,7 @@ void domain_read_data(FILE *f, domain *d, unsigned int n) {
 		/* Read R value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->r+i);
+		/* Read Z value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->z+i);
 		readfile_word(f);
@@ -83,10 +87,9 @@ domain *domain_load(char *filename) {
  * r: next Radial coordinate
  * z: next Z-coordinate
  *
- * RETURNS one of DOMAIN_WITHIN, DOMAIN_ONDOMAIN or
+ * RETURNS DOMAIN_WITHIN or
  * DOMAIN_OUTSIDE depending on wether the given point
- * is inside or outside the given
- * domain
+ * is inside or outside the given domain
  */
 int domain_check(domain *d, double *r, double *z) { 
 	//printf("JUST checking r is %f and z is %f",r ,z);
@@ -98,6 +101,7 @@ int domain_check(domain *d, double *r, double *z) {
 	/* A point inside the conotur */
 	double x00=r[0];
 	double y00=z[0];
+
 	
 	double x01=r[1]-x00;
 	double y01=z[1]-y00;
@@ -111,8 +115,11 @@ int domain_check(domain *d, double *r, double *z) {
 	/* Used in loop */  
 	int i;
 	
-	/* Variable for counting each intersection */
-	int count=0;
+
+	
+	/* Check if matrix is zero */
+	if (x00-x10==0 && y00-y10==0)
+		return DOMAIN_OUTSIDE;
 
 	for (i=0;i<d->n;i++){
 		x10=d->r[i];
@@ -141,6 +148,7 @@ int domain_check(domain *d, double *r, double *z) {
 		
 	}
 	/* If nbr of intersections is odd, then the point is outside */
+	/* If nr of intersections is odd, then the point is outside */
 		
 	return DOMAIN_WITHIN;
 }
@@ -149,6 +157,15 @@ int domain_check(domain *d, double *r, double *z) {
  * Function for testing the module
  */
 void domain_test(void) {
+	domain *d = domain_load("iter.wall_2d");
+
+	srand(time(NULL));
+	int i = rand() % (d->n);
+
+	printf("Number of points: %d\n", d->n);
+	printf("First point:      i=0 , r=%f, z=%f\n", d->r[0], d->z[0]);
+	printf("Random point:     i=%2d, r=%f, z=%f\n", i, d->r[i], d->z[i]);
+	printf("Last point:       i=%2d, r=%f, z=%f\n", d->n-1, d->r[d->n-1], d->z[d->n-1]);
 	
 	/* Test points */
 	double *r; 
@@ -162,31 +179,31 @@ void domain_test(void) {
 	int should;
 	char* filename="iter.wall_2d";
 	
-	/* Read file */
-// domain *d=domain_load(filename);
- 
-	
+		
  /* TEST BEGINS */
 	 printf(" ********* TEST BEGINS ********%\n");
 	 
  /* TESTPOINT 1 */
 	// r=10;
 	 //z=10;
+
 	 should=1;
 	// is=domain_check(d, r, z);
 
-	 printf("Should be %s is %s\n",location[should],location[is]);
+	 printf("Should be %s, is %s\n",location[should],location[is]);
 		if (should!=is){
-			printf("INCORRECT!!!\n"); return;}
+			printf("INCORRECT!!!\n"); return;
+                }
 			printf("CORRECT!!!\n\n");
 		
  /* TESTPOINT 2 */
 	//   r=5;
 	  // z=2;
+
 	   should=0;
 	//   is=domain_check(d, r, z);
 
-	  printf("Should be %s is %s\n",location[should],location[is]);
+	  printf("Should be %s, is %s\n",location[should],location[is]);
 	   	if (should!=is){
 	   		printf("INCORRECT!!!\n"); return;}
 			printf("CORRECT!!!\n\n");
@@ -249,6 +266,5 @@ void domain_test(void) {
 	   	 printf(" ********* END OF TEST ********%\n");
 				
 		 printf("TEST DONE, WELL DONE!\n");
-		
 }
 
