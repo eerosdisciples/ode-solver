@@ -91,7 +91,6 @@ domain *domain_load(char *filename) {
  * is inside or outside the given domain
  */
 int domain_check(domain *d, double r, double z) { 
-	
 	/* Determinant */
 	double det;
 	
@@ -116,16 +115,15 @@ int domain_check(domain *d, double r, double z) {
 	/* Variable for counting each intersection */
 	int count=0;
 	
-	/* Check if matrix is zero */
-	if (x00-x10==0 && y00-y10==0)
-		count++;
-		/*return DOMAIN_OUTSIDE;*/
-
 	for (i=0;i<d->n;i++){
 		x10=d->r[i];
 		x11=d->r[i+1]-x10;
 		y10=d->z[i];
 		y11=d->z[i+1]-y10;
+
+		/* Check if matrix is zero */
+		if (x00-x10==0 && y00-y10==0)
+			count++;
 				
 		/* Calculates the determinant */
 		det=x11*y01-x01*y11;
@@ -155,6 +153,7 @@ if (count % 2)
  * Function for testing the module
  */
 void domain_test(void) {
+	/* Check wether reading file is OK */
 	domain *d = domain_load("iter.wall_2d");
 
 	srand(time(NULL));
@@ -177,34 +176,35 @@ void domain_test(void) {
 	int should;
 	
  /* TEST BEGINS */
-	 printf(" ********* TEST BEGINS ********%\n");
+	printf(" ********* TEST BEGINS ********\n");
 	 
  /* TEST POINT 1 */
-	 r=10;
-	 z=10;
-	 should=1;
-	 is=domain_check(d, r, z);
+	r=10;
+	z=10;
+	should=1;
+	is=domain_check(d, r, z);
 
-	 printf("Should be %s, is %s\n",location[should],location[is]);
-		if (should!=is){
-			printf("INCORRECT!!!\n"); return;
-                }
-			printf("CORRECT!!!\n\n");
+	printf("Should be %s, is %s\n",location[should],location[is]);
+	if (should!=is){
+		printf("INCORRECT!!!\n"); return;
+	}
+	printf("CORRECT!!!\n\n");
 		
- /* TEST POINT 2 */
-	   r=5;
-	   z=2;
-	   should=0;
-	   is=domain_check(d, r, z);
+	 /* TEST POINT 2 */
+	r=5;
+	z=2;
+	should=0;
+	is=domain_check(d, r, z);
 
-	  printf("Should be %s, is %s\n",location[should],location[is]);
-	   	if (should!=is){
-	   		printf("INCORRECT!!!\n"); return;}
-			printf("CORRECT!!!\n\n");
-			
- /* END OF TEST */	
-	   	 printf(" ********* END OF TEST ********%\n");
-				
-		 printf("TEST DONE, WELL DONE!\n");
+	printf("Should be %s, is %s\n",location[should],location[is]);
+	if (should!=is){
+		printf("INCORRECT!!!\n");
+		return;
+	}
+	printf("CORRECT!!!\n\n");
+		
+	/* END OF TEST */	
+	printf(" ********* END OF TEST ********\n");
+	printf("TEST DONE, WELL DONE!\n");
 }
 
