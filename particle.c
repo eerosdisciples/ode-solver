@@ -1,28 +1,25 @@
 /* Particle operations */
 
-/* UNFINISHED MOD OF vector.c */
-
 #include <stdarg.h>
 #include <stdlib.h>
 #include "particle.h"
-
 
 /*
  * Create a new particle
  * RETURNS: a generic particle
  */
-vector newParticle() {
+particle particle_new() {
 	/* Declare six dimensional particle vector */
 	particle p[6];
 
-	particle p;
+	return particle p;
 }
 /*
  * Initialize a new particle with specified position and velocity
  * RETURNS: The new particle
  */
 
-particle initParticle(double x, double y, double z, double v_x, double v_y, double v_z ) { 
+particle particle_init(double x, double y, double z, double v_x, double v_y, double v_z ) { 
   /* Declare particle */
   particle p[6];
 
@@ -45,7 +42,7 @@ particle initParticle(double x, double y, double z, double v_x, double v_y, doub
  * RETURNS: A new particle with
  * elements equal to a+b
  */ 
-particle addParticle(particle a, particle b) {
+particle particle_add(particle a, particle b) {
 	
 	/* Declare new particle */
 	particle p= newParticle();

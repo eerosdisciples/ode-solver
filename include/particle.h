@@ -13,9 +13,8 @@ typedef struct {
   double val[6];		/* The particle vector */
 } particle;
 
-particle new(unsigned int);
-particle particleInit(unsigned int, ...);
-particle particleAdd(particle, particle);
-particle muls(double, particle);
+particle particle_new();
+particle particle_init(double, double, double, double, double, double);
+particle particle_add(particle, particle);
 
 #endif/*_PARTICLE_H*/
