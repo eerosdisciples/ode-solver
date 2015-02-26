@@ -90,18 +90,20 @@ domain *domain_load(char *filename) {
  * DOMAIN_OUTSIDE depending on wether the given point
  * is inside or outside the given domain
  */
-int domain_check(domain *d, double r, double z) { 
+int domain_check(domain *d, double *r, double *z) { 
+	//printf("JUST checking r is %f and z is %f",r ,z);
 	/* Determinant */
 	double det;
 	
 	/* Parametrization*/
 	
-	/* A point inside the domain */
-	double x00=6.5;
-	double y00=2.3;
+	/* A point inside the conotur */
+	double x00=r[0];
+	double y00=z[0];
+
 	
-	double x01=r-x00;
-	double y01=z-y00;
+	double x01=r[1]-x00;
+	double y01=z[1]-y00;
 	
 	double x10;
 	double y10;
@@ -112,8 +114,7 @@ int domain_check(domain *d, double r, double z) {
 	/* Used in loop */  
 	int i;
 	
-	/* Variable for counting each intersection */
-	int count=0;
+
 	
 	for (i=0;i<d->n;i++){
 		x10=d->r[i];
@@ -125,26 +126,28 @@ int domain_check(domain *d, double r, double z) {
 		if (x00-x10==0 && y00-y10==0)
 			count++;
 				
+	/* Check if matrix is zero */
+		if (x00-x10==0 && y00-y10==0)
+			return DOMAIN_OUTSIDE;
+				
 		/* Calculates the determinant */
 		det=x11*y01-x01*y11;
 				
 		/* Check if determinant is zero */
 		if (det==0)
 		return DOMAIN_WITHIN;
-		
+
 		/* Calculates s and t */
 		s=(1/det)*((x00-x10)*y01-(y00-y10)*x01);
 		t=(1/det)*(-(-(x00-x10)*y11+(y00-y10)*x11));
 				
 		/* If s and t are between 0 and 1 => intersection */
 		if (s>=0 && s<=1 && t>=0 && t<=1)
-			count++;
-			//return DOMAIN_OUTSIDE;
+			return DOMAIN_OUTSIDE;
 		
 	}
+	/* If nbr of intersections is odd, then the point is outside */
 	/* If nr of intersections is odd, then the point is outside */
-if (count % 2)
-	return DOMAIN_OUTSIDE;
 		
 	return DOMAIN_WITHIN;
 }
@@ -165,8 +168,8 @@ void domain_test(void) {
 	printf("Last point:       i=%2d, r=%f, z=%f\n", d->n-1, d->r[d->n-1], d->z[d->n-1]);
 	
 	/* Test points */
-	double r; 
-	double z;
+	double *r; 
+	double *z;
 	
 	/* To convert from int to certain message */
 	char *location[]={"Inside","Outside"}; 
@@ -174,37 +177,94 @@ void domain_test(void) {
 	int is;
 	/* Indicating what the result should be*/
 	int should;
+	char* filename="iter.wall_2d";
 	
+		
  /* TEST BEGINS */
 	printf(" ********* TEST BEGINS ********\n");
 	 
- /* TEST POINT 1 */
-	r=10;
-	z=10;
-	should=1;
-	is=domain_check(d, r, z);
+ /* TESTPOINT 1 */
+	// r=10;
+	 //z=10;
 
-	printf("Should be %s, is %s\n",location[should],location[is]);
-	if (should!=is){
-		printf("INCORRECT!!!\n"); return;
-	}
-	printf("CORRECT!!!\n\n");
-		
-	 /* TEST POINT 2 */
-	r=5;
-	z=2;
-	should=0;
-	is=domain_check(d, r, z);
+	 should=1;
+	// is=domain_check(d, r, z);
 
-	printf("Should be %s, is %s\n",location[should],location[is]);
-	if (should!=is){
-		printf("INCORRECT!!!\n");
-		return;
-	}
-	printf("CORRECT!!!\n\n");
+	 printf("Should be %s, is %s\n",location[should],location[is]);
+		if (should!=is){
+			printf("INCORRECT!!!\n"); return;
+                }
+			printf("CORRECT!!!\n\n");
 		
-	/* END OF TEST */	
-	printf(" ********* END OF TEST ********\n");
-	printf("TEST DONE, WELL DONE!\n");
+ /* TESTPOINT 2 */
+	//   r=5;
+	  // z=2;
+
+	   should=0;
+	//   is=domain_check(d, r, z);
+
+	  printf("Should be %s, is %s\n",location[should],location[is]);
+	   	if (should!=is){
+	   		printf("INCORRECT!!!\n"); return;}
+			printf("CORRECT!!!\n\n");
+
+ /* TESTPOINT 3 */
+	 	// r=5.56956;
+	     //z=-5.65625;
+    	 should=1;
+	// 	 is=domain_check(d, r, z);
+
+	  printf("Should be %s is %s\n",location[should],location[is]);
+	     if (should!=is){
+	 	   	 printf("INCORRECT!!!\n"); return;}
+	 		 printf("CORRECT!!!\n\n");			
+			 
+	 /* TESTPOINT 4 */
+		 	// r=4.2815;
+		     //z=-3.8125;
+	    	 should=0;
+	//	 	 is=domain_check(d, r, z);
+
+		  printf("Should be %s is %s\n",location[should],location[is]);
+		     if (should!=is){
+		 	   	 printf("INCORRECT!!!\n"); return;}
+		 		 printf("CORRECT!!!\n\n");					
+
+		 /* TESTPOINT 5 */
+			 	// r=6.27722;
+			     //z=-3.1875;
+		    	 should=0;
+		//	 	 is=domain_check(d, r, z);
+
+			  printf("Should be %s is %s\n",location[should],location[is]);
+			     if (should!=is){
+			 	   	 printf("INCORRECT!!!\n"); return;}
+			 		 printf("CORRECT!!!\n\n");	
+					 
+			 /* TESTPOINT 6 */
+				// 	 r=7.56552;
+				  //   z=2.84375;
+			    	 should=1;
+			//	 	 is=domain_check(d, r, z);
+
+				  printf("Should be %s is %s\n",location[should],location[is]);
+				     if (should!=is){
+				 	   	 printf("INCORRECT!!!\n"); return;}
+				 		 printf("CORRECT!!!\n\n");								 
+
+				 /* TESTPOINT 7 */
+				//	 	 r=4.19052;
+				//	     z=-3.125;
+				    	 should=1;
+			//		 	 is=domain_check(d, r, z);
+
+					  printf("Should be %s is %s\n",location[should],location[is]);
+					     if (should!=is){
+					 	   	 printf("INCORRECT!!!\n"); return;}
+					 		 printf("CORRECT!!!\n\n");								 					
+ /* END OF TEST */	
+	   	 printf(" ********* END OF TEST ********%\n");
+				
+		 printf("TEST DONE, WELL DONE!\n");
 }
 
