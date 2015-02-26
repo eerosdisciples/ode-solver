@@ -14,6 +14,8 @@ extern int errno;
  * f: The C file object to read through
  * d: Domain object to load data into
  * n: Number of points to read
+ * 
+ * Called from domain_load
  */
 void domain_read_data(FILE *f, domain *d, unsigned int n) {
 	unsigned int i;
@@ -25,6 +27,7 @@ void domain_read_data(FILE *f, domain *d, unsigned int n) {
 		/* Read R value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->r+i);
+		/* Read Z value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->z+i);
 		readfile_word(f);
@@ -80,24 +83,29 @@ domain *domain_load(char *filename) {
  * on the border of the domain.
  *
  * d: Domain for the problem
- * r: Radial coordinate
- * z: Z-coordinate
+ * r: next Radial coordinate
+ * z: next Z-coordinate
  *
- * RETURNS one of DOMAIN_WITHIN, DOMAIN_ONDOMAIN or
+ * RETURNS DOMAIN_WITHIN or
  * DOMAIN_OUTSIDE depending on wether the given point
- * is inside, on the border of or outside the given
- * domain
+ * is inside or outside the given domain
  */
-int domain_check(domain *d, double *r, double* z) { 
-		double det;/* Determinant */
+int domain_check(domain *d, double r, double z) { 
 	
-	/* Variables used in method */
-	double x00=r[0];
-	double x10=r[1];
-	double y00=z[0];
-	double y10=z[1];
-	double x01;
-	double y01;
+	/* Determinant */
+	double det;
+	
+	/* Parametrization*/
+	
+	/* A point inside the domain */
+	double x00=6.5;
+	double y00=2.3;
+	
+	double x01=r-x00;
+	double y01=z-y00;
+	
+	double x10;
+	double y10;
 	double x11;
 	double y11;
 	double s;
@@ -105,32 +113,40 @@ int domain_check(domain *d, double *r, double* z) {
 	/* Used in loop */  
 	int i;
 	
+	/* Variable for counting each intersection */
+	int count=0;
+	
 	/* Check if matrix is zero */
 	if (x00-x10==0 && y00-y10==0)
-		return DOMAIN_OUTSIDE;
+		count++;
+		/*return DOMAIN_OUTSIDE;*/
 
 	for (i=0;i<d->n;i++){
-		x01=d->r[i];
-		x11=d->r[i+1];
-		y01=d->z[i];
-		y11=d->z[i+1];
-		
+		x10=d->r[i];
+		x11=d->r[i+1]-x10;
+		y10=d->z[i];
+		y11=d->z[i+1]-y10;
+				
 		/* Calculates the determinant */
 		det=x11*y01-x01*y11;
-		
+				
 		/* Check if determinant is zero */
 		if (det==0)
 		return DOMAIN_WITHIN;
 		
 		/* Calculates s and t */
-		s=1/det*((x00-x10)*y01-(y00-y10)*x01);
-		t=1/det*(-(-x00+x10)*y11+(y00-y10)*x11);
-		
+		s=(1/det)*((x00-x10)*y01-(y00-y10)*x01);
+		t=(1/det)*(-(-(x00-x10)*y11+(y00-y10)*x11));
+				
 		/* If s and t are between 0 and 1 => intersection */
 		if (s>=0 && s<=1 && t>=0 && t<=1)
-			return DOMAIN_OUTSIDE;
+			count++;
+			//return DOMAIN_OUTSIDE;
 		
 	}
+	/* If nr of intersections is odd, then the point is outside */
+if (count % 2)
+	return DOMAIN_OUTSIDE;
 		
 	return DOMAIN_WITHIN;
 }
@@ -148,5 +164,47 @@ void domain_test(void) {
 	printf("First point:      i=0 , r=%f, z=%f\n", d->r[0], d->z[0]);
 	printf("Random point:     i=%2d, r=%f, z=%f\n", i, d->r[i], d->z[i]);
 	printf("Last point:       i=%2d, r=%f, z=%f\n", d->n-1, d->r[d->n-1], d->z[d->n-1]);
+	
+	/* Test points */
+	double r; 
+	double z;
+	
+	/* To convert from int to certain message */
+	char *location[]={"Inside","Outside"}; 
+	/* Indicating the result */
+	int is;
+	/* Indicating what the result should be*/
+	int should;
+	
+ /* TEST BEGINS */
+	 printf(" ********* TEST BEGINS ********%\n");
+	 
+ /* TEST POINT 1 */
+	 r=10;
+	 z=10;
+	 should=1;
+	 is=domain_check(d, r, z);
+
+	 printf("Should be %s, is %s\n",location[should],location[is]);
+		if (should!=is){
+			printf("INCORRECT!!!\n"); return;
+                }
+			printf("CORRECT!!!\n\n");
+		
+ /* TEST POINT 2 */
+	   r=5;
+	   z=2;
+	   should=0;
+	   is=domain_check(d, r, z);
+
+	  printf("Should be %s, is %s\n",location[should],location[is]);
+	   	if (should!=is){
+	   		printf("INCORRECT!!!\n"); return;}
+			printf("CORRECT!!!\n\n");
+			
+ /* END OF TEST */	
+	   	 printf(" ********* END OF TEST ********%\n");
+				
+		 printf("TEST DONE, WELL DONE!\n");
 }
 
