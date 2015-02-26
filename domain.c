@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <time.h>
 #include "domain.h"
 #include "readfile.h"
 
@@ -26,7 +27,7 @@ void domain_read_data(FILE *f, domain *d, unsigned int n) {
 		/* Read R value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->r+i);
-                /* Read Z value */
+		/* Read Z value */
 		p = readfile_word(f);
 		sscanf(p, "%lf", d->z+i);
 		readfile_word(f);
@@ -86,7 +87,7 @@ domain *domain_load(char *filename) {
  * z: next Z-coordinate
  *
  * RETURNS DOMAIN_WITHIN or
- * DOMAIN_OUTSIDE depending on whether the given point
+ * DOMAIN_OUTSIDE depending on wether the given point
  * is inside or outside the given domain
  */
 int domain_check(domain *d, double r, double z) { 
@@ -118,7 +119,7 @@ int domain_check(domain *d, double r, double z) {
 	/* Check if matrix is zero */
 	if (x00-x10==0 && y00-y10==0)
 		count++;
-		//return DOMAIN_OUTSIDE;
+		/*return DOMAIN_OUTSIDE;*/
 
 	for (i=0;i<d->n;i++){
 		x10=d->r[i];
@@ -154,6 +155,15 @@ if (count % 2)
  * Function for testing the module
  */
 void domain_test(void) {
+	domain *d = domain_load("iter.wall_2d");
+
+	srand(time(NULL));
+	int i = rand() % (d->n);
+
+	printf("Number of points: %d\n", d->n);
+	printf("First point:      i=0 , r=%f, z=%f\n", d->r[0], d->z[0]);
+	printf("Random point:     i=%2d, r=%f, z=%f\n", i, d->r[i], d->z[i]);
+	printf("Last point:       i=%2d, r=%f, z=%f\n", d->n-1, d->r[d->n-1], d->z[d->n-1]);
 	
 	/* Test points */
 	double r; 
@@ -165,11 +175,6 @@ void domain_test(void) {
 	int is;
 	/* Indicating what the result should be*/
 	int should;
-	char* filename="iter.wall_2d";
-	
-	/* Read file */
- domain *d=domain_load(filename);
- 
 	
  /* TEST BEGINS */
 	 printf(" ********* TEST BEGINS ********%\n");
@@ -201,6 +206,5 @@ void domain_test(void) {
 	   	 printf(" ********* END OF TEST ********%\n");
 				
 		 printf("TEST DONE, WELL DONE!\n");
-		
 }
 
