@@ -124,7 +124,7 @@ int domain_check(domain *d, double *r, double *z) {
 
 		/* Check if matrix is zero */
 		if (x00-x10==0 && y00-y10==0)
-			count++;
+			return DOMAIN_OUTSIDE;
 				
 	/* Check if matrix is zero */
 		if (x00-x10==0 && y00-y10==0)
