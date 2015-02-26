@@ -32,7 +32,6 @@ particle* particle_init(double x, double y, double z, double v_x, double v_y, do
   p->val[5] = v_z;
 
   return p;
-}
 
 }
 /* 
