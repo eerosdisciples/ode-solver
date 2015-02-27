@@ -15,7 +15,7 @@ char buffer[BUFFER_SIZE+1];
 void read_mf(double *B, FILE *f) {
 int i = 0;
 /* While no empty line is encountered... */
-while (!word(f)) {
+while (!readfile_word(f)) {
 /* Read magnetic field value */
 B[i++] = atof(buffer);
 }
@@ -41,9 +41,9 @@ magnetic_field* magnetic_field_load(char *filename) {
     exit(EXIT_FAILURE);
   }
 
-  d = malloc(sizeof(magnetic_field));
+  B = malloc(sizeof(magnetic_field));
   /* Memory error */
-  if (d == NULL) {
+  if (B == NULL) {
     fprintf(stderr, "ERROR: Memory error!\n");
     exit(EXIT_FAILURE);
   }
@@ -54,20 +54,20 @@ magnetic_field* magnetic_field_load(char *filename) {
    */
   readfile_word(f); readfile_word(f); readfile_word(f);
   /* Identify rmin, rmax, nr: next three words */
-   readfile_word(f); rmin = atof(buffer);/* rmin value */
-   readfile_word(f); rmax = atof(buffer);/* rmax value */
-   readfile_word(f); nr = atoi(buffer);/* nr value */
+   readfile_word(f); B->rmin = atof(buffer);/* rmin value */
+   readfile_word(f); B->rmax = atof(buffer);/* rmax value */
+   readfile_word(f); B->nr = atoi(buffer);/* nr value */
    /*
     *Read and discard next three words
     * "zmin", "zmax", "nz" 
     */
    readfile_word(f); readfile_word(f); readfile_word(f);
    /* Identify zmin, zmax, nz: next three words */
-   readfile_word(f); zmin = atof(buffer);/* zmin value */
-   readfile_word(f); zmax = atof(buffer);/* zmax value */
-   readfile_word(f); nz = atoi(buffer);/* nz value */
+   readfile_word(f); B->zmin = atof(buffer);/* zmin value */
+   readfile_word(f); B->zmax = atof(buffer);/* zmax value */
+   readfile_word(f); B->nz = atoi(buffer);/* nz value */
    /* Calculate size of B-field matrix */
-   int size = nr*nz;
+   int size = B->nr*B->nz;
    /* Allocate memory */
    B->B_r = malloc(size*sizeof(double));
    B->B_phi=malloc(size*sizeof(double));
