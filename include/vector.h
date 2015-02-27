@@ -7,9 +7,9 @@ typedef struct {
 	unsigned int n;		/* Number of dimensions */
 } vector;
 
-vector vnew(unsigned int);
-vector vinit(unsigned int, ...);
-vector vadd(vector, vector);
-vector vmuls(double, vector);
+vector *vnew(unsigned int);
+vector *vinit(unsigned int, ...);
+vector *vadd(vector*, vector*);
+vector *vmuls(double, vector*);
 
 #endif/*_VECTOR_H*/

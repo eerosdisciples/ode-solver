@@ -1,6 +1,7 @@
 /* Vector operations */
 
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "vector.h"
 
@@ -10,15 +11,16 @@
  * n: Number of dimensions
  * RETURNS: A new n-dimensional vector
  */
-vector vnew(unsigned int n) {
+vector *vnew(unsigned int n) {
 	/* Declare vector */
-	vector v;
+	vector *v;
+	v = malloc(sizeof(vector));
 
 	/* Set size of vector */
-	v.n = n;
+	v->n = n;
 
 	/* Allocate memory for matrix */
-	v.val = malloc(sizeof(double)*n);
+	v->val = malloc(sizeof(double)*n);
 
 	return v;
 }
@@ -30,11 +32,11 @@ vector vnew(unsigned int n) {
  * RETURNS: A new matrix containing the same elements
  * as v
  */
-vector vinit(unsigned int n, ...) {
+vector *vinit(unsigned int n, ...) {
 	/* Create a variable argument list */
 	va_list valist;
 	/* Allocate new vector */
-	vector v = vnew(n);
+	vector *v = vnew(n);
 
 	/* Initialize VA list */
 	va_start(valist, n);
@@ -43,7 +45,7 @@ vector vinit(unsigned int n, ...) {
 	unsigned int i;
 	for (i = 0; i < n; i++) {
 		double val = va_arg(valist, double);
-		v.val[i] = val;
+		v->val[i] = val;
 	}
 
 	/* Clean memory */
@@ -59,18 +61,20 @@ vector vinit(unsigned int n, ...) {
  * RETURNS: A new vector with
  * elements equal to a+b
  */ 
-vector vadd(vector a, vector b) {
+vector *vadd(vector *a, vector *b) {
 	/* Make sure a and b are of the same size */
-	if (a.n != b.n)
-		return (vector){NULL,0};
+	if (a->n != b->n) {
+		printf("ERROR: Given vectors are of different size!\n");
+		exit(EXIT_FAILURE);
+	}
 	
 	/* Declare sum matrix */
-	vector v = vnew(a.n);
+	vector *v = vnew(a->n);
 
 	/* Sum over all elements */
 	unsigned int i;
-	for (i = 0; i < a.n; i++) {
-		v.val[i] = a.val[i] + b.val[i];
+	for (i = 0; i < a->n; i++) {
+		v->val[i] = a->val[i] + b->val[i];
 	}
 
 	return v;
@@ -83,12 +87,12 @@ vector vadd(vector a, vector b) {
  * scalar: Scalar to multiply with
  * a: Vector to multiply with
  */
-vector vmuls(double scalar, vector a) {
-	vector v = vnew(a.n);
+vector *vmuls(double scalar, vector *a) {
+	vector *v = vnew(a->n);
 
 	unsigned int i;
-	for (i = 0; i < a.n; i++) {
-		v.val[i] = scalar * a.val[i];
+	for (i = 0; i < a->n; i++) {
+		v->val[i] = scalar * a->val[i];
 	}
 
 	return v;
