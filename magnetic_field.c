@@ -13,13 +13,13 @@ char buffer[BUFFER_SIZE+1];
 
 
 void read_mf(double *B, FILE *f) {
-int i = 0;
-/* While no empty line is encountered... */
-while (!readfile_word(f)) {
-/* Read magnetic field value */
-B[i++] = atof(buffer);
+  int i = 0;
+  /* While no empty line is encountered... */
+  while (!readfile_word(f)) {
+    /* Read magnetic field value */
+    B[i++] = atof(buffer);
+  }
 }
-
 
 /*
  * Load magnetic field data from the given file.
@@ -104,4 +104,5 @@ vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
  * Function for testing this module
  */
 void magnetic_field_test(void) {}
+ 
 
