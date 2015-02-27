@@ -7,8 +7,9 @@
 /* The magnetic field type */
 typedef struct {
 	double *B_r, *B_phi, *B_z;	/* Magnetic field components */
-	double rmin, rmax, nr;		/* min(r), max(r) and number of r points */
-	double zmin, zmax, nz;		/* min(z), max(z) and number of z points */
+	double rmin, rmax;			/* min(r), max(r) */
+	double zmin, zmax;			/* min(z), max(z) */
+	unsigned int nr, nz;		/* Number of R and z points */
 } magnetic_field;
 
 /* Load magnetic field data */
