@@ -18,3 +18,6 @@ all: domain
 domain: $(ODOMAIN)
 	$(LD) $(LFLAGS) -o $@ $(ODOMAIN)
 
+clean:
+	rm *.o
+	rm domain
