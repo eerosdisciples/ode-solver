@@ -9,7 +9,7 @@
 void magnetic_field_read_data(double *B, FILE *f, unsigned int size) {
   unsigned int i;
   char *word = readfile_word(f);
-  /* While no empty line is encountered... */
+  /* Read every value in matrix */
   for (i = 0; i < size; i++)  {
     /* Read magnetic field value */
     B[i] = atof(word);
