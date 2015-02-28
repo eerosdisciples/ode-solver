@@ -6,18 +6,14 @@
 #include "vector.h"
 #include "readfile.h"
 
-
-#define BUFFER_SIZE 1024
-/* testa om gamla read_mf fungerar*/
-char buffer[BUFFER_SIZE+1];
-
-
-void read_mf(double *B, FILE *f) {
-  int i = 0;
+void magnetic_field_read_data(double *B, FILE *f, unsigned int size) {
+  unsigned int i;
+  char *word = readfile_word(f);
   /* While no empty line is encountered... */
-  while (!readfile_word(f)) {
+  for (i = 0; i < size; i++)  {
     /* Read magnetic field value */
-    B[i++] = atof(buffer);
+    B[i] = atof(word);
+    word =  readfile_word(f);
   }
 }
 
@@ -54,32 +50,39 @@ magnetic_field* magnetic_field_load(char *filename) {
    */
   readfile_word(f); readfile_word(f); readfile_word(f);
   /* Identify rmin, rmax, nr: next three words */
-   readfile_word(f); B->rmin = atof(buffer);/* rmin value */
-   readfile_word(f); B->rmax = atof(buffer);/* rmax value */
-   readfile_word(f); B->nr = atoi(buffer);/* nr value */
-   /*
-    *Read and discard next three words
-    * "zmin", "zmax", "nz" 
-    */
-   readfile_word(f); readfile_word(f); readfile_word(f);
-   /* Identify zmin, zmax, nz: next three words */
-   readfile_word(f); B->zmin = atof(buffer);/* zmin value */
-   readfile_word(f); B->zmax = atof(buffer);/* zmax value */
-   readfile_word(f); B->nz = atoi(buffer);/* nz value */
-   /* Calculate size of B-field matrix */
-   int size = B->nr*B->nz;
-   /* Allocate memory */
-   B->B_r = malloc(size*sizeof(double));
-   B->B_phi=malloc(size*sizeof(double));
-   B->B_z = malloc(size*sizeof(double));
-   /* Skip 2 lines */
-   readfile_skip_lines(2, f);
+  B->rmin = atof(readfile_word(f));/* rmin value */
+  B->rmax = atof(readfile_word(f));/* rmax value */
+  B->nr = atoi(readfile_word(f));/* nr value */
 
-   /* Read B_r */
-read_mf(B->B_r, f);
+  /*
+   *Read and discard next three words
+   * "zmin", "zmax", "nz" 
+   */
+  readfile_word(f); readfile_word(f); readfile_word(f);
+  /* Identify zmin, zmax, nz: next three words */
+  B->zmin = atof(readfile_word(f));/* zmin value */
+  B->zmax = atof(readfile_word(f));/* zmax value */
+  B->nz = atoi(readfile_word(f));/* nz value */
+  /* Calculate size of B-field matrix */
+  unsigned int size = B->nr*B->nz;
+  /* Allocate memory */
+  B->B_r = malloc(size*sizeof(double));
+  B->B_phi=malloc(size*sizeof(double));
+  B->B_z = malloc(size*sizeof(double));
+  /* Skip 2 lines */
+  readfile_skip_lines(2, f);
 
-
-
+  /* Read B_r */
+  magnetic_field_read_data(B->B_r, f, size);
+  /* Skip 1 line */
+  readfile_skip_lines(1, f);
+  /* Read B_phi */
+  magnetic_field_read_data(B->B_phi, f, size);
+  /* Skip 1 line */
+  readfile_skip_lines(1, f);
+  /* Read B_z */
+  magnetic_field_read_data(B->B_z, f, size);
+  return B;
 
 
   
@@ -97,12 +100,23 @@ read_mf(B->B_r, f);
  * cartesian coordinates
  */
 vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
-	return NULL;
+  return NULL;
 }
 
 /**
  * Function for testing this module
  */
-void magnetic_field_test(void) {}
+void magnetic_field_test(void) {
+#define SIZE 131840
+  
+  magnetic_field *B = magnetic_field_load("iter2d.bkg");
+  printf("First B_r value should be -1.0482107, is %f\n", B->B_r[0]);
+  printf("Last B_r value should be 0.07055279 %f\n", B->B_r[SIZE]);
+  printf("First B_phi value should be -9.333124, is %f\n", B->B_phi[0]);
+  printf("Last B_phi value should be 63.764371, is %f\n", B->B_phi[SIZE]);
+  printf("First B_z value should be -0.60929124, is %f\n", B->B_z[0]);
+  printf("Last B_z value should be 0.44897631, is %f\n", B->B_z[SIZE]);
+  
+}
  
 
