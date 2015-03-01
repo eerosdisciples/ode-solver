@@ -107,8 +107,10 @@ vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
 
   /* 
    * Step size between grid points 
+   * for number of grid points to be nr and nz
+   *
    */
-  double step_r = (B->rmax -B->rmin)/(B->nr-1);
+  double step_r = (B->rmax -B->rmin)/(B->nr-1); 
   double step_z = (B->zmax -B->zmin)/(B->nz-1);
 
   /*
