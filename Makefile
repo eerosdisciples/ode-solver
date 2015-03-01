@@ -6,7 +6,7 @@ LD=gcc
 LFLAGS=
 
 TARGET=solver
-OBJECTS=ctsv.o domain.o equation.o magnetic_field.o main.o ode.o readfile.o vector.o
+OBJECTS=arguments.o ctsv.o domain.o equation.o magnetic_field.o main.o ode.o readfile.o vector.o
 
 all: $(TARGET)
 
