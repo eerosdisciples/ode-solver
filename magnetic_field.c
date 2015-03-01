@@ -6,6 +6,10 @@
 #include "vector.h"
 #include "readfile.h"
 
+/* Read data from file
+ * 
+ * Called from magnetic_field_load
+ */
 void magnetic_field_read_data(double *B, FILE *f, unsigned int size) {
   unsigned int i;
   char *word = readfile_word(f);
@@ -84,11 +88,11 @@ magnetic_field* magnetic_field_load(char *filename) {
   magnetic_field_read_data(B->B_z, f, size);
   return B;
 
-
-  
 }
 
 /*
+ * WORK IN PROGRESS
+ *
  * Calculates the magnetic field strength in a given point
  * `xyz'.
  *
@@ -100,11 +104,52 @@ magnetic_field* magnetic_field_load(char *filename) {
  * cartesian coordinates
  */
 vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
-  return NULL;
+
+  /* 
+   * Step size between grid points 
+   */
+  double step_r = (B->rmax -B->rmin)/(B->nr-1);
+  double step_z = (B->zmax -B->zmin)/(B->nz-1);
+
+  /*
+   * Initialize, allocate and set start point
+   * for grid in r-direction
+   */
+  double *r_grid;
+  r_grid = malloc(B->nr);
+  r_grid[0] = B->rmin;
+
+  unsigned int i; // loop counter
+  /*
+   * Store grid points for r-direction in r_grid array 
+   */
+  for (i=1; i < B->nr ; i++) {
+    r_grid[i] = r_grid[i-1] + step_r;
+    // printf("%d %f \n",i,r_grid[i]); // for testing purposes
+  }
+
+  /*
+   * Initialize, allocate and set start point
+   * for grid in z-direction
+   */
+  double *z_grid;
+  z_grid = malloc(B->nz);
+  z_grid[0] = B->zmin;
+
+  unsigned int j; // loop counter
+  /*
+   * Store grid points for z-direction in z_grid array 
+   */
+  for (j=1; j < B->nz; j++) {
+    z_grid[j] = z_grid[j-1] + step_z;
+    // printf("%d %f \n",j,z_grid[j]); // for testing purposes
+  }
+  
+    return NULL;
 }
 
 /**
- * Function for testing this module
+ * Function for testing data reading
  */
 void magnetic_field_test(void) {
 #define SIZE 131840
@@ -116,6 +161,10 @@ void magnetic_field_test(void) {
   printf("Last B_phi value should be 63.764371, is %f\n", B->B_phi[SIZE]);
   printf("First B_z value should be -0.60929124, is %f\n", B->B_z[0]);
   printf("Last B_z value should be 0.44897631, is %f\n", B->B_z[SIZE]);
+
+  vector *xyz;
+  vector *test;
+  test = magnetic_field_get(B, xyz);
   
 }
  
