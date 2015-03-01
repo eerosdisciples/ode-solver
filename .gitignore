@@ -1,3 +1,4 @@
 *.o
 solver
 tests/domain
+tests/magnetic_field
