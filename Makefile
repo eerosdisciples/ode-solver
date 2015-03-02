@@ -3,7 +3,7 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -g -O0 -c -I include
 LD=gcc
-LFLAGS=
+LFLAGS=-lm
 
 TARGET=solver
 OBJECTS=arguments.o ctsv.o domain.o equation.o magnetic_field.o main.o ode.o readfile.o vector.o

@@ -9,14 +9,18 @@
 #include "readfile.h"
 
 int main(int argc, char *argv[]) {
-	arguments *args = parse_args(argc, argv);
+	arguments *args;
+	domain *dom;
+	magnetic_field *mf;
 
-	printf("domain   = %s\n", args->domain_file);
-	printf("magfield = %s\n", args->magfield_file);
-	printf("t0       = %f\n", args->tstart);
-	printf("tend     = %f\n", args->tend);
-	printf("r0       = (%f, %f, %f)\n", args->r0[0], args->r0[1], args->r0[2]);
-	printf("v0       = (%f, %f, %f)\n", args->v0[0], args->v0[1], args->v0[2]);
-	 
+	args = parse_args(argc, argv);
+
+	/* Load domain */
+	dom = domain_load(args->domain_file);
+	/* Load magnetic field */
+	mf  = magnetic_field_load(args->magfield_file);
+
+	/* Solve */
+
 	return 0;
 }

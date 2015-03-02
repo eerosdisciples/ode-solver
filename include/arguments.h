@@ -2,7 +2,8 @@
 #define _ARGUMENTS_H
 
 typedef struct {
-	double tstart, tend;
+	double tstart;
+	unsigned int points;
 	double *r0, *v0;
 	char *magfield_file, *domain_file;
 } arguments;
