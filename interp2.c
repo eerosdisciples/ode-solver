@@ -7,6 +7,8 @@
  * ALSO: make interp2.h file
  */
 
+#include "magnetic_field.h"
+#include "vector.h"
 /* GNU Scientific Library */
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_ieee_utils.h>
@@ -21,56 +23,89 @@ gsl_interp_accel *ra, *za;
 interp2d *interp;
 interp2d_spline *interp_s;
 
-/* Our test data arrays. xarr and yarr are just coordinates
-   and zarr specify the value. Note that zarr has N^2 values
-   (if xarr and yarr each has N points) but is still an array!
-   This is exactly what we want, since it's how we planned :-)
-*/
-double xarr[] = {0.0,1.0,2.0,3.0}; // remove 
-double yarr[] = {0.0,1.0,2.0,3.0};
-double zarr[] = {1.0,1.1,1.2,1.3,
-                 1.1,1.2,1.3,1.4,
-                 1.2,1.3,1.4,1.5,
-                 1.3,1.4,1.5,1.6};
 
 
-size_t r_size  = sizeof(r_grid) / sizeof(r_grid[0]);
-size_t z_size  = sizeof(z_grid) / sizeof(z_grid[0]);
+/*
+ * Create grid.
+ * n: number of grid points
+ * min: mimimum grid point value
+ * max: maximum grid point value
+ *
+ * RETURNS pointer to grid
+ */
 
-/* A simple test of interpolation. Note the system must be initialized first! */
-void test(double x0, double y0) {
-  /* Get the corresponding value at this point */
-  double z0 = interp2d_eval(interp, xarr, yarr, zarr, x0, y0, xa, ya);
-	
-  /* Print the result */
-  printf("f(%f,%f) = %f\n", x0, y0, z0);
+double* interp2_create_grid(unsigned int n, double min, double max) {
+  /* 
+   * Step size between grid points 
+   */
+  double step = (max - min)/(n-1);
+  /*
+   * Initialize, allocate and set start point for grid
+   */
+  double *grid;
+  grid = malloc(n);
+  grid[0] = min;
+
+  unsigned int i; // loop counter
+  /*
+   * Store grid points in grid array
+   */
+  for (i=1; i < n ; i++) {
+    grid[i] = grid[i-1] + step;
+  }
+  return grid;
 }
 
-/* Initialization. This is to prepare GSL for what's to come  OK I THINK*/
-void init(void) {
-  /* Prepare the accelerators for both X and Y */
+/* Initialization. This is to prepare GSL for what's to come */
+void init(magnetic_field *B, double *r_grid, double *z_grid) {
+
+  size_t r_size  = sizeof(r_grid) / sizeof(r_grid[0]);
+  size_t z_size  = sizeof(z_grid) / sizeof(z_grid[0]);
+  
+  /* Prepare the accelerators for both r and z */
   ra = gsl_interp_accel_alloc();
   za = gsl_interp_accel_alloc();
   /* Create interpolation objects */
   interp = interp2d_alloc(interp2d_bicubic, r_size, z_size);
   interp_s = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
-
   /* Prepare the interpolation objects for our situation */
   /* B_r */
-  interp2d_init(interp, r_grid, z_grid, zarr, r_size, z_size);
+  interp2d_init(interp, r_grid, z_grid, B->B_r, r_size, z_size);
   interp2d_spline_init(interp_s, r_grid, z_grid, B->B_r, r_size, z_size);
   /* B_phi */
-  interp2d_init(interp, r_grid, z_grid, zarr, r_size, z_size);
+  interp2d_init(interp, r_grid, z_grid, B->B_phi, r_size, z_size);
   interp2d_spline_init(interp_s, r_grid, z_grid, B->B_phi, r_size, z_size);
   /* B_z */
-  interp2d_init(interp, r_grid, z_grid, zarr, r_size, z_size);
+  interp2d_init(interp, r_grid, z_grid, B->B_z, r_size, z_size);
   interp2d_spline_init(interp_s, r_grid, z_grid, B->B_z, r_size, z_size);
 }
-int main(void) {
-  init();
-  test(2.0, 3.0);
-  test(0.0, 2.0);
-  test(1.0, 0.0);
 
-  return 0;
+
+/* 
+ * main interpolation function 
+ *
+ * B: The magnetic field
+ * xyz: The point (in cartesian coordinates) in which the field
+ *   strength should be evaluated. *CYLINDRICAL NOW*
+ */
+vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
+
+  double *r_grid = interp2_create_grid(B->nr, B->rmin, B->rmax);
+  double *z_grid = interp2_create_grid(B->nz, B->zmin, B->zmax);
+
+  init(B, r_grid, z_grid); // initialization
+  /*
+   * Interpolate 
+   */
+  double B_r_interp = interp2d_eval(interp, r_grid, z_grid, B->B_r, xyz->val[0], xyz->val[1], ra, za);
+
+  double B_phi_interp = interp2d_eval(interp, r_grid, z_grid, B->B_phi, xyz->val[0], xyz->val[1], ra, za);
+
+  double B_z_interp = interp2d_eval(interp, r_grid, z_grid, B->B_z, xyz->val[0], xyz->val[1], ra, za);
+  /*
+   * Store interpolation values in vector
+   */
+  vector *B_interp = vinit(3, B_r_interp, B_phi_interp, B_z_interp);
+
+  return B_interp;
 }

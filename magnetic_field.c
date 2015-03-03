@@ -5,6 +5,7 @@
 #include "magnetic_field.h"
 #include "vector.h"
 #include "readfile.h"
+#include "interp2.h"
 
 /* Read data from file
  * 
@@ -98,62 +99,22 @@ magnetic_field* magnetic_field_load(char *filename) {
  *
  * B: The magnetic field
  * xyz: The point (in cartesian coordinates) in which the field
- *   strength should be evaluated.
+ *   strength should be evaluated. *CYLINDRICAL NOW*
  *
  * RETURNS the field strength at the given point in
- * cartesian coordinates
+ * cartesian coordinates *CYLINDRICAL NOW*
  */
 vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
 
-  /* 
-   * Step size between grid points 
-   * for number of grid points to be nr and nz
-   *
-   */
-  double step_r = (B->rmax -B->rmin)/(B->nr-1); 
-  double step_z = (B->zmax -B->zmin)/(B->nz-1);
-
-  /*
-   * Initialize, allocate and set start point
-   * for grid in r-direction
-   */
-  double *r_grid;
-  r_grid = malloc(B->nr);
-  r_grid[0] = B->rmin;
-
-  unsigned int i; // loop counter
-  /*
-   * Store grid points for r-direction in r_grid array 
-   */
-  for (i=1; i < B->nr ; i++) {
-    r_grid[i] = r_grid[i-1] + step_r;
-    // printf("%d %f \n",i,r_grid[i]); // for testing purposes
-  }
-
-  /*
-   * Initialize, allocate and set start point
-   * for grid in z-direction
-   */
-  double *z_grid;
-  z_grid = malloc(B->nz);
-  z_grid[0] = B->zmin;
-
-  unsigned int j; // loop counter
-  /*
-   * Store grid points for z-direction in z_grid array 
-   */
-  for (j=1; j < B->nz; j++) {
-    z_grid[j] = z_grid[j-1] + step_z;
-    // printf("%d %f \n",j,z_grid[j]); // for testing purposes
-  }
+  vector *B_interp = interp2_interpolate(B, xyz);
   
-    return NULL;
+    return B_interp;
 }
 
 /**
  * Function for testing data reading
  */
-void magnetic_field_test(void) {
+void magnetic_field_test_read(void) {
 #define SIZE 131840
   
   magnetic_field *B = magnetic_field_load("iter2d.bkg");
@@ -169,5 +130,14 @@ void magnetic_field_test(void) {
   test = magnetic_field_get(B, xyz);
   
 }
- 
 
+void magnetic_field_test_interp(void) {
+  magnetic_field *B  = magnetic_field_load("iter2d.bkg");
+  vector *xyz = vinit(2, 3.5, -5.5);
+
+  vector *B_interp = magnetic_field_get(B, xyz);
+
+  printf("%s %f \n","B_interp[0], r", B_interp->val[0]);
+  printf("%s %f\n","B_interp[1], phi",B_interp->val[1]);
+  printf("%s %f\n","B_interp[2], z",B_interp->val[2]);
+}
