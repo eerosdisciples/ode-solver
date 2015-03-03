@@ -11,7 +11,7 @@ void help(void) {
 "solver [-e time] -d file -f file -r x,y,z -t time -v vx,vy,vz\n\n"
 
 "-d name; --domain-file name \tName of domain file\n"
-"-e time; --tend time        \tFinal time of simulation\n"
+"-n points; --number-of-points points Number of output points\n"
 "-f name; --B-field-file name\tName of magnetic field file\n"
 "-r x,y,z; --r0 x,y,z        \tInitial position. x, y, z are numbers\n"
 "-t time; --tstart time      \tInitial time value\n"
@@ -52,11 +52,12 @@ double *atodp3(const char *s) {
 
 arguments *parse_args(int argc, char *argv[]) {
 	arguments *args;
-	int c, option_index;
+	int c, option_index, tstart_set=0, points_set=0;
 
 	args = malloc(sizeof(arguments));
 	args->domain_file = args->magfield_file = NULL;
-	args->tstart = args->tend = 0.;
+	args->tstart = 0.;
+	args->points = 0;
 	args->r0 = args->v0 = NULL;
 
 	while (1) {
@@ -64,7 +65,7 @@ arguments *parse_args(int argc, char *argv[]) {
 			{"B-field-file", 	required_argument, 	0, 'f'},
 			{"domain-file", 	required_argument, 	0, 'd'},
 			{"help", 			no_argument, 		0, 0},
-			{"tend", 			required_argument, 	0, 'e'},
+			{"number-of-points",required_argument, 	0, 'n'},
 			{"tstart", 			required_argument, 	0, 't'},
 			{"r0",				required_argument,	0, 'r'},
 			{"v0",				required_argument,	0, 'v'},
@@ -95,17 +96,19 @@ arguments *parse_args(int argc, char *argv[]) {
 			case 'd':	/* Name of domain file */
 				args->domain_file = optarg;
 				break;
-			case 'e':	/* Stop time */
-				args->tend = atof(optarg);
-				break;
 			case 'f':	/* Name of magnetic field file */
 				args->magfield_file = optarg;
+				break;
+			case 'n':	/* Number of points */
+				args->points = atoi(optarg);
+				points_set = 1;
 				break;
 			case 'r':	/* Initial position (x0) */
 				args->r0 = atodp3(optarg);
 				break;
 			case 't':	/* Initial time (t0) */
 				args->tstart = atof(optarg);
+				tstart_set = 1;
 				break;
 			/* Initial position and velocity are given as lists of
 			 * numbers. Example:
@@ -120,9 +123,23 @@ arguments *parse_args(int argc, char *argv[]) {
 				/* Unknown argument. Getopt already printed error msg */
 				break;
 
-			default: abort();
+			default: exit(EXIT_FAILURE);
 		}
 	}
 
-	return args;
+	if (args->domain_file == NULL)
+		printf("ERROR: Expected domain file!\n");
+	else if (args->magfield_file == NULL)
+		printf("ERROR: Expected magnetic field file!\n");
+	else if (args->r0 == NULL)
+		printf("ERROR: Expected initial position!\n");
+	else if (args->v0 == NULL)
+		printf("ERROR: Expected initial velocity!\n");
+	else if (!tstart_set)
+		printf("ERROR: Expected start time!\n");
+	else if (!points_set)
+		printf("ERROR: Expected final time!\n");
+	else return args;
+
+	exit(EXIT_FAILURE);
 }
