@@ -15,7 +15,7 @@ all: $(TARGET)
 	$(CC) $(CFLAGS) -o $@ $<
 
 $(TARGET): $(OBJECTS)
-	$(LD) $(LFLAGS) -o $@ $(OBJECTS)
+	$(LD) $(OBJECTS) $(LFLAGS) -o $@
 
 test:
 	make -C tests
