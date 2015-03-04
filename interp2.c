@@ -61,14 +61,14 @@ void init(magnetic_field *B, double *r_grid, double *z_grid) {
   size_t r_size  = B->nr;
   size_t z_size  = B->nz;
 
-  printf("r_size %uz",r_size); // FELSÖKNING: r_size är ok
+  printf("z_size %d",z_size); // FELSÖKNING: r_size & z_size verkar ok
 
   /* Prepare the accelerators for both r and z */
   ra = gsl_interp_accel_alloc();
   za = gsl_interp_accel_alloc();
   /* Create interpolation objects */
   /* SEGFAULT FROM HERE */
-  //interp = interp2d_alloc(interp2d_bicubic, r_size, z_size);
+  interp = interp2d_alloc(interp2d_bicubic, r_size, z_size);
   //interp_s = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
   /* Prepare the interpolation objects for our situation */
   /* B_r */
@@ -119,7 +119,7 @@ vector *B_interp = vinit(3, testvar1, testvar2, testvar3);
 
 
 
-//printf("%f\n",r_grid[256]);
+//printf("%d\n",B->nz);
 
   return B_interp;
 }
