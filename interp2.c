@@ -61,12 +61,14 @@ void init(magnetic_field *B, double *r_grid, double *z_grid) {
   size_t r_size  = B->nr;
   size_t z_size  = B->nz;
 
+  printf("r_size %uz",r_size); // FELSÖKNING: r_size är ok
+
   /* Prepare the accelerators for both r and z */
   ra = gsl_interp_accel_alloc();
   za = gsl_interp_accel_alloc();
   /* Create interpolation objects */
   /* SEGFAULT FROM HERE */
-  interp = interp2d_alloc(interp2d_bicubic, r_size, z_size);
+  //interp = interp2d_alloc(interp2d_bicubic, r_size, z_size);
   //interp_s = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
   /* Prepare the interpolation objects for our situation */
   /* B_r */
@@ -92,7 +94,7 @@ vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
 
   double *r_grid = interp2_create_grid(B->nr, B->rmin, B->rmax);
   double *z_grid = interp2_create_grid(B->nz, B->zmin, B->zmax);
-  
+
   double testvar1 =1;
   double testvar2 = 2;
   double testvar3 = 3;
@@ -113,7 +115,11 @@ vector *B_interp = vinit(3, testvar1, testvar2, testvar3);
 
   //vector *B_interp = vinit(3, B_r_interp, B_phi_interp, B_z_interp);
 
- printf("programmet körde ok. %f %f %f \n",B_interp->val[0],B_interp->val[1] ,B_interp->val[2]); // FOR TESTING PURPOSES
+//printf("programmet körde ok. %f %f %f\n",B_interp->val[0],B_interp->val[1] ,B_interp->val[2]); // FOR TESTING PURPOSES
+
+
+
+//printf("%f\n",r_grid[256]);
 
   return B_interp;
 }
