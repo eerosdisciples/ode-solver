@@ -12,6 +12,9 @@ int main(int argc, char *argv[]) {
 	arguments *args;
 	domain *dom;
 	magnetic_field *mf;
+	vector *solution;
+	ode_solution *solvobj;
+	unsigned int i;
 
 	args = parse_args(argc, argv);
 
@@ -21,6 +24,21 @@ int main(int argc, char *argv[]) {
 	mf  = magnetic_field_load(args->magfield_file);
 
 	/* Solve */
+	solution = malloc(sizeof(vector)*args->points);
+	solvobj  = malloc(sizeof(ode_solution));
+	solvobj->step = 0.1;	/* Initial step size */
+	double time = args->tstart;
+
+	for (i = 0; i < args->points; i++) {
+		/* TODO: Allow ode_step to put new solution in our
+		 * pre-allocated array */
+		solvobj->Z = solution+i;
+		do {
+			ode_solve(eq, solvobj, time);
+		} while (!solvobj->flag);
+	}
+
+	/* Output data */
 
 	return 0;
 }
