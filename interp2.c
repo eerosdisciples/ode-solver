@@ -11,6 +11,7 @@
 #include <interp2d.h>
 /* Interp2d spline support */
 #include <interp2d_spline.h>
+#include <math.h>
 
 
 /* GSL accelerators that help speed up interpolations */
@@ -82,6 +83,14 @@ void init(magnetic_field *B, double *r_grid, double *z_grid) {
  */
 vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
 
+  double r,
+  		 x = xyz->val[0],
+		 y = xyz->val[1],
+		 z = xyz->val[2];
+
+  /* Transform from cartesian coordinates to cylindrical */
+  r   = sqrt(x*x + y*y);
+
   double *r_grid = interp2_create_grid(B->nr, B->rmin, B->rmax);
   double *z_grid = interp2_create_grid(B->nz, B->zmin, B->zmax);
 
@@ -89,15 +98,23 @@ vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
   /*
    * Interpolate 
    */
-  double B_r_interp = interp2d_eval(interp, r_grid, z_grid, B->B_r, xyz->val[0], xyz->val[1], ra, za);
+  double B_r_interp = interp2d_eval(interp, r_grid, z_grid, B->B_r, r, z, ra, za);
 
-  double B_phi_interp = interp2d_eval(interp, r_grid, z_grid, B->B_phi, xyz->val[0], xyz->val[1], ra, za);
+  double B_phi_interp = interp2d_eval(interp, r_grid, z_grid, B->B_phi, r, z, ra, za);
 
-  double B_z_interp = interp2d_eval(interp, r_grid, z_grid, B->B_z, xyz->val[0], xyz->val[1], ra, za);
+  double B_z_interp = interp2d_eval(interp, r_grid, z_grid, B->B_z, r, z, ra, za);
+
+  /*
+   * Transform field to cartesian coordinates
+   */
+  double sinp = y/r, cosp = x/r;
+  double B_x_interp = B_r_interp * cosp - B_phi_interp * sinp;
+  double B_y_interp = B_r_interp * sinp + B_phi_interp * cosp;
+
   /*
    * Store interpolation values in vector
    */
-  vector *B_interp = vinit(3, B_r_interp, B_phi_interp, B_z_interp);
+  vector *B_interp = vinit(3, B_x_interp, B_y_interp, B_z_interp);
 
   return B_interp;
 }

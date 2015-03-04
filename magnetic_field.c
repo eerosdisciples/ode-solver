@@ -127,9 +127,9 @@ void magnetic_field_test_read(void) {
   printf("nz should be 513, is %d.\n", B->nz);
   printf("nr should be 257, is %d.\n", B->nr);
  
-  vector *xyz;
+  /*vector *xyz;
   vector *test;
-  test = magnetic_field_get(B, xyz);
+  test = magnetic_field_get(B, xyz);*/
 }
 
 /*
@@ -139,13 +139,16 @@ void magnetic_field_test_read(void) {
  */
 void magnetic_field_test_interp(void) {
   magnetic_field *B  = magnetic_field_load("iter2d.bkg");
-  double r = 3.5;
-  double z = -5.5;
   
-  vector *xyz = vinit(2, 3.5, -5.5);
+  vector *xyz = vinit(3, 5, 0, -5.5);
   vector *B_interp = magnetic_field_get(B, xyz);
 
-   printf("B_interp[0] = B_r in (r,z) = (3.5,-5.5): %f, should be -1.0482107.\n", B_interp->val[0]);
-  printf("B_interp[1] = B_phi in (r,z) = (3.5,-5.5) : %f, should be -9.333124.\n",B_interp->val[1]);
-  printf("B_interp[2] = B_z i in (r,z) = (3.5,-5.5): %f, is -0.60929124.\n",B_interp->val[2]);
-    }
+   /*printf("B_interp[0] = B_r in (r,z) = (3.5, -5.5): %f, should be -1.0482107.\n", B_interp->val[0]);
+  printf("B_interp[1] = B_phi in (r,z) = (3.5, -5.5) : %f, should be -9.333124.\n",B_interp->val[1]);
+  printf("B_interp[2] = B_z i in (r,z) = (3.5, -5.5): %f, is -0.60929124.\n",B_interp->val[2]);*/
+
+   printf("B_interp[0] = B_r in (x,y,z) = (5, 0, -5.5): %f, should be -1.0482107.\n", B_interp->val[0]);
+  printf("B_interp[1] = B_phi in (x,y,z) = (5, 0, -5.5) : %f, should be -9.333124.\n",B_interp->val[1]);
+  printf("B_interp[2] = B_z i in (x,y,z) = (5, 0, -5.5): %f, is -0.60929124.\n",B_interp->val[2]);
+}
+
