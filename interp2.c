@@ -28,7 +28,6 @@ interp2d_spline *interp_s;
  *
  * RETURNS pointer to grid
  */
-
 double* interp2_create_grid(unsigned int n, double min, double max) {
   /* 
    * Step size between grid points 
@@ -79,7 +78,7 @@ void init(magnetic_field *B, double *r_grid, double *z_grid) {
  *
  * B: The magnetic field
  * xyz: The point (in cartesian coordinates) in which the field
- *   strength should be evaluated. *CYLINDRICAL NOW*
+ *   strength should be evaluated. 
  */
 vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
 
@@ -88,7 +87,7 @@ vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
 		 y = xyz->val[1],
 		 z = xyz->val[2];
 
-  /* Transform from cartesian coordinates to cylindrical */
+  /* Transform vector coordinates from cartesian to cylindrical */
   r   = sqrt(x*x + y*y);
 
   double *r_grid = interp2_create_grid(B->nr, B->rmin, B->rmax);
@@ -103,14 +102,12 @@ vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
   double B_phi_interp = interp2d_eval(interp, r_grid, z_grid, B->B_phi, r, z, ra, za);
 
   double B_z_interp = interp2d_eval(interp, r_grid, z_grid, B->B_z, r, z, ra, za);
-
   /*
    * Transform field to cartesian coordinates
    */
   double sinp = y/r, cosp = x/r;
   double B_x_interp = B_r_interp * cosp - B_phi_interp * sinp;
   double B_y_interp = B_r_interp * sinp + B_phi_interp * cosp;
-
   /*
    * Store interpolation values in vector
    */
