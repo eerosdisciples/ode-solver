@@ -11,5 +11,7 @@ vector *vnew(unsigned int);
 vector *vinit(unsigned int, ...);
 vector *vadd(vector*, vector*);
 vector *vmuls(double, vector*);
+double vdot(vector *v, vector *u); 
+
 
 #endif/*_VECTOR_H*/

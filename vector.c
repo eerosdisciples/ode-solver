@@ -97,3 +97,27 @@ vector *vmuls(double scalar, vector *a) {
 
 	return v;
 }
+
+
+/*
+ * Cacluates scalar product between vectors.
+ * u: Vector
+ * v: Vector 
+ * Must be the same size
+ */
+double vdot(vector *v, vector *u) {
+	/* Check if same size */
+if (v->n!=u->n)	{
+	printf("ERROR:Vectos not same size");
+		
+		return 0;	
+}
+	double scalar=0;
+
+	unsigned int i;
+	for (i = 0; i < v->n; i++) {
+		scalar = scalar+v->val[i]*u->val[i];
+	}
+
+	return scalar;
+}
