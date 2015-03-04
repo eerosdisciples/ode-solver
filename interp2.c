@@ -42,7 +42,7 @@ double* interp2_create_grid(unsigned int n, double min, double max) {
    * Initialize, allocate and set start point for grid
    */
   double *grid;
-  grid = malloc(n);
+  grid = malloc(sizeof(double)*n);
   grid[0] = min;
 
   unsigned int i; // loop counter

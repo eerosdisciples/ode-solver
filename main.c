@@ -6,7 +6,12 @@
 #include "arguments.h"
 #include "domain.h"
 #include "magnetic_field.h"
+#include "ode.h"
 #include "readfile.h"
+
+vector *dummy_eq(double t, vector *z) {
+	return NULL;
+}
 
 int main(int argc, char *argv[]) {
 	arguments *args;
@@ -34,7 +39,7 @@ int main(int argc, char *argv[]) {
 		 * pre-allocated array */
 		solvobj->Z = solution+i;
 		do {
-			ode_solve(eq, solvobj, time);
+			ode_solve(dummy_eq, solvobj, time);
 		} while (!solvobj->flag);
 	}
 
