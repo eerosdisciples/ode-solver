@@ -1,15 +1,26 @@
 /* The main program */
-#include "readfile.h"
-#include "domain.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "arguments.h"
 #include "domain.h"
 #include "magnetic_field.h"
+#include "readfile.h"
 
-int main(int argc, char *argv[]) {// argc- hur många argument och argv själva filen
+int main(int argc, char *argv[]) {
+	arguments *args;
+	domain *dom;
+	magnetic_field *mf;
 
-  //domain_test();
-         magnetic_field_test();
-	 
-	 return 0;
+	args = parse_args(argc, argv);
 
+	/* Load domain */
+	dom = domain_load(args->domain_file);
+	/* Load magnetic field */
+	mf  = magnetic_field_load(args->magfield_file);
+
+	/* Solve */
+
+	return 0;
 }
