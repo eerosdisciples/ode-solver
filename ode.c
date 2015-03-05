@@ -38,8 +38,8 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	unsigned int order1=4;
 	unsigned int order2=5;
 
-	double eps0=0.01;           /* Tolerans parameter */
-	double beta=0.7;           /* Safety parameter */
+	double eps0=0.02;           /* Tolerans parameter */
+	double beta=0.9;           /* Safety parameter */
 	int flag; // Variable to store value indicating whether the the iteration should be re-done
 	 
 	 
@@ -100,7 +100,6 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	eps = sqrt(vdot(temp2,temp2));
 
 	vfree(temp1); vfree(temp2);
-		 
 	/* Choose optimal step */
 	if (eps>=eps0){
 		hopt=beta*h*pow(eps0/eps,1.0/5);
@@ -217,22 +216,22 @@ void ode_test(void) {
 
 	/* Initiate vector to store calculated points */
 	vector* coordinates;
-	unsigned int points = 100;
+	unsigned int points = 30000;
 	/* Allocate memory, right now just any size CHANGE!!!!*/
 	coordinates=malloc(sizeof(vector)*(points+1));
 	/* Set initial point */
 	coordinates->val = malloc(sizeof(double)*2);
 	coordinates->n = 2;
 	/* Initial condition:nbr of animals of each species */
-	coordinates->val[0] = 80; 
-	coordinates->val[1] = 1;
+	coordinates->val[0] = 34.91; 
+	coordinates->val[1] = 3.857;
 
 	/* To store time */
 	double *t = malloc(sizeof(double)*(points+1));
 	t[0] = 0;
 		
 	/* Choose starting steplenght */
-	double h=1.5;// Större än 7 ger 
+	double h=0.3;// Större än 7 ger 
 	
 	/* Save everything in type 'ode_solution' */ 
 
@@ -268,7 +267,7 @@ void ode_test(void) {
 			t[i+1]=t[i]+param->step;
 		} else i=i-1; // Redo step with new calculated h in param
 	}
-/*	ctsv_input output;
+	ctsv_input output;
 	output.t=t;
 	output.v=coordinates;
 	output.labels=malloc(sizeof(char *)*2);
@@ -276,7 +275,7 @@ void ode_test(void) {
 	output.labels[1]="y";
 	output.points=points;
 	output.nvars=2;
-	ctsv_write("Output.csv",'\t',&output);*/
+	ctsv_write("Output.csv",',',&output);
 	
 	
 	

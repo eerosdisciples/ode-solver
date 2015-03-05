@@ -20,11 +20,11 @@
 
 vector * equation_predator_prey(double T,vector* Z){
 	/* Define parameters */
-	
-	double alpha=0.3;
-	double beta=1;
-	double gm=2;
-	double delta=4;
+	/*From source: http://www-rohan.sdsu.edu/~jmahaffy/courses/f09/math636/lectures/lotka/qualde2.html */
+	double alpha=0.4807;
+	double beta=0.02482;
+	double gm=0.9272;
+	double delta=0.02756;
 	
 	/* Save values */
 	double x=Z->val[0];
@@ -34,7 +34,7 @@ vector * equation_predator_prey(double T,vector* Z){
 	
 	/* To store output */
 	vector* value;
-	
+	value=vnew(2);
 	/* Calculate values */
 	
 	double fx=alpha*x-beta*x*y;
