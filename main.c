@@ -7,8 +7,6 @@
 
 #include "arguments.h"
 #include "domain.h"
-<<<<<<< HEAD
-=======
 #include "magnetic_field.h"
 #include "ode.h"
 #include "readfile.h"

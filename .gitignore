@@ -2,3 +2,4 @@
 solver
 tests/domain
 tests/magnetic_field
+tests/ode

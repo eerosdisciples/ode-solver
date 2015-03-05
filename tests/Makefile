@@ -7,8 +7,9 @@ LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 
 ODOMAIN=domain.o ../domain.o ../readfile.o
 OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vector.o
+OODE=ode.o ../ode.o ../vector.o ../equation.o
 
-all: domain magnetic_field
+all: domain magnetic_field ode
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -22,6 +23,8 @@ domain: $(ODOMAIN)
 magnetic_field: $(OMAGFIELD)
 	$(LD) $(OMAGFIELD) $(LFLAGS) -o $@ 
 
+ode: $(OODE)
+	$(LD) $(OODE) $(LFLAGS) -o $@
 
 clean:
 	rm *.o

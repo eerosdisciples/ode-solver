@@ -9,6 +9,7 @@ typedef struct {
 
 vector *vnew(unsigned int);
 vector *vinit(unsigned int, ...);
+void vfree(vector*);
 vector *vadd(vector*, vector*);
 vector *vmuls(double, vector*);
 double vdot(vector *v, vector *u); 
