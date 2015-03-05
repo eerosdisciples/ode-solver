@@ -71,11 +71,5 @@ fclose(fp);
 
 void ctsv_test(void) {
 /* Write different parameters */
-char *filename="plottest.txt"; 
-	char type="t";
-	
-    ctsv_input *data
-		data=malloc(sizeof(ctsv_input));
-	data->labels=malloc(sizeof(char)*n);
-	data->v=(vector *)malloc(rows * cols *sizeof(vector));
+
 }

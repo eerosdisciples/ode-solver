@@ -53,6 +53,15 @@ vector *vinit(unsigned int n, ...) {
 
 	return v;
 }
+/*
+ * Free the memory occupied by a vector
+ *
+ * vec: Vector to free
+ */
+void vfree(vector *vec) {
+	free(vec->val);
+	free(vec);
+}
 /* 
  * Add two vectors
  *

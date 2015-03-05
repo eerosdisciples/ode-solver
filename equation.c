@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "vector.h"
 #include "equation.h"
 
@@ -24,12 +25,13 @@ vector * equation_predator_prey(double T,vector* Z){
 	/* Save values */
 	double x=Z->val[0];
 	double y=Z->val[1];
-	
+/*	
 	printf("In predator prey x and y is %f %f,\n\n",x,y);
-	
+*/	
 	
 	/* To store output */
 	vector* value;
+	value = vnew(2);
 	
 	/* Calculate values */
 	
@@ -38,6 +40,5 @@ vector * equation_predator_prey(double T,vector* Z){
 	
 	value->val[0]=fx;
 	value->val[1]=fy;
-	printf("In predator prey %f %f,\n\n",fx,fy);
 	return value;
 }
