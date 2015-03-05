@@ -20,8 +20,8 @@ typedef struct {
 	double, vector*, unsigned int
 );*/
 
-vector * ode_step(vector *(equation)(double, vector*),ode_solution*, double T,unsigned int,int);
-ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *parameters,double T);
+vector * ode_step(vector *(equation)(double, vector*),ode_solution*, double ,unsigned int);
+ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *parameters,double);
 
 void ode_test(void);
 

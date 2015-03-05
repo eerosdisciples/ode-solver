@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include "vector.h"
 #include "equation.h"
 
@@ -9,8 +8,13 @@
 
 /*
  * Function for the Predator-Prey model
- *NOTE: NO expleicit time dependence
- * n: alpha,beta,delta, gm arbitrary parameters
+ *x:nbr of prey
+ *y:nbr of predator
+ * parameters:
+ *       alpha:growth
+ *		 beta:rate of predation upon the prey
+ *      delta: growth of the predator population
+ *		 gm  : loss rate of the predators due to either natural death or emigration.
  * RETURNS: vector of values of function in point 'arguments'
  */
 
@@ -25,13 +29,11 @@ vector * equation_predator_prey(double T,vector* Z){
 	/* Save values */
 	double x=Z->val[0];
 	double y=Z->val[1];
-/*	
-	printf("In predator prey x and y is %f %f,\n\n",x,y);
-*/	
+	
+	
 	
 	/* To store output */
 	vector* value;
-	value = vnew(2);
 	
 	/* Calculate values */
 	

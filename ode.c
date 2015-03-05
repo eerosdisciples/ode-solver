@@ -26,23 +26,70 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	/* TODO: find a better way to calculate absolute value
 	Check if everything is correct */
 	
+	double B[2][6]={
+		{37.0/378,0,250.0/621,125.0/594,512.0/1771,0},
+		{2825.0/27648,0,28575.0/48384,13525.0/55296,277.0/14336,1/4}
+	}; /* Stores Cash Carp coefficients. Contains
+		b in first row and bhat in second */
+	
 	/* Choose order of iteration */
-	int order1=4;
-	int order2=5;
+	unsigned int order1=4;
+	unsigned int order2=5;
 
 	double eps0=0.01;           /* Tolerans parameter */
 	double beta=0.7;           /* Safety parameter */
 	int flag; // Variable to store value indicating whether the the iteration should be re-done
 	 
-	/* Take out h */
+	 
+	vector* Z;
+	Z=parameters->Z;
+
 	double h=parameters->step;
-	 	 
+ 
+	/* Variables used in loop*/
+	unsigned int i;
+		 	 
 	/* To store optimal steplenght*/
 	double hopt;
 	/* Calculate next point */
-	vector* Z_next = ode_step(equation, parameters,T,order1,0);
-	vector* Zhat = ode_step(equation, parameters,T,order2,1);
-	 	 
+	
+	vector* K = ode_step(equation, parameters,T,order2);
+	
+	/* Calculate sum do be used in next point for Z_next and Zhat */
+	/* */
+	
+	/* Help variables */
+	vector *sum;
+	sum=vnew(Z->n);
+	
+	/* Initialize sum */
+	for (i = 0; i < sum->n; i++) {
+		sum->val[i] = 0;
+	}
+	
+	for (i=0; i<order1; i++){
+		vector *ms = vmuls(h*B[0][i], K+i);
+		vector *ns = vadd(sum,ms);	  
+		vfree(sum);
+		vfree(ms);
+
+		sum = ns;
+	}
+ 
+	/* Calculate next point */
+	vector* Z_next=  vadd(Z,sum);
+	
+	for (i=0; i<order2; i++){
+		vector *ms = vmuls(h*B[1][i], K+i);
+		vector *ns = vadd(sum,ms);	  
+		vfree(sum);
+		vfree(ms);
+
+		sum = ns;
+	}
+	
+	vector* Zhat=  vadd(Z,sum);
+		 	 
 	/* Calculate epsilon. Absolute value of function */
 	/* eps = ||Z^ - Z|| */
 	double eps;
@@ -91,7 +138,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
  * RETURNS array with K values
  */
 
-vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, double T,unsigned int order,int which){
+vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, double T,unsigned int order){
 	/*TODO 	WHICH COEFFICIENTS TO USE; BHAT OR B*/
 	double A[5][6]={
 		{1./5,0,0,0,0,0}, /* Stores Cash Carp coefficients */
@@ -101,11 +148,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 		{1631.0/55296,175.0/512,575.0/13828,44275.0/110592,253.0/4096,0}
 	};
 	//  double b_first[5]={37.0/378,0,250.0/621,125.0/594,512.0/1771}; /* Stores Cash Carp coefficients */
-	double B[2][6]={
-		{37.0/378,0,250.0/621,125.0/594,512.0/1771,0},
-		{2825.0/27648,0,28575.0/48384,13525.0/55296,277.0/14336,1/4}
-	}; /* Stores Cash Carp coefficients. Contains
-		b in first row and bhat in second */
+	
 		
     double alpha[]={1.0/5,3.0/10,1,7.0/8};/* Stores Cash Carp coefficients, if explicit time dependence */
  
@@ -123,7 +166,6 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 	vector *K;
 	K = malloc(sizeof(vector)*(order+1));
 	for (i=0;i<=order;i++){	 
-		//K[i]=vnew(Z->n);//malloc(sizeof(vector));
 		K[i].n = Z->n;
 	}
 
@@ -140,7 +182,6 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
  
 	/* Cacluate first K */
 	/*  Calculate each K up to order. Start from K2*/
-	//K[0] = equation(T+alpha[0]*h, Z);
 	vector* vec = equation(T+alpha[0]*h, Z);
 	K[0].val = vec->val;
 	free(vec);
@@ -159,19 +200,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 		K[i].val = vec->val;
 		free(vec);
 	}
- 
-	/* Calculate sum do be used in next point */
-	for (i=0; i<order; i++){
-		vector *ms = vmuls(h*B[which][i], K+i);
-		vector *ns = vadd(sum,ms);	  
-		vfree(sum);
-		vfree(ms);
-
-		sum = ns;
-	}
- 
-	/* Calculate next point */
-	return vadd(Z,sum);
+	return K;
 }
 
 
@@ -192,7 +221,8 @@ void ode_test(void) {
 	/* Set initial point */
 	coordinates->val = malloc(sizeof(double)*2);
 	coordinates->n = 2;
-	coordinates->val[0] = 1;
+	/* Initial condition:nbr of animals of each species */
+	coordinates->val[0] = 80; 
 	coordinates->val[1] = 1;
 
 	/* To store time */
@@ -200,7 +230,7 @@ void ode_test(void) {
 	t[0] = 0;
 		
 	/* Choose starting steplenght */
-	double h=1.5;// Större än 7 ger nan
+	double h=1.5;// Större än 7 ger 
 	
 	/* Save everything in type 'ode_solution' */ 
 
@@ -219,13 +249,10 @@ void ode_test(void) {
 	double T;
 	
 	/* Iteration variable */
-	unsigned int i=0;
-	int antaliterationer=0;
-	
+	unsigned int i=0;	
 
 	/*for (T=0;t->val[0]<Tmax;i++){*/
 	for (i = 0; i < points; i++) {
-		antaliterationer++;
 
 		/* Iterate ones */
 		param->Z = coordinates+i;
