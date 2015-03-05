@@ -6,6 +6,8 @@
 #include "vector.h"
 #include <math.h>
 #include "equation.h"
+#include "ctsv.h"
+
 
 /**
  * Solve an Initial Value Problem (IVP ODE)
@@ -266,4 +268,17 @@ void ode_test(void) {
 			t[i+1]=t[i]+param->step;
 		} else i=i-1; // Redo step with new calculated h in param
 	}
+/*	ctsv_input output;
+	output.t=t;
+	output.v=coordinates;
+	output.labels=malloc(sizeof(char *)*2);
+	output.labels[0]="x";
+	output.labels[1]="y";
+	output.points=points;
+	output.nvars=2;
+	ctsv_write("Output.csv",'\t',&output);*/
+	
+	
+	
+	
 }

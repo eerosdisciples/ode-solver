@@ -8,7 +8,7 @@ LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 OCTSV=ctsv.o ../ctsv.o ../vector.o
 ODOMAIN=domain.o ../domain.o ../readfile.o
 OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vector.o
-OODE=ode.o ../ode.o ../vector.o ../equation.o
+OODE=../ctsv.o ode.o ../ode.o ../vector.o ../equation.o
 
 all: ctsv domain magnetic_field ode
 

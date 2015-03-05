@@ -1,7 +1,7 @@
 # ODE Solver Makefile
 
 CC=gcc
-CFLAGS=-Wall -Wextra -g -O0 -c -I include -ggdb
+CFLAGS=-Wall -Wextra -g -O0 -c -I include
 LD=gcc
 
 LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
