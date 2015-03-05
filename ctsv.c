@@ -2,6 +2,7 @@
 
 #include "ctsv.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "vector.h"
 
 /**
@@ -12,64 +13,71 @@
  * data: Data to write
  */
 void ctsv_write(char *filename, char type, ctsv_input *data) {
+	/**
+	 * Test function for this module
+	 */
+	FILE *fp;
+	fp = fopen(filename, "w");
 
-/**
- * Test function for this module
- */
+	unsigned int i, j;
 
-FILE *fp;
-
-fp = fopen(filename, "w");
-
-int i;
-int j;
-
-/* To choose delimeter */
-int d=0;
-
-
-
-/* To be able to choose tab or , as delimeter */
-char *format[2]={",","\t"};
-
-/* Choose delimeter */
-if (type=="t") d=1;
-
-
-
-/* write labels */
-for (i=0;i<data->n;i++){
-	
-fprintf(fp,"%sformat[d]",data->labels[i]);
-	
-}
-
-/* Newline */
-
-fprintf(fp,"\n");
-
-/* Print data */
-
-for (i=0;i<data->n;i++){
-	
-	/*Print all elements in vector i */
-	for (j=0;j<data->v->n;j++){
-		
-		fprintf(fp,"%f",data->v[j].val[j]);
-		
+	fprintf(fp, "T");
+	/* write labels */
+	for (i = 0; i < data->nvars; i++) {
+		fprintf(fp, "%c%s", type, data->labels[i]);
 	}
-	
+
 	/* Newline */
 	fprintf(fp,"\n");
+
+	/* Print data */
+	for (i = 0; i < data->points; i++) {
+		vector* v = (data->v)+i;
+		double t = data->t[i];
+
+		fprintf(fp, "%f", t);
+
+		/*Print all elements in vector i */
+		for (j = 0; j < data->nvars; j++) {
+			fprintf(fp, "%c%f", type, v->val[j]);
+		}
 	
-}
+		/* Newline */
+		fprintf(fp,"\n");
+	}
 
-
-fclose(fp);
-
+	fclose(fp);
 }
 
 void ctsv_test(void) {
-/* Write different parameters */
+	unsigned int i,j;
+	/* Write different parameters */
+	ctsv_input* inp = malloc(sizeof(ctsv_input));
 
+	inp->points = 10;
+	inp->nvars = 2;
+	inp->labels = malloc(sizeof(char*)*inp->nvars);
+	for (i = 0; i < inp->nvars; i++) {
+		inp->labels[i] = malloc(2);
+		inp->labels[i][0] = (char)('a'+i);
+		inp->labels[i][1] = 0;
+	}
+
+	inp->t = malloc(sizeof(double)*inp->points);
+	for (i = 0; i < inp->points; i++) {
+		inp->t[i] = 0.1*i;
+	}
+
+	inp->v = malloc(sizeof(vector)*inp->points);
+	for (i = 0; i < inp->points; i++) {
+		inp->v[i].val = malloc(sizeof(double)*inp->nvars);
+		inp->v[i].n = inp->nvars;
+
+		for (j = 0; j < inp->nvars; j++) {
+			inp->v[i].val[j] = (double)(i + j);
+		}
+	}
+
+	ctsv_write("test.csv", ',', inp);
+	ctsv_write("test.tsv", '\t', inp);
 }

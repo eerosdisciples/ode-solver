@@ -4,9 +4,11 @@
 #include "vector.h"
 
 typedef struct {
-	vector *v;		/* List of values to output */
-	char **labels;	/* List of labels belonging to vectors `v' */
-	unsigned int n;	/* Number of vectors (= number of labels) */
+	double* t;				/* Time points */
+	vector *v;				/* List of values to output */
+	char **labels;			/* List of labels belonging to vectors `v' */
+	unsigned int points;	/* Number of points */
+	unsigned int nvars;		/* Number of variables (or columns) */
 } ctsv_input;
 
 /* Write data to CSV or TSV file */
