@@ -4,7 +4,7 @@
 #include "vector.h"
 
 typedef struct {
-	double **v;		/* List of values to output */
+	vector *v;		/* List of values to output */
 	char **labels;	/* List of labels belonging to vectors `v' */
 	unsigned int n;	/* Number of vectors (= number of labels) */
 } ctsv_input;

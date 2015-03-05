@@ -135,13 +135,13 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
  
  /* Cacluate first K */
  
- /*  Calculate each K up to order. Start from K2*/
-
  K[0]=equation(T+alpha[0]*h,vadd(Z,sum));
+ 
+ /*  Calculate each K up to order. Start from K2*/
  
  for(i=1;i<order-1;i++){
 	 
-	 /*Cacalculate sum to use in argument */ 
+	 /*Calculate sum to use in argument */ 
 	 
 	 for (j=0;j<i-1;j++){
 		   sum = vadd(sum,vmuls(h*A[i][j],K[j]));//  K[j]);
@@ -194,7 +194,7 @@ void ode_test(void) {
 	
 	/* Save everything in type 'ode_solution' */ 
 	ode_solution param0;// HÄR BLIR DET BUS ERROS OM VI HAR PEKARE IST FÖR OBJEKT
-	param0=malloc(sizeof(ode_solution))
+	//param0=malloc(sizeof(ode_solution))
 	 param0.Z=vinit(2);
 	 param0.Z->val[0]=x0;
 	 param0.Z->val[1]=y0;
@@ -220,7 +220,7 @@ void ode_test(void) {
 	
 	int antaliterationer=0;
 	
-		for (T=0;t->val[0]<Tmax;i++){
+		for (T=0;t->val[i]<Tmax;i++){
 			antaliterationer++;
 			printf("det här är iteration %d och i är %d \n\n\n ",antaliterationer,i);
 		/* Iterate ones */
