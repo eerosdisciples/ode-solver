@@ -21,7 +21,6 @@ void magnetic_field_read_data(double *B, FILE *f, unsigned int size) {
     word =  readfile_word(f);
   }
 }
-
 /*
  * Load magnetic field data from the given file.
  *
@@ -48,7 +47,6 @@ magnetic_field* magnetic_field_load(char *filename) {
     fprintf(stderr, "ERROR: Memory error!\n");
     exit(EXIT_FAILURE);
   }
-
   /*
    *Read and discard first three words
    * "rmin", "rmax", "nr" 
@@ -58,7 +56,6 @@ magnetic_field* magnetic_field_load(char *filename) {
   B->rmin = atof(readfile_word(f));/* rmin value */
   B->rmax = atof(readfile_word(f));/* rmax value */
   B->nr = atoi(readfile_word(f));/* nr value */
-
   /*
    *Read and discard next three words
    * "zmin", "zmax", "nz" 
@@ -87,27 +84,24 @@ magnetic_field* magnetic_field_load(char *filename) {
   readfile_skip_lines(1, f);
   /* Read B_z */
   magnetic_field_read_data(B->B_z, f, size);
-  return B;
 
+  return B;
 }
 
 /*
- * WORK IN PROGRESS
- *
- * Calculates the magnetic field strength in a given point
- * `xyz'.
+ * Calculates the magnetic field strength in a given point (x,y,z).
  *
  * B: The magnetic field
  * xyz: The point (in cartesian coordinates) in which the field
- *   strength should be evaluated. *CYLINDRICAL NOW*
+ *   strength should be evaluated. 
  *
  * RETURNS the field strength at the given point in
- * cartesian coordinates *CYLINDRICAL NOW*
+ * cartesian coordinates 
  */
 vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
 
   vector *B_interp = interp2_interpolate(B, xyz);
-  
+ 
     return B_interp;
 }
 
@@ -124,20 +118,32 @@ void magnetic_field_test_read(void) {
   printf("Last B_phi value should be 63.764371, is %f\n", B->B_phi[SIZE]);
   printf("First B_z value should be -0.60929124, is %f\n", B->B_z[0]);
   printf("Last B_z value should be 0.44897631, is %f\n", B->B_z[SIZE]);
-
-  vector *xyz;
+  printf("nz should be 513, is %d.\n", B->nz);
+  printf("nr should be 257, is %d.\n", B->nr);
+ 
+  /*vector *xyz;
   vector *test;
-  test = magnetic_field_get(B, xyz);
-  
+  test = magnetic_field_get(B, xyz);*/
 }
 
+/*
+ * Function for testing interpolation of magnetic field strength values,
+ * testing exact points, the first points r = 3.5 and z = -5.5.
+ */
 void magnetic_field_test_interp(void) {
   magnetic_field *B  = magnetic_field_load("iter2d.bkg");
-  vector *xyz = vinit(2, 3.5, -5.5);
-
+  
+  vector *xyz = vinit(3, 5, 0, -5.5);
   vector *B_interp = magnetic_field_get(B, xyz);
 
-  printf("%s %f \n","B_interp[0], r", B_interp->val[0]);
-  printf("%s %f\n","B_interp[1], phi",B_interp->val[1]);
-  printf("%s %f\n","B_interp[2], z",B_interp->val[2]);
+  /*
+   * for cylindrical coordinates, deprecated
+  printf("B_interp[0] = B_r in (r,z) = (3.5, -5.5): %f, should be -1.0482107.\n", B_interp->val[0]);
+  printf("B_interp[1] = B_phi in (r,z) = (3.5, -5.5) : %f, should be -9.333124.\n",B_interp->val[1]);
+  printf("B_interp[2] = B_z i in (r,z) = (3.5, -5.5): %f, should be -0.60929124.\n",B_interp->val[2]);*/
+
+  printf("B_interp[0] = B_r in (x,y,z) = (5, 0, -5.5): %f, should be ?.\n", B_interp->val[0]);
+  printf("B_interp[1] = B_phi in (x,y,z) = (5, 0, -5.5) : %f, should be ?.\n",B_interp->val[1]);
+  printf("B_interp[2] = B_z i in (x,y,z) = (5, 0, -5.5): %f,  should be ?.\n",B_interp->val[2]);
 }
+

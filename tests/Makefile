@@ -3,10 +3,10 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -c -g -O0 -I../include
 LD=gcc
-LFLAGS=
+LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 
 ODOMAIN=domain.o ../domain.o ../readfile.o
-OMAGFIELD=magnetic_field.o ../magnetic_field.o ../readfile.o ../vector.o
+OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vector.o
 
 all: domain magnetic_field
 
@@ -20,7 +20,7 @@ domain: $(ODOMAIN)
 	$(LD) $(LFLAGS) -o $@ $(ODOMAIN)
 
 magnetic_field: $(OMAGFIELD)
-	$(LD) $(LFLAGS) -o $@ $(OMAGFIELD)
+	$(LD) $(OMAGFIELD) $(LFLAGS) -o $@ 
 
 
 clean:

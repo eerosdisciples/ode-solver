@@ -1,9 +1,10 @@
 # ODE Solver Makefile
 
 CC=gcc
-CFLAGS=-Wall -Wextra -g -O0 -c -I include
+CFLAGS=-Wall -Wextra -g -O0 -c -I include -ggdb
 LD=gcc
 
+LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 TARGET=solver
 OBJECTS=arguments.o ctsv.o equation.o main.o ode.o readfile.o vector.o
 
@@ -20,4 +21,6 @@ test:
 
 clean:
 	rm *.o $(UTILS)
+
+
 
