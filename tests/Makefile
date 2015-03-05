@@ -5,11 +5,12 @@ CFLAGS=-Wall -Wextra -c -g -O0 -I../include
 LD=gcc
 LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 
+OCTSV=ctsv.o ../ctsv.o ../vector.o
 ODOMAIN=domain.o ../domain.o ../readfile.o
 OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vector.o
 OODE=ode.o ../ode.o ../vector.o ../equation.o
 
-all: domain magnetic_field ode
+all: ctsv domain magnetic_field ode
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -17,8 +18,10 @@ all: domain magnetic_field ode
 ../%.o: ../%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+ctsv: $(OCTSV)
+	$(LD) $(OCTSV) $(LFLAGS) -o $@ 
 domain: $(ODOMAIN)
-	$(LD) $(LFLAGS) -o $@ $(ODOMAIN)
+	$(LD) $(ODOMAIN) $(LFLAGS) -o $@ 
 
 magnetic_field: $(OMAGFIELD)
 	$(LD) $(OMAGFIELD) $(LFLAGS) -o $@ 
