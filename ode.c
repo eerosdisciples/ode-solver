@@ -8,9 +8,9 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 0.001
-#define SAFETY_FACTOR 0.99	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 100000
+#define EPS0 0.01
+#define SAFETY_FACTOR 0.9	/* Safety factor beta */
+#define NUMBER_OF_TESTPOINTS 1000
 
 /**
  * Solve an Initial Value Problem (IVP ODE)
@@ -25,8 +25,6 @@
  * Z: vector containing values from previous iteration
  * RETURNS a solution to the equation as a defined type ode_solution consisting of Z,step, flag
  */
-
-
 ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *parameters,double T){
 
 	double B[2][6]={
@@ -87,6 +85,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	/* Sum k1 to k6 (5th order method has "6 stages" (e.g. 6 k's) */
 	for (i=0; i <= order2; i++){
 		vector *ms = vmuls(h*B[1][i], K+i);
+
 		vector *ns = vadd(sum2,ms);	  
 		vfree(sum2);
 		vfree(ms);
@@ -101,7 +100,8 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	double eps;
 	vector *scalmul = vmuls(-1, Z_next);
 	vector *zadd = vadd(scalmul,Zhat);
-	eps = sqrt(vdot(zadd,zadd));
+	double d = vdot(zadd,zadd);
+	eps = sqrt(d);
 
 	vfree(scalmul); vfree(zadd);
 	/* Choose optimal step */
@@ -143,18 +143,18 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
  * RETURNS array with K values
  */
 
+double A[6][6]={
+	{0,0,0,0,0,0},
+	{1./5,0,0,0,0,0}, /* Stores Cash Carp coefficients */
+	{3.0/40,9.0/40,0,0,0,0},
+	{3.0/10,-9.0/10,6.0/5,0,0,0},
+	{-11.0/54,5.0/2,-70.0/27,35.0/27,0,0},
+	{1631.0/55296,175.0/512,575.0/13828,44275.0/110592,253.0/4096,0},
+};
 vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, double T,unsigned int order){
 	/*TODO 	WHICH COEFFICIENTS TO USE; BHAT OR B*/
-	double A[5][6]={
-		{1./5,0,0,0,0,0}, /* Stores Cash Carp coefficients */
-		{3.0/40,9.0/40,0,0,0,0},
-		{3.0/10,-9.0/10,6.0/5,0,0,0},
-		{-11.0/54,5.0/2,-70.0/27,35.0/27,0,0},
-		{1631.0/55296,175.0/512,575.0/13828,44275.0/110592,253.0/4096,0}
-	};
 	//  double b_first[5]={37.0/378,0,250.0/621,125.0/594,512.0/1771}; /* Stores Cash Carp coefficients */
 	
-		
     double alpha[]={1.0/5,3.0/10,1,7.0/8};/* Stores Cash Carp coefficients, if explicit time dependence */
  
 	vector* Z;
@@ -170,7 +170,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
  
 	vector *K;
 	K = malloc(sizeof(vector)*(order+1));
-	for (i=0;i<=order;i++){	 
+	for (i = 0; i <= order; i++) {	 
 		K[i].n = Z->n;
 	}
 
@@ -181,6 +181,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
  
 	/* Cacluate first K */
 	vector* vec = equation(T, Z);
+
 	K[0].val = vec->val;
 	free(vec);
  
@@ -195,6 +196,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 
 		/*Calculate sum to use in argument */ 
 		for (j=0; j < i; j++) {
+			/* THE PROBLEM IS A[j][i] here! */
 			vector *ms = vmuls(h*A[i][j], K+j);
 			vector *ns = vadd(sum, ms);
 			vfree(sum);
