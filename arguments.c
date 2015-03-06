@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "arguments.h"
+#include "input.h"
 
 void help(void) {
 	printf(
-"solver [-e time] -d file -f file -r x,y,z -t time -v vx,vy,vz\n\n"
+"solver [-e time] -d file -f file -r x,y,z -t time -v vx,vy,vz [input_file]\n\n"
 
 "-d name; --domain-file name \tName of domain file\n"
 "-n points; --number-of-points points Number of output points\n"
@@ -52,7 +53,7 @@ double *atodp3(const char *s) {
 
 arguments *parse_args(int argc, char *argv[]) {
 	arguments *args;
-	int c, option_index, tstart_set=0, points_set=0;
+	int c, option_index;
 
 	args = malloc(sizeof(arguments));
 	args->domain_file = args->magfield_file = NULL;
@@ -74,7 +75,7 @@ arguments *parse_args(int argc, char *argv[]) {
 		};
 
 		option_index = 0;
-		c = getopt_long(argc, argv, "d:e:f:t:v:x:",
+		c = getopt_long(argc, argv, "d:e:f:i:t:v:x:",
 				long_options, &option_index);
 
 		if (c == -1)
@@ -99,16 +100,17 @@ arguments *parse_args(int argc, char *argv[]) {
 			case 'f':	/* Name of magnetic field file */
 				args->magfield_file = optarg;
 				break;
+			case 'i':
+				args = input_read(optarg);
+				break;
 			case 'n':	/* Number of points */
 				args->points = atoi(optarg);
-				points_set = 1;
 				break;
 			case 'r':	/* Initial position (x0) */
 				args->r0 = atodp3(optarg);
 				break;
 			case 't':	/* Initial time (t0) */
 				args->tstart = atof(optarg);
-				tstart_set = 1;
 				break;
 			/* Initial position and velocity are given as lists of
 			 * numbers. Example:
@@ -127,6 +129,11 @@ arguments *parse_args(int argc, char *argv[]) {
 		}
 	}
 
+	/* Handle remaining input arguments */
+	while (optind < argc) {
+		args = input_read(argv[optind++]);
+	}
+
 	if (args->domain_file == NULL)
 		printf("ERROR: Expected domain file!\n");
 	else if (args->magfield_file == NULL)
@@ -135,10 +142,6 @@ arguments *parse_args(int argc, char *argv[]) {
 		printf("ERROR: Expected initial position!\n");
 	else if (args->v0 == NULL)
 		printf("ERROR: Expected initial velocity!\n");
-	else if (!tstart_set)
-		printf("ERROR: Expected start time!\n");
-	else if (!points_set)
-		printf("ERROR: Expected final time!\n");
 	else return args;
 
 	exit(EXIT_FAILURE);

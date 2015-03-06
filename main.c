@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
 	unsigned int i;
 
 	args = parse_args(argc, argv);
+	return 0;
 
 	/* Load domain */
 	dom = domain_load(args->domain_file);
@@ -43,7 +44,7 @@ int main(int argc, char *argv[]) {
 		solvobj->Z = solution+i;
 		do {
 			t[i+1] = t[i] + solvobj->step;
-			ode_solve(dummy_eq, solvobj, time);
+			ode_solve(dummy_eq, solvobj, t[i]);
 		} while (!solvobj->flag);
 	}
 
