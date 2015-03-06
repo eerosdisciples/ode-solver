@@ -30,8 +30,8 @@ char *readfile_word(FILE *f) {
 		else if (c == '#') {
 			readfile_to_eol(f);
 			break;
-		/* If space or tab... */
-		} else if (c == ' ' || c == '\t') {
+		/* If space, tab or equal sign... */
+		} else if (c == ' ' || c == '\t' || c == '=') {
 			/* If buffer is empty... */
 			if (i == 0) continue;	/* ...do nothing and continue */
 			else break;		/* ...stop... */
