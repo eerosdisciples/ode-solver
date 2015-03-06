@@ -142,8 +142,8 @@ void magnetic_field_test_interp(void) {
   printf("B_interp[1] = B_phi in (r,z) = (3.5, -5.5) : %f, should be -9.333124.\n",B_interp->val[1]);
   printf("B_interp[2] = B_z i in (r,z) = (3.5, -5.5): %f, should be -0.60929124.\n",B_interp->val[2]);*/
 
-  printf("B_interp[0] = B_r in (x,y,z) = (5, 0, -5.5): %f, should be ?.\n", B_interp->val[0]);
-  printf("B_interp[1] = B_phi in (x,y,z) = (5, 0, -5.5) : %f, should be ?.\n",B_interp->val[1]);
+  printf("B_interp[0] = B_x in (x,y,z) = (5, 0, -5.5): %f, should be ?.\n", B_interp->val[0]);
+  printf("B_interp[1] = B_y in (x,y,z) = (5, 0, -5.5) : %f, should be ?.\n",B_interp->val[1]);
   printf("B_interp[2] = B_z i in (x,y,z) = (5, 0, -5.5): %f,  should be ?.\n",B_interp->val[2]);
 }
 
