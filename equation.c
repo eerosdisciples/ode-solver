@@ -30,8 +30,6 @@ vector * equation_predator_prey(double T,vector* Z){
 	double x=Z->val[0];
 	double y=Z->val[1];
 	
-	
-	
 	/* To store output */
 	vector* value;
 	value=vnew(2);

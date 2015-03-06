@@ -36,13 +36,13 @@ int main(int argc, char *argv[]) {
 	solution = malloc(sizeof(vector)*args->points);
 	solvobj  = malloc(sizeof(ode_solution));
 	solvobj->step = 0.1;	/* Initial step size */
-	double time = args->tstart;
+	double *t = malloc(sizeof(double)*args->points);
+	t[0] = args->tstart;
 
-	for (i = 0; i < args->points; i++) {
-		/* TODO: Allow ode_step to put new solution in our
-		 * pre-allocated array */
+	for (i = 0; i < args->points-1; i++) {
 		solvobj->Z = solution+i;
 		do {
+			t[i+1] = t[i] + solvobj->step;
 			ode_solve(dummy_eq, solvobj, time);
 		} while (!solvobj->flag);
 	}

@@ -8,6 +8,8 @@
 #include "equation.h"
 #include "ctsv.h"
 
+#define EPS0 0.1
+#define SAFETY_FACTOR 0.99	/* Safety factor beta */
 
 /**
  * Solve an Initial Value Problem (IVP ODE)
@@ -38,8 +40,8 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	unsigned int order1=4;
 	unsigned int order2=5;
 
-	double eps0=0.02;           /* Tolerans parameter */
-	double beta=0.9;           /* Safety parameter */
+	double eps0=EPS0;           /* Tolerans parameter */
+	double beta=SAFETY_FACTOR;  /* Safety parameter */
 	int flag; // Variable to store value indicating whether the the iteration should be re-done
 	 
 	 
@@ -61,51 +63,57 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	/* */
 	
 	/* Help variables */
-	vector *sum;
-	sum=vnew(Z->n);
+	vector *sum1, *sum2;
+	sum1=vnew(Z->n);
+	sum2=vnew(Z->n);
 	
 	/* Initialize sum */
-	for (i = 0; i < sum->n; i++) {
-		sum->val[i] = 0;
+	for (i = 0; i < sum1->n; i++) {
+		sum1->val[i] = 0;
+		sum2->val[i] = 0;
 	}
 	
 	for (i=0; i<order1; i++){
 		vector *ms = vmuls(h*B[0][i], K+i);
-		vector *ns = vadd(sum,ms);	  
-		vfree(sum);
+		vector *ns = vadd(sum1,ms);	  
+		vfree(sum1);
 		vfree(ms);
 
-		sum = ns;
+		sum1 = ns;
 	}
  
 	/* Calculate next point */
-	vector* Z_next=  vadd(Z,sum);
-	
-	for (i=0; i<order2; i++){
+	vector* Z_next=  vadd(Z,sum1);
+
+	for (i=0; i < order2; i++){
 		vector *ms = vmuls(h*B[1][i], K+i);
-		vector *ns = vadd(sum,ms);	  
-		vfree(sum);
+		vector *ns = vadd(sum2,ms);	  
+		vfree(sum2);
 		vfree(ms);
 
-		sum = ns;
+		sum2 = ns;
 	}
 	
-	vector* Zhat=  vadd(Z,sum);
+	vector* Zhat=  vadd(Z,sum2);
 		 	 
 	/* Calculate epsilon. Absolute value of function */
 	/* eps = ||Z^ - Z|| */
 	double eps;
-	vector *temp1 = vmuls(-1, Z_next);
-	vector *temp2 = vadd(temp1,Zhat);
-	eps = sqrt(vdot(temp2,temp2));
+	vector *scalmul = vmuls(-1, Z_next);
+	vector *zadd = vadd(scalmul,Zhat);
+	eps = sqrt(vdot(zadd,zadd));
 
-	vfree(temp1); vfree(temp2);
+	vfree(scalmul); vfree(zadd);
 	/* Choose optimal step */
-	if (eps>=eps0){
-		hopt=beta*h*pow(eps0/eps,1.0/5);
+	if (eps >= eps0) {
+		hopt=beta*h*pow(eps0/eps,0.20);
+		if (hopt < parameters->step)
+			printf("h increases strangely...\n");
 		flag=REDO_STEP;
 	} else  {
-		hopt=beta*h*pow(eps0/eps,1.0/4);
+		hopt=beta*h*pow(eps0/eps,0.25);
+		if (hopt < parameters->step)
+			printf("h decreases strangely...\n");
 		flag=OK_STEP;
 	}
 	 
@@ -127,7 +135,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	free(Z_next);
 	vfree(Zhat);
 	 
-	/* Create pointer to object solution and return  */
+	/* Return the solver object */
 	return parameters;
 }
 /**
@@ -172,34 +180,37 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 
 	/* Help variables, need only one if only one iteration is done; CHANGE IF NEEDED */
 	vector *sum;
-	sum=vnew(Z->n);
 	
-	/* Initialize sum */
-	for (i = 0; i < sum->n; i++) {
-		sum->val[i] = 0;
-	}
- 
 	/*vector *sum2; sum2=vinit(order-1);*/
  
 	/* Cacluate first K */
-	/*  Calculate each K up to order. Start from K2*/
-	vector* vec = equation(T+alpha[0]*h, Z);
+	vector* vec = equation(T, Z);
 	K[0].val = vec->val;
 	free(vec);
  
+	/*  Calculate each K up to order. Start from K2 (i=1) */
 	for (i=1; i < order; i++) {
+		/* Initialize sum */
+		sum = vnew(Z->n);
+		for (j = 0; j < Z->n; j++)
+			sum->val[j] = 0;
+
 		/*Calculate sum to use in argument */ 
-		for (j=0;j<i-1;j++){
+		for (j=0; j < i; j++) {
 			vector *ms = vmuls(h*A[i][j], K+j);
 			vector *ns = vadd(sum, ms);
 			vfree(sum);
 			vfree(ms);
 			sum = ns;
 		}
+
 		/* Calculate K */
-		vec=equation(T+alpha[i]*h,vadd(Z,sum));
+		vector *ns = vadd(Z, sum);
+		vec=equation(T+alpha[i]*h,ns);
 		K[i].val = vec->val;
 		free(vec);
+		vfree(ns);
+		vfree(sum);
 	}
 	return K;
 }
@@ -216,7 +227,7 @@ void ode_test(void) {
 
 	/* Initiate vector to store calculated points */
 	vector* coordinates;
-	unsigned int points = 30000;
+	unsigned int points = 2500;
 	/* Allocate memory, right now just any size CHANGE!!!!*/
 	coordinates=malloc(sizeof(vector)*(points+1));
 	/* Set initial point */
@@ -254,6 +265,7 @@ void ode_test(void) {
 
 	/*for (T=0;t->val[0]<Tmax;i++){*/
 	for (i = 0; i < points; i++) {
+		t[i+1]=t[i]+param->step;
 
 		/* Iterate ones */
 		param->Z = coordinates+i;
@@ -263,9 +275,7 @@ void ode_test(void) {
 				h=param->step;*/
 		/* Check if iteration needs to be re-done */
 				/* flag=0 -> ok -> continue */		
-		if (param->flag==0) {												
-			t[i+1]=t[i]+param->step;
-		} else i=i-1; // Redo step with new calculated h in param
+		if (param->flag!=0) i=i-1; // Redo step with new calculated h in param
 	}
 	ctsv_input output;
 	output.t=t;
@@ -276,8 +286,4 @@ void ode_test(void) {
 	output.points=points;
 	output.nvars=2;
 	ctsv_write("Output.csv",',',&output);
-	
-	
-	
-	
 }
