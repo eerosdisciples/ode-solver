@@ -10,8 +10,9 @@ ODOMAIN=domain.o ../domain.o ../readfile.o
 OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vector.o
 OINPUT=input.o ../arguments.o ../input.o ../readfile.o
 OODE=../ctsv.o ode.o ../ode.o ../vector.o ../equation.o
+OFFG=fieldFineGrid.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
 
-all: ctsv domain magnetic_field input ode
+all: ctsv domain magnetic_field input ode fieldFineGrid
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -32,6 +33,9 @@ input: $(OINPUT)
 
 ode: $(OODE)
 	$(LD) $(OODE) $(LFLAGS) -o $@
+
+fieldFineGrid: $(OFFG)
+	$(LD) $(OFFG) $(LFLAGS) -o $@
 
 clean:
 	rm *.o

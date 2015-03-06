@@ -8,8 +8,9 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 0.1
+#define EPS0 0.001
 #define SAFETY_FACTOR 0.99	/* Safety factor beta */
+#define NUMBER_OF_TESTPOINTS 100000
 
 /**
  * Solve an Initial Value Problem (IVP ODE)
@@ -27,12 +28,10 @@
 
 
 ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *parameters,double T){
-	/* TODO: find a better way to calculate absolute value
-	Check if everything is correct */
-	
+
 	double B[2][6]={
 		{37.0/378,0,250.0/621,125.0/594,512.0/1771,0},
-		{2825.0/27648,0,28575.0/48384,13525.0/55296,277.0/14336,1/4}
+		{2825.0/27648,0,28575.0/48384,13525.0/55296,277.0/14336,1.0/4}
 	}; /* Stores Cash Carp coefficients. Contains
 		b in first row and bhat in second */
 	
@@ -43,7 +42,6 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	double eps0=EPS0;           /* Tolerans parameter */
 	double beta=SAFETY_FACTOR;  /* Safety parameter */
 	int flag; // Variable to store value indicating whether the the iteration should be re-done
-	 
 	 
 	vector* Z;
 	Z=parameters->Z;
@@ -72,8 +70,9 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 		sum1->val[i] = 0;
 		sum2->val[i] = 0;
 	}
-	
-	for (i=0; i<order1; i++){
+
+	/* Sum k1 to k5 (4th order method has "5 stages" (e.g. 5 k's) */
+	for (i=0; i<=order1; i++){
 		vector *ms = vmuls(h*B[0][i], K+i);
 		vector *ns = vadd(sum1,ms);	  
 		vfree(sum1);
@@ -85,7 +84,8 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	/* Calculate next point */
 	vector* Z_next=  vadd(Z,sum1);
 
-	for (i=0; i < order2; i++){
+	/* Sum k1 to k6 (5th order method has "6 stages" (e.g. 6 k's) */
+	for (i=0; i <= order2; i++){
 		vector *ms = vmuls(h*B[1][i], K+i);
 		vector *ns = vadd(sum2,ms);	  
 		vfree(sum2);
@@ -107,13 +107,9 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	/* Choose optimal step */
 	if (eps >= eps0) {
 		hopt=beta*h*pow(eps0/eps,0.20);
-		if (hopt < parameters->step)
-			printf("h increases strangely...\n");
 		flag=REDO_STEP;
 	} else  {
-		hopt=beta*h*pow(eps0/eps,0.25);
-		if (hopt < parameters->step)
-			printf("h decreases strangely...\n");
+		hopt=h*pow(eps0/eps,0.25);
 		flag=OK_STEP;
 	}
 	 
@@ -188,8 +184,10 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 	K[0].val = vec->val;
 	free(vec);
  
-	/*  Calculate each K up to order. Start from K2 (i=1) */
-	for (i=1; i < order; i++) {
+	/* Calculate each K up to order. Start from K2 (i=1).
+	 * Note that a 4th order method contains 5 k's and
+	 * a 5th order method contains 6 k's */
+	for (i=1; i <= order; i++) {
 		/* Initialize sum */
 		sum = vnew(Z->n);
 		for (j = 0; j < Z->n; j++)
@@ -212,6 +210,13 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 		vfree(ns);
 		vfree(sum);
 	}
+	/*static int start = 0;
+	if (start == 0) {
+		for (i = 0; i < 5; i++) {
+			printf("k%d = %f, %f\n", i, K[i].val[0], K[i].val[1]);
+		}
+		start = 1;
+	}*/
 	return K;
 }
 
@@ -227,7 +232,7 @@ void ode_test(void) {
 
 	/* Initiate vector to store calculated points */
 	vector* coordinates;
-	unsigned int points = 2500;
+	unsigned int points = NUMBER_OF_TESTPOINTS;
 	/* Allocate memory, right now just any size CHANGE!!!!*/
 	coordinates=malloc(sizeof(vector)*(points+1));
 	/* Set initial point */
@@ -257,9 +262,6 @@ void ode_test(void) {
 	
 	/* Choose size of intervall */
 	
-	double Tmax=2;
-	double T;
-	
 	/* Iteration variable */
 	unsigned int i=0;	
 
@@ -270,7 +272,7 @@ void ode_test(void) {
 		/* Iterate ones */
 		param->Z = coordinates+i;
 		ode_solve(equation_predator_prey, param, t[i]);
-			
+
 		/* Save new steplenght 
 				h=param->step;*/
 		/* Check if iteration needs to be re-done */
