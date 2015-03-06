@@ -10,7 +10,7 @@
 
 #define EPS0 0.01
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 1000
+#define NUMBER_OF_TESTPOINTS 10000
 
 /**
  * Solve an Initial Value Problem (IVP ODE)
@@ -81,6 +81,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
  
 	/* Calculate next point */
 	vector* Z_next=  vadd(Z,sum1);
+	vfree(sum1);
 
 	/* Sum k1 to k6 (5th order method has "6 stages" (e.g. 6 k's) */
 	for (i=0; i <= order2; i++){
@@ -94,6 +95,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	}
 	
 	vector* Zhat=  vadd(Z,sum2);
+	vfree(sum2);
 		 	 
 	/* Calculate epsilon. Absolute value of function */
 	/* eps = ||Z^ - Z|| */
@@ -130,6 +132,12 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	 * completely unused from now on */
 	free(Z_next);
 	vfree(Zhat);
+
+	/* Free k's */
+	for (i = 0; i <= order2; i++) {
+		free(K[i].val);
+	}
+	free(K);
 	 
 	/* Return the solver object */
 	return parameters;
