@@ -1,50 +1,60 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "magnetic_field.h"
 #include "vector.h"
 #include "interp2.h"
 
-#define SIZE_X 514
-#define SIZE_Z 1026
+#define SIZE_R (2*B->nr)
+#define SIZE_Z (2*B->nz)
 
-int main(int argc, char *argv[]) {
+int main(void) {
+	vector *point = vnew(2);
+	vector *field_in_point = vnew(2);
 
-  printf("JAAA");
-  vector *point = vnew(2);
-  vector *field_in_point = vnew(2);
+	FILE *fp;
+	fp = fopen("Output_B_r", "w");
 
-  double B_x[SIZE_X][SIZE_Z];
-  double B_z[SIZE_X][SIZE_Z];
+	point->val[1] = 0;
 
-  FILE *fp;
-  fp = fopen("Output_B_x", "w");
+	magnetic_field *B = magnetic_field_load("iter2d.bkg");
 
-  
+	/*double B_r[SIZE_R][SIZE_Z];
+	double B_z[SIZE_R][SIZE_Z];*/
+	double **B_r, **B_z;
+	unsigned int i, k;
 
-  magnetic_field *B = magnetic_field_load("iter2d.bkg");
-  
-  int i;
-  int k=2;
-  printf("%d",k);
-  double *grid_x = interp2_create_grid(SIZE_X, 3.5, 8.9);
-  double *grid_z = interp2_create_grid(SIZE_Z, -5.5, 5.5);
-  
-  for (i=0; i < SIZE_Z; i++) {
-    point->val[1] = grid_x[i];
-    printf("%d",i);
-    
-    for (k=0; k < SIZE_X; k++) {
-      point->val[0] = grid_z[k];
-      
-      /* Get field value in point */
-      field_in_point = magnetic_field_get(B, point);
-      /* store x-value in B_x array */
-      B_x[i][k] = field_in_point->val[0];
-      /* print to file */
-      // fprintf(fp, "%f \t",B_x[i][k]);
-    }
-    fprintf(fp, "\n");
-}
-   fclose(fp);
+	/* Stack appears to get full when allocating B_r and B_z
+	 on the stack. Therefore we put them in regular memory */
+	B_r = malloc(sizeof(double*)*SIZE_Z);
+	B_z = malloc(sizeof(double*)*SIZE_Z);
+	for (i = 0; i < SIZE_Z; i++) {
+		B_r[i] = malloc(sizeof(double)*SIZE_R);
+		B_z[i] = malloc(sizeof(double)*SIZE_R);
+	}
 
-  return 0;
+	double *r_grid = magnetic_field_create_grid(SIZE_R, 3.5, 8.9);
+	double *z_grid = magnetic_field_create_grid(SIZE_Z, -5.5, 5.5);
+
+	interp2_init_interpolation(B);
+
+	/* GSL doesn't work well with endpoints... */
+	for (i=0; i < SIZE_Z-1; i++) { // rows
+		point->val[2] = z_grid[i];
+		//printf("%d",i);
+
+		for (k=0; k < SIZE_R; k++) { // columns
+			point->val[0] = r_grid[k];
+
+			/* Get field value in point */
+			field_in_point = magnetic_field_get(B, point);
+			/* store x-value in B_x array */
+			B_r[i][k] = field_in_point->val[0];
+			/* print to file */
+			fprintf(fp, "%f \t",B_r[i][k]);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+
+	return 0;
 }
