@@ -1,7 +1,6 @@
 /* Interpolation of magnetic_field object
  * input given in cylindrical coordinates
  */
-
 #include "magnetic_field.h"
 #include "vector.h"
 /* GNU Scientific Library */
@@ -12,24 +11,20 @@
 /* Interp2d spline support */
 #include <interp2d_spline.h>
 #include <math.h>
-
 /* GSL accelerators that help speed up interpolations */
 gsl_interp_accel *ra, *za;
 /* interp2d interpolation objects */
 interp2d_spline *Br;
 interp2d_spline *Bphi;
 interp2d_spline *Bz;
-
 /*
  * Initializatlize magnetic_field for interpolation.
  * This is to prepare GSL for what's to come.
  * Must be called before interpolation!
  */
 void interp2_init_interpolation(magnetic_field *B) {
-
-  size_t r_size  = B->nr;
-  size_t z_size  = B->nz;
-
+  size_t r_size = B->nr;
+  size_t z_size = B->nz;
   /* Prepare the accelerators for both r and z */
   ra = gsl_interp_accel_alloc();
   za = gsl_interp_accel_alloc();
@@ -45,25 +40,23 @@ void interp2_init_interpolation(magnetic_field *B) {
   /* B_z */
   interp2d_spline_init(Bz, B->r_grid, B->z_grid, B->B_z, r_size, z_size);
 }
-/* 
- * main interpolation function 
+/*
+ * main interpolation function
  *
  * B: The magnetic field
  * xyz: The point (in cartesian coordinates) in which the field
- * strength should be evaluated. 
+ * strength should be evaluated.
  */
 vector* interp2_interpolate(vector *xyz) {
-
   double r = xyz->val[0]; // cylindrical for testing purposes
   double z = xyz->val[1];
   // x = xyz->val[0],
   //y = xyz->val[1],
   //z = xyz->val[2];
-
   /* Transform vector coordinates from cartesian to cylindrical */
-  // r   = sqrt(x*x + y*y);
+  // r = sqrt(x*x + y*y);
   /*
-   * Interpolate 
+   * Interpolate
    */
   double B_r_interp = interp2d_spline_eval(Br, r, z, ra, za);
   double B_phi_interp = interp2d_spline_eval(Bphi, r, z, ra, za);
@@ -78,11 +71,11 @@ vector* interp2_interpolate(vector *xyz) {
    * Store interpolation values in vector
    */
   vector *B_interp = vinit(3, B_r_interp, B_phi_interp, B_z_interp);
-
   /* Free the interpolation spline objects */
   interp2d_spline_free(Br);
   interp2d_spline_free(Bphi);
   interp2d_spline_free(Bz);
-  
+ 
   return B_interp;
+
 }
