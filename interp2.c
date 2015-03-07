@@ -16,8 +16,9 @@
 /* GSL accelerators that help speed up interpolations */
 gsl_interp_accel *ra, *za;
 /* interp2d interpolation objects */
-interp2d *interp;
-interp2d_spline *interp_s;
+interp2d_spline *Br;
+interp2d_spline *Bphi;
+interp2d_spline *Bz;
 
 /*
  * Initializatlize magnetic_field for interpolation.
@@ -33,18 +34,16 @@ void interp2_init_interpolation(magnetic_field *B) {
   ra = gsl_interp_accel_alloc();
   za = gsl_interp_accel_alloc();
   /* Create interpolation objects */
-  interp = interp2d_alloc(interp2d_bicubic, r_size, z_size);
-  interp_s = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
+  Br = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
+  Bphi = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
+  Bz = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
   /* Prepare the interpolation objects for our situation */
   /* B_r */
-  interp2d_init(interp, B->r_grid, B->z_grid, B->B_r, r_size, z_size);
-  interp2d_spline_init(interp_s, B->r_grid, B->z_grid, B->B_r, r_size, z_size);
+  interp2d_spline_init(Br, B->r_grid, B->z_grid, B->B_r, r_size, z_size);
   /* B_phi */
-  interp2d_init(interp, B->r_grid, B->z_grid, B->B_phi, r_size, z_size);
-  interp2d_spline_init(interp_s, B->r_grid, B->z_grid, B->B_phi, r_size, z_size);
+  interp2d_spline_init(Bphi, B->r_grid, B->z_grid, B->B_phi, r_size, z_size);
   /* B_z */
-  interp2d_init(interp, B->r_grid, B->z_grid, B->B_z, r_size, z_size);
-  interp2d_spline_init(interp_s, B->r_grid, B->z_grid, B->B_z, r_size, z_size);
+  interp2d_spline_init(Bz, B->r_grid, B->z_grid, B->B_z, r_size, z_size);
 }
 /* 
  * main interpolation function 
@@ -53,33 +52,37 @@ void interp2_init_interpolation(magnetic_field *B) {
  * xyz: The point (in cartesian coordinates) in which the field
  * strength should be evaluated. 
  */
-vector* interp2_interpolate(magnetic_field *B, vector *xyz) {
+vector* interp2_interpolate(vector *xyz) {
 
-  double r,
-    x = xyz->val[0],
-    y = xyz->val[1],
-    z = xyz->val[2];
+  double r = xyz->val[0]; // cylindrical for testing purposes
+  double z = xyz->val[1];
+  // x = xyz->val[0],
+  //y = xyz->val[1],
+  //z = xyz->val[2];
 
   /* Transform vector coordinates from cartesian to cylindrical */
-  r   = sqrt(x*x + y*y);
+  // r   = sqrt(x*x + y*y);
   /*
    * Interpolate 
    */
-  double B_r_interp = interp2d_eval(interp, B->r_grid, B->z_grid, B->B_r, r, z, ra, za);
-
-  double B_phi_interp = interp2d_eval(interp, B->r_grid, B->z_grid, B->B_phi, r, z, ra, za);
-
-  double B_z_interp = interp2d_eval(interp, B->r_grid, B->z_grid, B->B_z, r, z, ra, za);
+  double B_r_interp = interp2d_spline_eval(Br, r, z, ra, za);
+  double B_phi_interp = interp2d_spline_eval(Bphi, r, z, ra, za);
+  double B_z_interp = interp2d_spline_eval(Bz, r, z, ra, za);
   /*
    * Transform field to cartesian coordinates
    */
-  double sinp = y/r, cosp = x/r;
-  double B_x_interp = B_r_interp * cosp - B_phi_interp * sinp;
-  double B_y_interp = B_r_interp * sinp + B_phi_interp * cosp;
+  /* double sinp = y/r, cosp = x/r;
+     double B_x_interp = B_r_interp * cosp - B_phi_interp * sinp;
+     double B_y_interp = B_r_interp * sinp + B_phi_interp * cosp; */
   /*
    * Store interpolation values in vector
    */
-  vector *B_interp = vinit(3, B_x_interp, B_y_interp, B_z_interp);
+  vector *B_interp = vinit(3, B_r_interp, B_phi_interp, B_z_interp);
 
+  /* Free the interpolation spline objects */
+  interp2d_spline_free(Br);
+  interp2d_spline_free(Bphi);
+  interp2d_spline_free(Bz);
+  
   return B_interp;
 }
