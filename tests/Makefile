@@ -1,7 +1,7 @@
 # Make tests
 
 CC=gcc
-CFLAGS=-Wall -Wextra -c -g -O0 -I../include
+CFLAGS=-Wall -Wextra -c -g -O0 -I../include -pg
 LD=gcc
 LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 
@@ -10,7 +10,7 @@ ODOMAIN=domain.o ../domain.o ../readfile.o
 OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vector.o
 OINPUT=input.o ../arguments.o ../input.o ../readfile.o
 OODE=../ctsv.o ode.o ../ode.o ../vector.o ../equation.o
-OFFG=fieldFineGrid.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
+OFFG=../fieldFineGrid.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
 
 all: ctsv domain magnetic_field input ode fieldFineGrid
 
