@@ -22,6 +22,37 @@ void magnetic_field_read_data(double *B, FILE *f, unsigned int size) {
   }
 }
 /*
+ * Create grid.
+ * n: number of grid points
+ * min: mimimum grid point value
+ * max: maximum grid point value
+ *
+ * RETURNS pointer to grid
+ *
+ * called from magnetic_field_load
+ */
+double* magnetic_field_create_grid(unsigned int n, double min, double max) {
+  /* 
+   * Step size between grid points 
+   */
+  double step = (max - min)/(n-1);
+  /*
+   * Initialize, allocate and set start point for grid
+   */
+  double *grid;
+  grid = malloc(sizeof(double)*n);
+  grid[0] = min;
+
+  unsigned int i; // loop counter
+  /*
+   * Store grid points in grid array
+   */
+  for (i=1; i < n ; i++) {
+    grid[i] = grid[i-1] + step;
+  }
+  return grid;
+}
+/*
  * Load magnetic field data from the given file.
  *
  * filename: File to load magnetic field data from
@@ -85,6 +116,10 @@ magnetic_field* magnetic_field_load(char *filename) {
   /* Read B_z */
   magnetic_field_read_data(B->B_z, f, size);
 
+  /* Store grid points in array */
+  B->r_grid = magnetic_field_create_grid(B->nr, B->rmin, B->rmax);
+  B->z_grid = magnetic_field_create_grid(B->nz, B->zmin, B->zmax); 
+
   return B;
 }
 
@@ -99,7 +134,6 @@ magnetic_field* magnetic_field_load(char *filename) {
  * cartesian coordinates 
  */
 vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
-
   vector *B_interp = interp2_interpolate(B, xyz);
  
     return B_interp;

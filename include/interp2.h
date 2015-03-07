@@ -5,7 +5,7 @@
 #include "vector.h"
 
 vector* interp2_interpolate(magnetic_field*, vector*);
-double* interp2_create_grid(unsigned int, double, double);
-void init(magnetic_field*, double*, double*);
+/* Must be used before interpolation! */
+void interp2_init_interpolation(magnetic_field*);
 
 #endif/*_INTERP2_H*/
