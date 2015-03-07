@@ -14,7 +14,7 @@ int main(void) {
 	FILE *fp;
 	fp = fopen("Output_B_r", "w");
 
-	point->val[1] = 0;
+	//point->val[1] = 0;
 
 	magnetic_field *B = magnetic_field_load("iter2d.bkg");
 
@@ -39,14 +39,14 @@ int main(void) {
 
 	/* GSL doesn't work well with endpoints... */
 	for (i=0; i < SIZE_Z-1; i++) { // rows
-		point->val[2] = z_grid[i];
+		point->val[1] = z_grid[i];
 		//printf("%d",i);
 
-		for (k=0; k < SIZE_R; k++) { // columns
+		for (k=0; k < SIZE_R - 1; k++) { // columns
 			point->val[0] = r_grid[k];
 
 			/* Get field value in point */
-			field_in_point = magnetic_field_get(B, point);
+			field_in_point = magnetic_field_get(point);
 			/* store x-value in B_x array */
 			B_r[i][k] = field_in_point->val[0];
 			/* print to file */

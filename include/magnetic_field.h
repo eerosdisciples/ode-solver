@@ -21,6 +21,6 @@ double* magnetic_field_create_grid(unsigned int, double, double);
 /* creates magnetic_field object, calls the two previous functions. */
 magnetic_field* magnetic_field_load(char*);
 /* Returns the magnetic field strength in a point of cartesian coordinates */
-vector* magnetic_field_get(magnetic_field*, vector*);
+vector* magnetic_field_get(vector*);
 
 #endif/*_MAGNETIC_FIELD_H*/

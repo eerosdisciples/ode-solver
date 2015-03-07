@@ -133,10 +133,8 @@ magnetic_field* magnetic_field_load(char *filename) {
  * RETURNS the field strength at the given point in
  * cartesian coordinates 
  */
-vector* magnetic_field_get(magnetic_field *B, vector *xyz) {
-   interp2_init_interpolation(B); // for test
-
-
+vector* magnetic_field_get(vector *xyz) {
+ 
   vector *B_interp = interp2_interpolate(xyz);
  
     return B_interp;
@@ -168,11 +166,13 @@ void magnetic_field_test_read(void) {
  * testing exact points, the first points r = 3.5 and z = -5.5.
  */
 void magnetic_field_test_interp(void) {
-  magnetic_field *B  = magnetic_field_load("iter2d.bkg");
+ magnetic_field *B = magnetic_field_load("iter2d.bkg");
+ interp2_init_interpolation(B);
+  
   
   // vector *xyz = vinit(3, 5, 0, -5.5);
   vector *xyz = vinit(2,3.5,-5.5);
-  vector *B_interp = magnetic_field_get(B, xyz);
+  vector *B_interp = magnetic_field_get(xyz);
 
   //for cylindrical coordinates, deprecated
   printf("B_interp[0] = B_r in (r,z) = (3.5, -5.5): %f, should be -1.0482107.\n", B_interp->val[0]);
