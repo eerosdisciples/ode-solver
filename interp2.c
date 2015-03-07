@@ -71,10 +71,6 @@ vector* interp2_interpolate(vector *xyz) {
    * Store interpolation values in vector
    */
   vector *B_interp = vinit(3, B_r_interp, B_phi_interp, B_z_interp);
-  /* Free the interpolation spline objects */
-  interp2d_spline_free(Br);
-  interp2d_spline_free(Bphi);
-  interp2d_spline_free(Bz);
  
   return B_interp;
 
