@@ -29,16 +29,16 @@ void interp2_init_interpolation(magnetic_field *B) {
   ra = gsl_interp_accel_alloc();
   za = gsl_interp_accel_alloc();
   /* Create interpolation objects */
-  Br = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
-  Bphi = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
-  Bz = interp2d_spline_alloc(interp2d_bicubic, r_size, z_size);
+  Br = interp2d_spline_alloc(interp2d_bicubic, z_size, r_size);
+  Bphi = interp2d_spline_alloc(interp2d_bicubic, z_size, r_size);
+  Bz = interp2d_spline_alloc(interp2d_bicubic, z_size, r_size);
   /* Prepare the interpolation objects for our situation */
   /* B_r */
-  interp2d_spline_init(Br, B->r_grid, B->z_grid, B->B_r, r_size, z_size);
+  interp2d_spline_init(Br, B->z_grid, B->r_grid, B->B_r, z_size, r_size);
   /* B_phi */
-  interp2d_spline_init(Bphi, B->r_grid, B->z_grid, B->B_phi, r_size, z_size);
+  interp2d_spline_init(Bphi, B->z_grid, B->r_grid, B->B_phi, z_size, r_size);
   /* B_z */
-  interp2d_spline_init(Bz, B->r_grid, B->z_grid, B->B_z, r_size, z_size);
+  interp2d_spline_init(Bz, B->z_grid, B->r_grid, B->B_z, z_size, r_size);
 }
 /*
  * main interpolation function
@@ -58,9 +58,9 @@ vector* interp2_interpolate(vector *xyz) {
   /*
    * Interpolate
    */
-  double B_r_interp = interp2d_spline_eval(Br, r, z, ra, za);
-  double B_phi_interp = interp2d_spline_eval(Bphi, r, z, ra, za);
-  double B_z_interp = interp2d_spline_eval(Bz, r, z, ra, za);
+  double B_r_interp = interp2d_spline_eval(Br, z, r, za, ra);
+  double B_phi_interp = interp2d_spline_eval(Bphi, z, r, za, ra);
+  double B_z_interp = interp2d_spline_eval(Bz, z, r, za, ra);
   /*
    * Transform field to cartesian coordinates
    */

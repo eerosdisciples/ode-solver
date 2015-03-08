@@ -38,18 +38,17 @@ int main(void) {
 	interp2_init_interpolation(B);
 
         /* GSL doesn't work well with endpoints... */
-	for (i=0; i < SIZE_Z - 1; i++) { // rows
-		point->val[1] = z_grid[i];
-               
-		for (k=0; k < SIZE_R - 1; k++) { // columns
-			point->val[0] = r_grid[k];
+	for (i=0; i < SIZE_R - 1; i++) { // rows
+		point->val[0] = r_grid[i];
+                              
+		for (k=0; k < SIZE_Z - 1; k++) { // columns
+			point->val[1] = z_grid[k];
                         /* Get field value in point */
 			field_in_point = magnetic_field_get(point);
 			/* store x-value in B_x array */
 			B_r[i][k] = field_in_point->val[0];
-                        printf("r field in point %f\n",B_r[i][k]); 
-			/* print to file */
-			fprintf(fp, "%f \t",B_r[i][k]);
+                        /* print to file */
+			fprintf(fp, "%f \t", B_r[i][k]);
 		}
 		fprintf(fp, "\n");
 	}
