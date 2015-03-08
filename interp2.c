@@ -48,13 +48,16 @@ void interp2_init_interpolation(magnetic_field *B) {
  * strength should be evaluated.
  */
 vector* interp2_interpolate(vector *xyz) {
-  double r = xyz->val[0]; // cylindrical for testing purposes
-  double z = xyz->val[1];
-  // x = xyz->val[0],
-  //y = xyz->val[1],
-  //z = xyz->val[2];
+  /*
+   * cylindrical, for testing purposes
+   double r = xyz->val[0]; 
+   double z = xyz->val[1]; */
+  
+  x = xyz->val[0],
+    y = xyz->val[1],
+    z = xyz->val[2];
   /* Transform vector coordinates from cartesian to cylindrical */
-  // r = sqrt(x*x + y*y);
+  r = sqrt(x*x + y*y);
   /*
    * Interpolate
    */
@@ -64,13 +67,13 @@ vector* interp2_interpolate(vector *xyz) {
   /*
    * Transform field to cartesian coordinates
    */
-  /* double sinp = y/r, cosp = x/r;
-     double B_x_interp = B_r_interp * cosp - B_phi_interp * sinp;
-     double B_y_interp = B_r_interp * sinp + B_phi_interp * cosp; */
+  double sinp = y/r, cosp = x/r;
+  double B_x_interp = B_r_interp * cosp - B_phi_interp * sinp;
+  double B_y_interp = B_r_interp * sinp + B_phi_interp * cosp; 
   /*
    * Store interpolation values in vector
    */
-  vector *B_interp = vinit(3, B_r_interp, B_phi_interp, B_z_interp);
+  vector *B_interp = vinit(3, B_x_interp, B_y_interp, B_z_interp);
  
   return B_interp;
 
