@@ -7,9 +7,9 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 1e-2
+#define EPS0 1e-2 
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 10000
+#define NUMBER_OF_TESTPOINTS 200
 /**
  * Solve an Initial Value Problem (IVP ODE)
  *
@@ -26,7 +26,7 @@
 ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *parameters,double T){
   double B[2][6]={
     {37.0/378,0,250.0/621,125.0/594,512.0/1771,0},
-    {2825.0/27648,0,28575.0/48384,13525.0/55296,277.0/14336,1.0/4}
+    {2825.0/27648,0,18575.0/48384,13525.0/55296,277.0/14336,1.0/4}
   }; /* Stores Cash Carp coefficients. Contains
         b in first row and bhat in second */
   /* Choose order of iteration */
@@ -78,23 +78,25 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   vfree(sum2);
   /* Calculate epsilon. Absolute value of function */
   /* eps = ||Z^ - Z|| */
-  double eps, epst;
-  /*vector *scalmul = vmuls(-1, Z_next);
-  vector *zadd = vadd(scalmul,Zhat);*/
+  double eps, epst, epsmin;
+  vector *scalmul = vmuls(-1, Z_next);
+  vector *zadd = vadd(scalmul,Zhat);
 
-  eps = fabs(Z_next->val[0]-Zhat->val[0]);
+  eps = epsmin = fabs(zadd->val[0]);
   for (i = 1; i < Z_next->n; i++) {
-    epst = fabs(Z_next->val[i] - Zhat->val[i]);
+	epst = fabs(zadd->val[i]);
 	if (epst > eps)
 		eps = epst;
+	else if (epst < epsmin)
+		epsmin = epst;
   }
-  
+  hopt = h;
+
 //  vfree(scalmul); vfree(zadd);
   /* Choose optimal step */
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
 	printf("eps = %e\n", eps);
-	printf("h = %e, newh = %e\n", h, hopt);
     flag=REDO_STEP;
   } else {
     hopt=h*pow(eps0/eps,0.25);
@@ -138,7 +140,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
  */
 double A[6][6]={
   {0,0,0,0,0,0},
-  {1./5,0,0,0,0,0}, /* Stores Cash Carp coefficients */
+  {1.0/5,0,0,0,0,0}, /* Stores Cash Carp coefficients */
   {3.0/40,9.0/40,0,0,0,0},
   {3.0/10,-9.0/10,6.0/5,0,0,0},
   {-11.0/54,5.0/2,-70.0/27,35.0/27,0,0},
