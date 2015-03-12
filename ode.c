@@ -138,7 +138,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 		free(K[i].val);
 	}
 	free(K);
-	 
+	 	 	 
 	/* Return the solver object */
 	return parameters;
 }
@@ -220,13 +220,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 		vfree(ns);
 		vfree(sum);
 	}
-	/*static int start = 0;
-	if (start == 0) {
-		for (i = 0; i < 5; i++) {
-			printf("k%d = %f, %f\n", i, K[i].val[0], K[i].val[1]);
-		}
-		start = 1;
-	}*/
+
 	return K;
 }
 
@@ -234,21 +228,19 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 /* Test function for this module */
 void ode_test(void) {
 
-	/*TODO: find a better way to store values
-	store time-and coordinates  size varies????
-*/	
+
 /* Predator prey model
  */
 
 	/* Initiate vector to store calculated points */
 	vector* coordinates;
 	unsigned int points = NUMBER_OF_TESTPOINTS;
-	/* Allocate memory, right now just any size CHANGE!!!!*/
+
 	coordinates=malloc(sizeof(vector)*(points+1));
 	/* Set initial point */
 	coordinates->val = malloc(sizeof(double)*2);
 	coordinates->n = 2;
-	/* Initial condition:nbr of animals of each species */
+	/* Initial condition:nbr of predators and prey */
 	coordinates->val[0] = 34.91; 
 	coordinates->val[1] = 3.857;
 
@@ -257,7 +249,7 @@ void ode_test(void) {
 	t[0] = 0;
 		
 	/* Choose starting steplenght */
-	double h=0.3;// Större än 7 ger 
+	double h=0.3;
 	
 	/* Save everything in type 'ode_solution' */ 
 
@@ -275,16 +267,13 @@ void ode_test(void) {
 	/* Iteration variable */
 	unsigned int i=0;	
 
-	/*for (T=0;t->val[0]<Tmax;i++){*/
 	for (i = 0; i < points; i++) {
 		t[i+1]=t[i]+param->step;
 
-		/* Iterate ones */
+		/* Iterate once */
 		param->Z = coordinates+i;
 		ode_solve(equation_predator_prey, param, t[i]);
 
-		/* Save new steplenght 
-				h=param->step;*/
 		/* Check if iteration needs to be re-done */
 				/* flag=0 -> ok -> continue */		
 		if (param->flag!=0) i=i-1; // Redo step with new calculated h in param

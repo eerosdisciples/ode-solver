@@ -53,11 +53,11 @@ vector* interp2_interpolate(vector *xyz) {
    double r = xyz->val[0]; 
    double z = xyz->val[1]; */
   
-  x = xyz->val[0],
+ 	double x = xyz->val[0],
     y = xyz->val[1],
     z = xyz->val[2];
   /* Transform vector coordinates from cartesian to cylindrical */
-  r = sqrt(x*x + y*y);
+	double  r = sqrt(x*x + y*y);
   /*
    * Interpolate
    */

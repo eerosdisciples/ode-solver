@@ -82,8 +82,8 @@ domain *domain_load(char *filename) {
  * Check if a points lies within or outside of the domain.
  *
  * d: Domain for the problem
- * r: next Radial coordinate
- * z: next Z-coordinate
+ * r: chage in Radial coordinate, two points
+ * z: change in Z-coordinate, two points
  *
  * RETURNS DOMAIN_WITHIN or
  * DOMAIN_OUTSIDE depending on whether the given point
