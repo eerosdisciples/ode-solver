@@ -29,7 +29,7 @@ vector * equation_particle(double T, vector* Z){
   double m=equation_partobj->mass*amu_to_kg;
   double e=equation_partobj->charge*ev;
 
-  /* Save xyz coordinates */
+  /* Save xyz coordinates of particle*/
   vector *xyz=vnew(3);
   xyz->val[0]=Z->val[0];
   xyz->val[1]=Z->val[1];
