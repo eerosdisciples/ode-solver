@@ -65,6 +65,7 @@ vector* interp2_interpolate(vector *xyz) {
     z = xyz->val[2];
   /* Transform vector coordinates from cartesian to cylindrical */
 	double  r = sqrt(x*x + y*y);
+	
 	/* Make sure the point is within our definied are */
 	if (r < rmin)
 		r = rmin;

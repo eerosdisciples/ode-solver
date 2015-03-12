@@ -7,9 +7,9 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 1e-2 
+#define EPS0 1e-2
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 200
+#define NUMBER_OF_TESTPOINTS 5000
 /**
  * Solve an Initial Value Problem (IVP ODE)
  *
@@ -36,25 +36,32 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   double beta=SAFETY_FACTOR; /* Safety parameter */
   int flag; // Variable to store value indicating whether the the iteration should be re-done
   vector* Z;
+
   Z=parameters->Z;
   double h=parameters->step;
+
   /* Variables used in loop*/
   unsigned int i;
+
   /* To store optimal steplenght*/
   double hopt;
+
   /* Calculate next point */
   vector* K = ode_step(equation, parameters,T,order2);
+
   /* Calculate sum do be used in next point for Z_next and Zhat */
   /* */
   /* Help variables */
   vector *sum1, *sum2;
   sum1=vnew(Z->n);
   sum2=vnew(Z->n);
+
   /* Initialize sum */
   for (i = 0; i < sum1->n; i++) {
     sum1->val[i] = 0;
     sum2->val[i] = 0;
   }
+
   /* Sum k1 to k5 (4th order method has "5 stages" (e.g. 5 k's) */
   for (i=0; i<=order1; i++){
     vector *ms = vmuls(h*B[0][i], K+i);
@@ -63,9 +70,11 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
     vfree(ms);
     sum1 = ns;
   }
+
   /* Calculate next point */
   vector* Z_next= vadd(Z,sum1);
   vfree(sum1);
+
   /* Sum k1 to k6 (5th order method has "6 stages" (e.g. 6 k's) */
   for (i=0; i <= order2; i++){
     vector *ms = vmuls(h*B[1][i], K+i);
@@ -74,8 +83,10 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
     vfree(ms);
     sum2 = ns;
   }
+
   vector* Zhat= vadd(Z,sum2);
   vfree(sum2);
+
   /* Calculate epsilon. Absolute value of function */
   /* eps = ||Z^ - Z|| */
   double eps, epst, epsmin;
@@ -92,7 +103,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   }
   hopt = h;
 
-//  vfree(scalmul); vfree(zadd);
+  vfree(scalmul); vfree(zadd);
   /* Choose optimal step */
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
@@ -126,6 +137,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
     free(K[i].val);
   }
   free(K);
+
   /* Return the solver object */
   return parameters;
 }
@@ -150,9 +162,11 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
   vector* Z;
   Z=parameters->Z;
   double h=parameters->step;
+
   /* Variables used in loop*/
   unsigned int i;
   unsigned int j;
+
   /* Array to store K-values CHANGE IF PARTICLE TYPE
      Allocate memory for each vector*/
   vector *K;
@@ -160,8 +174,10 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
   for (i = 0; i <= order; i++) {
     K[i].n = Z->n;
   }
+
   /* Help variables, need only one if only one iteration is done; CHANGE IF NEEDED */
   vector *sum;
+
   /*vector *sum2; sum2=vinit(order-1);*/
   /* Cacluate first K */
   vector* vec = equation(T, Z);
@@ -176,6 +192,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
     sum = vnew(Z->n);
     for (j = 0; j < Z->n; j++)
       sum->val[j] = 0;
+
     /*Calculate sum to use in argument */
     for (j=0; j < i; j++) {
       /* THE PROBLEM IS A[j][i] here! */
@@ -185,6 +202,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
       vfree(ms);
       sum = ns;
     }
+
     /* Calculate K */
     vector *ns = vadd(Z, sum);
     vec=equation(T+alpha[i]*h,ns);
@@ -194,6 +212,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
     vfree(ns);
     vfree(sum);
   }
+
   return K;
 }
 /* Test function for this module */

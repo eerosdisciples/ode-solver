@@ -13,7 +13,6 @@
 #include "ode.h"
 #include "readfile.h"
 
-#define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 10000
 #define REFERENCE_POINT_X 6 //4.79839
 #define REFERENCE_POINT_Y 0 //1.78125
@@ -45,8 +44,9 @@ int main(int argc, char *argv[]) {
   /* Solve */
   solution = malloc(sizeof(vector)*args->points);
   solvobj = malloc(sizeof(ode_solution));
-  solvobj->step = 1e-8; /* Initial step size */
+  solvobj->step = 1e-10; /* Initial step size */
 
+  /* Set initial values */
   solution->n = 6;
   solution->val = malloc(sizeof(double)*6);
   solution->val[0] = args->r0[0];
@@ -60,13 +60,15 @@ int main(int argc, char *argv[]) {
   double *t = malloc(sizeof(double)*(points+1));
   t[0] = args->tstart;
 
-  for (i = 0; i < args->points-1; i++) {
+  for (i = 0; i < points-1; i++) {
     solvobj->Z = solution+i;
     do {
       t[i+1] = t[i] + solvobj->step;
       ode_solve(equation_particle, solvobj, t[i]);
-    } while (!solvobj->flag);
+    } while (solvobj->flag == REDO_STEP);
   }
+
+  printf("Ended at t = %e\n", t[i]);
 
   /* Output data */
   ctsv_input output;
@@ -84,5 +86,4 @@ int main(int argc, char *argv[]) {
   ctsv_write("particle.csv",',',&output);
 
   return 0;
-
 }
