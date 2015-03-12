@@ -7,7 +7,7 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 1e-2                /* error tolerance */
+#define EPS0 0.1                /* error tolerance */
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 5000 /* for ode_test */
 /**
@@ -95,11 +95,13 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 
   eps = epsmin = fabs(zadd->val[0]);
   for (i = 1; i < Z_next->n; i++) {
-	epst = fabs(zadd->val[i]);
-	if (epst > eps)
-		eps = epst;
-	else if (epst < epsmin)
-		epsmin = epst;
+    epst = fabs(zadd->val[i]);
+    if (epst > eps) {
+      eps = epst;
+    }
+    else if (epst < epsmin)
+      epsmin = epst;
+       
   }
   hopt = h; /* Optimal step size */
 
@@ -216,7 +218,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
   return K;
 }
 /**
- Test function for this module 
+   Test function for this module 
 */
 void ode_test(void) {
   /* Predator prey model

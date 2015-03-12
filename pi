@@ -1,5 +1,5 @@
 t0=0
-tend=1e-6
+tend=3.2e-5
 r0=8.0287,-0.0105,0.2538
 v0=-9.5487e6,-7.7664e6,-4.1652e6
 magnetic_field=tests/iter2d.bkg
