@@ -94,5 +94,4 @@ vector* interp2_interpolate(vector *xyz) {
   vector *B_interp = vinit(3, B_x_interp, B_y_interp, B_z_interp);
  
   return B_interp;
-
 }

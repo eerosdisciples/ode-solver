@@ -54,6 +54,9 @@ vector * equation_particle(double T, vector* Z){
     f4=(e/m)*(z5*B3-z6*B2),
     f5=(e/m)*(z6*B1-z4*B3),
     f6=(e/m)*(z4*B2-z5*B1);
+   
+  vfree(xyz);
+  vfree(B);
 
   /* Save in vector and return */
   vector* value;

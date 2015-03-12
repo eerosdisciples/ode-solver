@@ -114,7 +114,7 @@ int domain_check(domain *d, double *r, double *z) {
 	
 
 	
-	for (i=0;i<d->n;i++){
+	for (i=0;i < d->n-1; i++) {
 		x10=d->r[i];
 		x11=d->r[i+1]-x10;
 		y10=d->z[i];
