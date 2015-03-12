@@ -17,6 +17,8 @@ gsl_interp_accel *ra, *za;
 interp2d_spline *Br;
 interp2d_spline *Bphi;
 interp2d_spline *Bz;
+
+double rmin, rmax, zmin, zmax;
 /*
  * Initializatlize magnetic_field for interpolation.
  * This is to prepare GSL for what's to come.
@@ -39,6 +41,11 @@ void interp2_init_interpolation(magnetic_field *B) {
   interp2d_spline_init(Bphi, B->z_grid, B->r_grid, B->B_phi, z_size, r_size);
   /* B_z */
   interp2d_spline_init(Bz, B->z_grid, B->r_grid, B->B_z, z_size, r_size);
+
+  rmin = B->rmin;
+  rmax = B->rmax;
+  zmin = B->zmin;
+  zmax = B->zmax;
 }
 /*
  * main interpolation function
@@ -58,6 +65,15 @@ vector* interp2_interpolate(vector *xyz) {
     z = xyz->val[2];
   /* Transform vector coordinates from cartesian to cylindrical */
 	double  r = sqrt(x*x + y*y);
+	/* Make sure the point is within our definied are */
+	if (r < rmin)
+		r = rmin;
+	else if (r > rmax)
+		r = rmax;
+	if (z < zmin)
+		z = zmin;
+	else if (z > zmax)
+		z = zmax;
   /*
    * Interpolate
    */
