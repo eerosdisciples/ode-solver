@@ -9,7 +9,7 @@
 
 #define EPS0 1e-2
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 5000
+#define NUMBER_OF_TESTPOINTS 5000 /* Is this used? */
 /**
  * Solve an Initial Value Problem (IVP ODE)
  *
@@ -32,7 +32,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   /* Choose order of iteration */
   unsigned int order1=4;
   unsigned int order2=5;
-  double eps0=EPS0; /* Tolerans parameter */
+  double eps0=EPS0; /* Tolerance parameter */
   double beta=SAFETY_FACTOR; /* Safety parameter */
   int flag; // Variable to store value indicating whether the the iteration should be re-done
   vector* Z;
@@ -49,8 +49,8 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   /* Calculate next point */
   vector* K = ode_step(equation, parameters,T,order2);
 
-  /* Calculate sum do be used in next point for Z_next and Zhat */
-  /* */
+  /* Calculate sum to be used in next point for Z_next and Zhat */
+  
   /* Help variables */
   vector *sum1, *sum2;
   sum1=vnew(Z->n);
@@ -87,8 +87,8 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   vector* Zhat= vadd(Z,sum2);
   vfree(sum2);
 
-  /* Calculate epsilon. Absolute value of function */
-  /* eps = ||Z^ - Z|| */
+  /* Calculate error epsilon between respective
+   * components in Z_next and Zhat */
   double eps, epst, epsmin;
   vector *scalmul = vmuls(-1, Z_next);
   vector *zadd = vadd(scalmul,Zhat);
@@ -101,7 +101,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	else if (epst < epsmin)
 		epsmin = epst;
   }
-  hopt = h;
+  hopt = h; /* Optimal step size */
 
   vfree(scalmul); vfree(zadd);
   /* Choose optimal step */
@@ -114,6 +114,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   }
 
   /* Save and return calculated values */
+  /* To be removed? */
   /*ode_solution *solution;
     solution.Z=vinit(2);
     solution.Z->val[0]=Z_next->val[0];
@@ -195,7 +196,6 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 
     /*Calculate sum to use in argument */
     for (j=0; j < i; j++) {
-      /* THE PROBLEM IS A[j][i] here! */
       vector *ms = vmuls(h*A[i][j], K+j);
       vector *ns = vadd(sum, ms);
       vfree(sum);
@@ -215,7 +215,9 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 
   return K;
 }
-/* Test function for this module */
+/**
+ Test function for this module 
+*/
 void ode_test(void) {
   /* Predator prey model
    */

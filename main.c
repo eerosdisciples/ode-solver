@@ -13,10 +13,6 @@
 #include "ode.h"
 #include "readfile.h"
 
-#define NUMBER_OF_TESTPOINTS 10000
-#define REFERENCE_POINT_X 6 //4.79839
-#define REFERENCE_POINT_Y 0 //1.78125
-
 int main(int argc, char *argv[]) {
   /* Variable declarations */
   arguments *args;
