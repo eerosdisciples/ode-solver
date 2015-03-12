@@ -6,8 +6,9 @@
 #include <math.h>
 #include "equation.h"
 #include "ctsv.h"
+
 #define EPS0 1e-2
-#define SAFETY_FACTOR 0.9	/* Safety factor beta */
+#define SAFETY_FACTOR 2	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 10000
 /**
  * Solve an Initial Value Problem (IVP ODE)
@@ -77,20 +78,29 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   vfree(sum2);
   /* Calculate epsilon. Absolute value of function */
   /* eps = ||Z^ - Z|| */
-  double eps;
-  vector *scalmul = vmuls(-1, Z_next);
-  vector *zadd = vadd(scalmul,Zhat);
-  double d = vdot(zadd,zadd);
-  eps = sqrt(d);
-  vfree(scalmul); vfree(zadd);
+  double eps, epst;
+  /*vector *scalmul = vmuls(-1, Z_next);
+  vector *zadd = vadd(scalmul,Zhat);*/
+
+  eps = abs(Z_next->val[0]-Zhat->val[0]);
+  for (i = 1; i < Z_next->n; i++) {
+    epst = abs(Z_next->val[i] - Zhat->val[i]);
+	if (epst > eps)
+		eps = epst;
+  }
+  
+//  vfree(scalmul); vfree(zadd);
   /* Choose optimal step */
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
+	printf("eps = %e\n", eps);
+	printf("h = %e, newh = %e\n", h, hopt);
     flag=REDO_STEP;
   } else {
     hopt=h*pow(eps0/eps,0.25);
     flag=OK_STEP;
   }
+
   /* Save and return calculated values */
   /*ode_solution *solution;
     solution.Z=vinit(2);
@@ -101,6 +111,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   vector* Zp1 = parameters->Z+1;
   Zp1->val = Z_next->val;
   Zp1->n = Z_next->n;
+
   //printf("hopt is %f", hopt);
   /* NOTE: We do not want to do a
    * vfree on Z, since `val' is now
@@ -108,6 +119,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
    * completely unused from now on */
   free(Z_next);
   vfree(Zhat);
+
   /* Free k's */
   for (i = 0; i <= order2; i++) {
     free(K[i].val);
@@ -153,6 +165,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
   /* Cacluate first K */
   vector* vec = equation(T, Z);
   K[0].val = vec->val;
+
   free(vec);
   /* Calculate each K up to order. Start from K2 (i=1).
    * Note that a 4th order method contains 5 k's and
@@ -175,6 +188,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
     vector *ns = vadd(Z, sum);
     vec=equation(T+alpha[i]*h,ns);
     K[i].val = vec->val;
+
     free(vec);
     vfree(ns);
     vfree(sum);

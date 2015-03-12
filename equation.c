@@ -56,6 +56,7 @@ vector * equation_particle(double T, vector* Z){
   value->val[3]=f4;
   value->val[4]=f5;
   value->val[5]=f6;
+
   return value;
 }
 /*

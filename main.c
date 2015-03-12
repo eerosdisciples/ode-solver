@@ -11,13 +11,12 @@
 #include "readfile.h"
 #include "equation.h"
 #include "ctsv.h"
+
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 100
+#define NUMBER_OF_TESTPOINTS 1000
 #define REFERENCE_POINT_X 6 //4.79839
 #define REFERENCE_POINT_Y 0 //1.78125
-vector *dummy_eq(double t, vector *z) {
-  return NULL;
-}
+
 int main(int argc, char *argv[]) {
   /* Testing equation function */
   /* Initialize interpolator */
@@ -42,7 +41,7 @@ int main(int argc, char *argv[]) {
   double *t = malloc(sizeof(double)*(points+1));
   t[0] = 0;
   /* Choose starting steplenght */
-  double h=1e-5; // Måste vara litet om vi ska kunna använda interpolation
+  double h=1e-12; // Måste vara litet om vi ska kunna använda interpolation
   /* Save everything in type 'ode_solution' */
   ode_solution *param;
   param = malloc(sizeof(ode_solution));
@@ -104,6 +103,7 @@ int main(int argc, char *argv[]) {
   output.nvars=6;
   ctsv_write("particle.csv",',',&output);
   return 0;
+
   /* Solve */
   arguments *args;
   domain *dom;
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
     solvobj->Z = solution+i;
     do {
       s[i+1] = s[i] + solvobj->step;
-      ode_solve(dummy_eq, solvobj, s[i]);
+      //ode_solve(dummy_eq, solvobj, s[i]);
     } while (!solvobj->flag);
   }
   /* Output data */
