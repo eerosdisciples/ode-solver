@@ -58,7 +58,6 @@ arguments *parse_args(int argc, char *argv[]) {
 	args = malloc(sizeof(arguments));
 	args->domain_file = args->magfield_file = NULL;
 	args->tstart = 0.;
-	args->points = 0;
 	args->r0 = args->v0 = NULL;
 
 	while (1) {
@@ -102,9 +101,6 @@ arguments *parse_args(int argc, char *argv[]) {
 				break;
 			case 'i':
 				args = input_read(optarg);
-				break;
-			case 'n':	/* Number of points */
-				args->points = atoi(optarg);
 				break;
 			case 'r':	/* Initial position (x0) */
 				args->r0 = atodp3(optarg);
