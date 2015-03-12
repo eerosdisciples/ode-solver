@@ -7,9 +7,9 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 1e-2
+#define EPS0 1e-2                /* error tolerance */
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 5000 /* Is this used? */
+#define NUMBER_OF_TESTPOINTS 5000 /* for ode_test */
 /**
  * Solve an Initial Value Problem (IVP ODE)
  *
