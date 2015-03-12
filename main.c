@@ -15,9 +15,8 @@
 
 
 
-#define EPS0 pow(10,-8);
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 5
+#define NUMBER_OF_TESTPOINTS 100
 #define REFERENCE_POINT_X 6 //4.79839
 #define REFERENCE_POINT_Y 0 //1.78125
 
@@ -50,15 +49,15 @@ int main(int argc, char *argv[]) {
 		coordinates->val[0] = 8.0287;
 		coordinates->val[1] = -0.0105;
 		coordinates->val[2] = 0.2538 ;
-		coordinates->val[3] = -9.5487*pow(10,6);
-		coordinates->val[4] = -7.7664*pow(10,6); 
-		coordinates->val[5] = -4.1652*pow(10,6); 
+		coordinates->val[3] = -9.5487*pow(10,1);
+		coordinates->val[4] = -7.7664*pow(10,1); 
+		coordinates->val[5] = -4.1652*pow(10,1); 
 		/* To store time */
 		double *t = malloc(sizeof(double)*(points+1));
 		t[0] = 0;
 		
 		/* Choose starting steplenght */
-		double h=pow(10,-8); // Måste vara litet om vi ska kunna använda interpolation
+		double h=1*pow(10,-5); // Måste vara litet om vi ska kunna använda interpolation
 		/* Save everything in type 'ode_solution' */ 
 
 		ode_solution *param;
@@ -104,7 +103,9 @@ int main(int argc, char *argv[]) {
 			
 			x=param->Z->val[0];
 			z=param->Z->val[1];
+			//printf("To begin with %f %f",x,z);
 						ode_solve(equation_particle, param, t[i]); // beräknar ny param
+			//printf("To continue with %f %f",x,z);
 						
 						xnew=param->Z->val[0];
 						znew=param->Z->val[2];

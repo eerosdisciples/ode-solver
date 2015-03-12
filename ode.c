@@ -8,7 +8,7 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 0.01
+#define EPS0 10
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 10000
 
@@ -126,6 +126,7 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
 	Zp1->val = Z_next->val;
 	Zp1->n = Z_next->n;
 
+	//printf("hopt is %f", hopt);
 	/* NOTE: We do not want to do a
 	 * vfree on Z, since `val' is now
 	 * used in Zp1!. Zhat however is
@@ -160,8 +161,6 @@ double A[6][6]={
 	{1631.0/55296,175.0/512,575.0/13828,44275.0/110592,253.0/4096,0},
 };
 vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, double T,unsigned int order){
-	/*TODO 	WHICH COEFFICIENTS TO USE; BHAT OR B*/
-	//  double b_first[5]={37.0/378,0,250.0/621,125.0/594,512.0/1771}; /* Stores Cash Carp coefficients */
 	
     double alpha[]={1.0/5,3.0/10,1,7.0/8};/* Stores Cash Carp coefficients, if explicit time dependence */
  
@@ -186,7 +185,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 	vector *sum;
 	
 	/*vector *sum2; sum2=vinit(order-1);*/
- 
+   
 	/* Cacluate first K */
 	vector* vec = equation(T, Z);
 
