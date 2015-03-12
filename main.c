@@ -13,7 +13,7 @@
 #include "ctsv.h"
 
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
-#define NUMBER_OF_TESTPOINTS 1000
+#define NUMBER_OF_TESTPOINTS 10000
 #define REFERENCE_POINT_X 6 //4.79839
 #define REFERENCE_POINT_Y 0 //1.78125
 
