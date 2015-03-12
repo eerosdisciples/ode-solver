@@ -8,7 +8,7 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 10
+#define EPS0 1e-2
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 10000
 

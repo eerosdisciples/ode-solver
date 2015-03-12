@@ -35,11 +35,11 @@ void ctsv_write(char *filename, char type, ctsv_input *data) {
 		vector* v = (data->v)+i;
 		double t = data->t[i];
 
-		fprintf(fp, "%f", t);
+		fprintf(fp, "%e", t);
 
 		/*Print all elements in vector i */
 		for (j = 0; j < data->nvars; j++) {
-			fprintf(fp, "%c%f", type, v->val[j]);
+			fprintf(fp, "%c%e", type, v->val[j]);
 		}
 	
 		/* Newline */
