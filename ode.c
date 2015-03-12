@@ -8,7 +8,7 @@
 #include "ctsv.h"
 
 #define EPS0 1e-2
-#define SAFETY_FACTOR 2	/* Safety factor beta */
+#define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 10000
 /**
  * Solve an Initial Value Problem (IVP ODE)
@@ -82,9 +82,9 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   /*vector *scalmul = vmuls(-1, Z_next);
   vector *zadd = vadd(scalmul,Zhat);*/
 
-  eps = abs(Z_next->val[0]-Zhat->val[0]);
+  eps = fabs(Z_next->val[0]-Zhat->val[0]);
   for (i = 1; i < Z_next->n; i++) {
-    epst = abs(Z_next->val[i] - Zhat->val[i]);
+    epst = fabs(Z_next->val[i] - Zhat->val[i]);
 	if (epst > eps)
 		eps = epst;
   }

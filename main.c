@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   double *t = malloc(sizeof(double)*(points+1));
   t[0] = 0;
   /* Choose starting steplenght */
-  double h=1e-12; // Måste vara litet om vi ska kunna använda interpolation
+  double h=1e-8; // Måste vara litet om vi ska kunna använda interpolation
   /* Save everything in type 'ode_solution' */
   ode_solution *param;
   param = malloc(sizeof(ode_solution));
@@ -52,10 +52,8 @@ int main(int argc, char *argv[]) {
   /* Iteration variable */
   unsigned int i=0;
   /* Help variables to use in domain_check */
-  double x;
-  double z;
-  double xnew;
-  double znew;
+  double x, y, z, r;
+  double xnew, ynew, znew, rnew;
   /* Check if starting point inside or outside */
   x=6;
   z=0;
@@ -73,10 +71,14 @@ int main(int argc, char *argv[]) {
     /* Iterate once */
     param->Z = coordinates+i; // sparar föregående param
     x=param->Z->val[0];
-    z=param->Z->val[1];
+	y=param->Z->val[1];
+    z=param->Z->val[2];
+	r=sqrt(x*x + y*y);
+
     //printf("To begin with %f %f",x,z);
     ode_solve(equation_particle, param, t[i]); // beräknar ny param
     //printf("To continue with %f %f",x,z);
+	
     xnew=param->Z->val[0];
     znew=param->Z->val[2];
     double X[2]={x,xnew};
