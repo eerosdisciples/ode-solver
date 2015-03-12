@@ -15,9 +15,10 @@ void equation_init(particle *p) {
 	equation_partobj = p;
 }
 /* Equation functions */
-/*
+
+/**
  * Function for the Charged particle motion
- *x
+ * x
  * RETURNS: vector of values of function in point 'arguments'
  */
 vector * equation_particle(double T, vector* Z){
@@ -38,20 +39,22 @@ vector * equation_particle(double T, vector* Z){
   double z4=Z->val[3],
     z5=Z->val[4],
     z6=Z->val[5];
+
+  /* Get magnetic field in point of particle */
   vector *B = magnetic_field_get(xyz);
 
-  /* Get value of field in each direction in point "coordinates" */
-  /* Save each value of B */
+  /* Extract x, y and z values of magnetic field */
   double B1=B->val[0],
     B2=B->val[1],
     B3=B->val[2];
-  /* Calculate each function value */
+  /* Calculate each function (f) value */
   double f1=z4,
     f2=z5,
     f3=z6,
     f4=(e/m)*(z5*B3-z6*B2),
     f5=(e/m)*(z6*B1-z4*B3),
     f6=(e/m)*(z4*B2-z5*B1);
+
   /* Save in vector and return */
   vector* value;
   value=vnew(6);
@@ -64,15 +67,16 @@ vector * equation_particle(double T, vector* Z){
 
   return value;
 }
-/*
+/**
  * Function for the Predator-Prey model
- *x:nbr of prey
- *y:nbr of predator
- * parameters:
+ * x: number of prey
+ * y: number of predator
+ * 
  * alpha:growth
  * beta:rate of predation upon the prey
  * delta: growth of the predator population
  * gm : loss rate of the predators due to either natural death or emigration.
+ *
  * RETURNS: vector of values of function in point 'arguments'
  */
 vector * equation_predator_prey(double T,vector* Z){

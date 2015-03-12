@@ -7,7 +7,8 @@
 #include "readfile.h"
 #include "interp2.h"
 
-/* Read data from file
+/**
+ * Read data from file
  * 
  * Called from magnetic_field_load
  */
@@ -21,7 +22,7 @@ void magnetic_field_read_data(double *B, FILE *f, unsigned int size) {
     word =  readfile_word(f);
   }
 }
-/*
+/**
  * Create grid.
  * n: number of grid points
  * min: mimimum grid point value
@@ -52,7 +53,7 @@ double* magnetic_field_create_grid(unsigned int n, double min, double max) {
   }
   return grid;
 }
-/*
+/**
  * Load magnetic field data from the given file.
  *
  * filename: File to load magnetic field data from
@@ -123,7 +124,7 @@ magnetic_field* magnetic_field_load(char *filename) {
   return B;
 }
 
-/*
+/**
  * Calculates the magnetic field strength in a given point (x,y,z).
  *
  * B: The magnetic field
@@ -161,7 +162,7 @@ void magnetic_field_test_read(void) {
   test = magnetic_field_get(B, xyz);*/
 }
 
-/*
+/**
  * Function for testing interpolation of magnetic field strength values,
  * testing exact points, the first points r = 3.5 and z = -5.5.
  */
@@ -175,12 +176,13 @@ void magnetic_field_test_interp(void) {
   vector *B_interp = magnetic_field_get(xyz);
 
   //for cylindrical coordinates, deprecated
-  printf("B_interp[0] = B_r in (r,z) = (3.5, -5.5): %f, should be -1.0482107.\n", B_interp->val[0]);
+  
+  /*printf("B_interp[0] = B_r in (r,z) = (3.5, -5.5): %f, should be -1.0482107.\n", B_interp->val[0]);
   printf("B_interp[1] = B_phi in (r,z) = (3.5, -5.5) : %f, should be -9.333124.\n",B_interp->val[1]);
-  printf("B_interp[2] = B_z i in (r,z) = (3.5, -5.5): %f, should be -0.60929124.\n",B_interp->val[2]);
+  printf("B_interp[2] = B_z i in (r,z) = (3.5, -5.5): %f, should be -0.60929124.\n",B_interp->val[2]);*/
 
-  /* printf("B_interp[0] = B_x in (x,y,z) = (5, 0, -5.5): %f, should be ?.\n", B_interp->val[0]);
+   printf("B_interp[0] = B_x in (x,y,z) = (5, 0, -5.5): %f, should be ?.\n", B_interp->val[0]);
   printf("B_interp[1] = B_y in (x,y,z) = (5, 0, -5.5) : %f, should be ?.\n",B_interp->val[1]);
-  printf("B_interp[2] = B_z i in (x,y,z) = (5, 0, -5.5): %f,  should be ?.\n",B_interp->val[2]); */
+  printf("B_interp[2] = B_z i in (x,y,z) = (5, 0, -5.5): %f,  should be ?.\n",B_interp->val[2]); 
 }
 

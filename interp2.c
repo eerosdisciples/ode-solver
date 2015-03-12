@@ -11,6 +11,7 @@
 /* Interp2d spline support */
 #include <interp2d_spline.h>
 #include <math.h>
+
 /* GSL accelerators that help speed up interpolations */
 gsl_interp_accel *ra, *za;
 /* interp2d interpolation objects */
@@ -19,7 +20,7 @@ interp2d_spline *Bphi;
 interp2d_spline *Bz;
 
 double rmin, rmax, zmin, zmax;
-/*
+/**
  * Initializatlize magnetic_field for interpolation.
  * This is to prepare GSL for what's to come.
  * Must be called before interpolation!
@@ -47,7 +48,7 @@ void interp2_init_interpolation(magnetic_field *B) {
   zmin = B->zmin;
   zmax = B->zmax;
 }
-/*
+/**
  * main interpolation function
  *
  * B: The magnetic field
