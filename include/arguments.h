@@ -2,8 +2,7 @@
 #define _ARGUMENTS_H
 
 typedef struct {
-	double tstart;
-	unsigned int points;
+	double tstart, tend;
 	double *r0, *v0;
 	char *magfield_file, *domain_file;
 	double particle_mass;

@@ -29,7 +29,7 @@ vector * equation_particle(double T, vector* Z){
   double e=equation_partobj->charge*ev;
 
   /* Save xyz coordinates */
-  vector *xyz=vinit(3);
+  vector *xyz=vnew(3);
   xyz->val[0]=Z->val[0];
   xyz->val[1]=Z->val[1];
   xyz->val[2]=Z->val[2];
@@ -51,7 +51,7 @@ vector * equation_particle(double T, vector* Z){
     f3=z6,
     f4=(e/m)*(z5*B3-z6*B2),
     f5=(e/m)*(z6*B1-z4*B3),
-    f6=(e/m)*(z4*B2-z5*B3);
+    f6=(e/m)*(z4*B2-z5*B1);
   /* Save in vector and return */
   vector* value;
   value=vnew(6);

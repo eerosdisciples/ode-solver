@@ -23,8 +23,8 @@ arguments *input_read(char *filename) {
 	args->r0 = args->v0 = NULL;
 	args->magfield_file = args->domain_file = NULL;
 	args->particle_mass = 0;
-	args->points = 1000;
 	args->particle_charge = 0;
+	args->tstart = args->tend = 0;
 
 	int line = 1;
 
@@ -39,9 +39,9 @@ arguments *input_read(char *filename) {
 		if (!strcmp(buf, "t0")) {
 			buf = readfile_word(f);
 			args->tstart = atof(buf);
-		} else if (!strcmp(buf, "npoints")) {
+		} else if (!strcmp(buf, "tend")) {
 			buf = readfile_word(f);
-			args->points = atoi(buf);
+			args->tend = atof(buf);
 		} else if (!strcmp(buf, "r0")) {
 			buf = readfile_word(f);
 			args->r0 = atodp3(buf);
@@ -96,7 +96,7 @@ void input_test(void) {
 	printf("ARGUMENTS READ:\n\n");
 
 	printf("t0 = %f\n", args->tstart);
-	printf("npoints = %d\n", args->points);
+	printf("tend = %f\n", args->tend);
 	printf("r0 = %f, %f, %f\n", args->r0[0], args->r0[1], args->r0[2]);
 	printf("v0 = %f, %f, %f\n", args->v0[0], args->v0[1], args->v0[2]);
 	printf("magnetic_field = %s\n", args->magfield_file);
