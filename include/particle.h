@@ -11,6 +11,7 @@ three spatial dimensions.*/
 /* Define the particle type */
 typedef struct {
   double val[6];		/* The particle vector */
+  double mass, charge;	/* Particle mass and charge */
 } particle;
 
 particle* particle_new();

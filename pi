@@ -1,0 +1,8 @@
+t0=0
+npoints=10000
+r0=8.0287,-0.0105,0.2538
+v0=-9.5487e6,-7.7664e6,-4.1652e6
+magnetic_field=iter2d.bkg
+domain_file=iter.wall_2d
+mass=4
+charge=2

@@ -4,13 +4,15 @@
 #include "magnetic_field.h"
 #include "readfile.h"
 #include "interp2.h"
+#include "particle.h"
 #include <math.h>
+
+particle* equation_partobj;
+
 /*Initializes interpolator
  */
-void equation_init(void){
-  // TODO Change for arbitrary parameters
-  magnetic_field *B = magnetic_field_load("iter2d.bkg");
-  interp2_init_interpolation(B);
+void equation_init(particle *p) {
+	equation_partobj = p;
 }
 /* Equation functions */
 /*
@@ -23,18 +25,21 @@ vector * equation_particle(double T, vector* Z){
   /* Define needed parameters */
   double amu_to_kg=1.66053886e-27;
   double ev=1.60217657e-19;
-  double m=4*amu_to_kg;
-  double e=2*ev;
+  double m=equation_partobj->mass*amu_to_kg;
+  double e=equation_partobj->charge*ev;
+
   /* Save xyz coordinates */
   vector *xyz=vinit(3);
   xyz->val[0]=Z->val[0];
   xyz->val[1]=Z->val[1];
   xyz->val[2]=Z->val[2];
+
   /* Save last 3 values of Z */
   double z4=Z->val[3],
     z5=Z->val[4],
     z6=Z->val[5];
   vector *B = magnetic_field_get(xyz);
+
   /* Get value of field in each direction in point "coordinates" */
   /* Save each value of B */
   double B1=B->val[0],

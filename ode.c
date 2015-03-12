@@ -96,7 +96,6 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
   /* Choose optimal step */
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
-	printf("eps = %e\n", eps);
     flag=REDO_STEP;
   } else {
     hopt=h*pow(eps0/eps,0.25);
