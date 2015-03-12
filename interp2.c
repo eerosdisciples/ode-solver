@@ -19,7 +19,7 @@ interp2d_spline *Bphi;
 interp2d_spline *Bz;
 
 double rmin, rmax, zmin, zmax;
-/*
+/**
  * Initializatlize magnetic_field for interpolation.
  * This is to prepare GSL for what's to come.
  * Must be called before interpolation!
@@ -47,7 +47,7 @@ void interp2_init_interpolation(magnetic_field *B) {
   zmin = B->zmin;
   zmax = B->zmax;
 }
-/*
+/**
  * main interpolation function
  *
  * B: The magnetic field
