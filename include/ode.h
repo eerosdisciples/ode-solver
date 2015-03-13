@@ -12,7 +12,8 @@ typedef struct {
 	int flag;	   /* If iteration should be redone */
 } ode_solution;
 
-//	unsigned int n;	/* Number of points in solution */
+
+
 
 /* Solve an initial value problem */
 /*vector *ode_solve(
