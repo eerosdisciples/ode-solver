@@ -98,11 +98,9 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *parame
 
   /* Sum k1 to k5 (4th order method has "5 stages" (e.g. 5 k's) */
   for (i=0; i<=order1; i++){
-    vector *ms = vmuls(h*B[0][i], K+i);
-    vector *ns = vadd(sum1,ms);
-    vfree(sum1);
-    vfree(ms);
-    sum1 = ns;
+    vector* ms = vmuls(h*B[0][i], K+i);
+    vaddf(sum1,ms);
+	vfree(ms);
   }
 
   /* Calculate next point */
@@ -112,10 +110,8 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *parame
   /* Sum k1 to k6 (5th order method has "6 stages" (e.g. 6 k's) */
   for (i=0; i <= order2; i++){
     vector *ms = vmuls(h*B[1][i], K+i);
-    vector *ns = vadd(sum2,ms);
-    vfree(sum2);
+    vaddf(sum2,ms);
     vfree(ms);
-    sum2 = ns;
   }
 
   vector* Zhat= vadd(Z,sum2);
@@ -123,23 +119,20 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *parame
 
   /* Calculate error epsilon between respective
    * components in Z_next and Zhat */
-  double eps, epst, epsmin;
-  vector *scalmul = vmuls(-1, Z_next);
-  vector *zadd = vadd(scalmul,Zhat);
+  double eps, epst;
+  vmulsf(-1, Z_next);
+  vaddf(Zhat,Z_next);	/* Zhat = Zhat - Z_next */
+  vmulsf(-1, Z_next);
 
-  eps = epsmin = fabs(zadd->val[0]);
-  for (i = 1; i < Z_next->n; i++) {
-    epst = fabs(zadd->val[i]);
+  eps = fabs(Zhat->val[0]);
+  for (i = 1; i < Zhat->n; i++) {
+    epst = fabs(Zhat->val[i]);
     if (epst > eps) {
       eps = epst;
     }
-    else if (epst < epsmin)
-      epsmin = epst;
-       
   }
   hopt = h; /* Optimal step size */
 
-  vfree(scalmul); vfree(zadd);
   /* Choose optimal step */
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
@@ -214,32 +207,28 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
   K[0].val = vec->val;
 
   free(vec);
+  sum = vnew(Z->n);
   /* Calculate each K up to order. Start from K2 (i=1).
    * Note that a 4th order method contains 5 k's and
    * a 5th order method contains 6 k's */
   for (i=1; i <= order; i++) {
     /* Initialize sum */
-    sum = vnew(Z->n);
     for (j = 0; j < Z->n; j++)
       sum->val[j] = 0;
 
     /*Calculate sum to use in argument */
     for (j=0; j < i; j++) {
       vector *ms = vmuls(h*A[i][j], K+j);
-      vector *ns = vadd(sum, ms);
-      vfree(sum);
+      vaddf(sum, ms);
       vfree(ms);
-      sum = ns;
     }
 
     /* Calculate K */
-    vector *ns = vadd(Z, sum);
-    vec=equation(T+alpha[i]*h,ns);
+    vaddf(sum, Z);
+    vec=equation(T+alpha[i]*h,sum);
     K[i].val = vec->val;
 
     free(vec);
-    vfree(ns);
-    vfree(sum);
   }
 
   return K;

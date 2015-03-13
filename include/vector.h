@@ -11,7 +11,9 @@ vector *vnew(unsigned int);
 vector *vinit(unsigned int, ...);
 void vfree(vector*);
 vector *vadd(vector*, vector*);
+vector *vaddf(vector*, vector*);
 vector *vmuls(double, vector*);
+vector *vmulsf(double, vector*);
 double vdot(vector *v, vector *u); 
 
 

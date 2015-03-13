@@ -1,7 +1,10 @@
 # ODE Solver Makefile
 
 CC=gcc
+# Flags for debuggable program
 CFLAGS=-Wall -Wextra -g -O0 -c -I include
+# Flags for optimized program
+#CFLAGS=-Wall -Wextra -O2 -c -I include
 LD=gcc
 
 LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
