@@ -28,6 +28,8 @@ void equation_init(particle *p) {
  * velocity in the next three.
  *
  * RETURNS: vector of values of function f 
+ *
+ * Used as the first argument to ode_solve in ode.c
  */
 vector * equation_particle(double T, vector* Z){
   /*TODO Change from vector to particle + arbitrary parametrs m,e */
@@ -45,7 +47,7 @@ vector * equation_particle(double T, vector* Z){
 
   /* Save  particle velocity*/
   double v1=Z->val[3],
-    z5=Z->val[4],
+    v2=Z->val[4],
     v3=Z->val[5];
 
   /* Get magnetic field in point of particle */
