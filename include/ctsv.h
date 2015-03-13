@@ -13,17 +13,16 @@
 
 
 typedef struct {
-	double* T; 		/* Time points */
-	double* E;  		/* Energy */
-	vector *v;		/* List of coordinates to output */
+	double* T; 				/* Time points */
+	double* E;  			/* Energy */
+	vector *v;				/* List of coordinates to output */
 	char **labels;			/* List of labels */
 	unsigned int points;	/* Number of points */
 	unsigned int nvars;		/* Number of coordinate-variables (or columns) */
-
 } ctsv_data;
 
 /* Write data to CSV or TSV file */
-void ctsv_write(char*, char, ctsv_input*);
+void ctsv_write(char*, char, ctsv_data*);
 
 /* Test function for this module */
 void ctsv_test(void);

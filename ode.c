@@ -248,49 +248,68 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
    Test function for this module 
 */
 void ode_test(void) {
+  /* Iteration variable */
+  unsigned int i=0;
+
   /* Predator prey model
    */
   /* Initiate vector to store calculated points */
   vector* coordinates;
   unsigned int points = NUMBER_OF_TESTPOINTS;
   coordinates=malloc(sizeof(vector)*(points+1));
+
   /* Set initial point */
   coordinates->val = malloc(sizeof(double)*2);
   coordinates->n = 2;
+
   /* Initial condition:nbr of predators and prey */
   coordinates->val[0] = 34.91;
   coordinates->val[1] = 3.857;
+
   /* To store time */
   double *t = malloc(sizeof(double)*(points+1));
   t[0] = 0;
+  /* To store dummy ''Energy'' */
+  double *E = malloc(sizeof(double)*(points+1));
+  for (i = 0; i < points; i++) {
+    E[i] = 0;
+  }
+
   /* Choose starting steplenght */
   double h=0.3;
+
   /* Save everything in type 'ode_solution' */
   ode_solution *param;
   param = malloc(sizeof(ode_solution));
   param->step=h;
+
   /* First value of flag is 'OK'*/
   param->flag=0;
+
   /* Iterate and save!*/
   /* Choose size of intervall */
-  /* Iteration variable */
-  unsigned int i=0;
+
   for (i = 0; i < points; i++) {
     t[i+1]=t[i]+param->step;
+
     /* Iterate once */
     param->Z = coordinates+i;
     ode_solve(equation_predator_prey, param, t[i]);
+
     /* Check if iteration needs to be re-done */
     /* flag=0 -> ok -> continue */	
     if (param->flag!=0) i=i-1; // Redo step with new calculated h in param
   }
-  ctsv_input output;
-  output.t=t;
+
+  ctsv_data output;
+  output.T=t;
+  output.E=E;
   output.v=coordinates;
   output.labels=malloc(sizeof(char *)*2);
   output.labels[0]="x";
   output.labels[1]="y";
   output.points=points;
   output.nvars=2;
+
   ctsv_write("Output.csv",',',&output);
 }

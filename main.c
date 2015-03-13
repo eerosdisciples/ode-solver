@@ -23,10 +23,11 @@ int main(int argc, char *argv[]) {
   domain *dom;
   magnetic_field *mf;
   vector *solution;
-  ode_solution *solvobj;
+  ode_solution *solver_object;
   particle *part;
   args = parse_args(argc, argv);
   unsigned int points, i;
+  double vx,vy,vz;
 
   points = NUMBER_OF_POINTS;
 
@@ -45,8 +46,12 @@ int main(int argc, char *argv[]) {
 
   /* Solve */
   solution = malloc(sizeof(vector)*points);
-  solvobj = malloc(sizeof(ode_solution));
-  solvobj->step = 1e-10; /* Initial step size */
+  solver_object = malloc(sizeof(ode_solution));
+  solver_object->step = 1e-10; /* Initial step size */
+  
+  vx = args->v0[0];
+  vy = args->v0[1];
+  vz = args->v0[2];
 
   /* Set initial values */
   solution->n = 6;
@@ -54,13 +59,16 @@ int main(int argc, char *argv[]) {
   solution->val[0] = args->r0[0];
   solution->val[1] = args->r0[1];
   solution->val[2] = args->r0[2];
-  solution->val[3] = args->v0[0];
-  solution->val[4] = args->v0[1];
-  solution->val[5] = args->v0[2];
+  solution->val[3] = vx;
+  solution->val[4] = vy;
+  solution->val[5] = vz;
 
   /* For storing time */
   double *t = malloc(sizeof(double)*(points+1));
   t[0] = args->tstart;
+  /* For storing energy */
+  double *E = malloc(sizeof(double)*(points+1));
+  E[0] = part->mass/2*(vx*vx + vy*vy + vz*vz);
 
   /* For checking domain */
   double x,y,z,r;
@@ -85,20 +93,28 @@ int main(int argc, char *argv[]) {
 		unsigned int np = 2 * points;
 		solution = realloc(solution, np*(sizeof(vector)));
 		t = realloc(t, np*sizeof(double));
+		E = realloc(E, np*sizeof(double));
 
 		points = np;
 	}
 
-    solvobj->Z = solution+i;
+    solver_object->Z = solution+i;
     do {
-      t[i+1] = t[i] + solvobj->step;
-      ode_solve(equation_particle, solvobj, t[i]);
-    } while (solvobj->flag == REDO_STEP);
+      t[i+1] = t[i] + solver_object->step;
+      ode_solve(equation_particle, solver_object, t[i]);
+    } while (solver_object->flag == REDO_STEP);
 
 	x = solution[i].val[0];
 	y = solution[i].val[1];
 	z = solution[i].val[2];
+	vx= solution[i].val[0];
+	vy= solution[i].val[1];
+	vz= solution[i].val[2];
 	r = sqrt(x*x + y*y);
+	E[i+1] = part->mass/2 * (vx*vx + vy*vy + vz*vz);
+
+	/* Move on to next iteration */
+	i++;
 
 	R[0] = R[1]; Z[0] = Z[1];
 	R[1] = r;    Z[1] = z;
@@ -106,15 +122,14 @@ int main(int argc, char *argv[]) {
       printf("Particle collided with reactor wall!\n");
 	  break;
 	}
-
-	i++;
   }
 
   printf("Number of points: %d\n", i);
 
   /* Output data */
-  ctsv_input output;
-  output.t=t;
+  ctsv_data output;
+  output.T=t;
+  output.E=E;
   output.v=solution;
   output.labels=malloc(sizeof(char *)*6);
   output.labels[0]="x";

@@ -1,8 +1,8 @@
 /* CSV/TSV file writer */
 
-#include "ctsv.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "ctsv.h"
 #include "vector.h"
 
 /**
@@ -12,7 +12,7 @@
  * type: If 'c', use CSV format. If 't', use TSV format.
  * data: Data to write
  */
-void ctsv_write(char *filename, char type, ctsv_input *data) {
+void ctsv_write(char *filename, char type, ctsv_data* data) {
 	/**
 	 * Test function for this module
 	 */
@@ -21,29 +21,29 @@ void ctsv_write(char *filename, char type, ctsv_input *data) {
 
 	unsigned int i, j;
 
+	/* Write labels */
 	fprintf(fp, "T");
-	/* write labels */
 	for (i = 0; i < data->nvars; i++) {
 		fprintf(fp, "%c%s", type, data->labels[i]);
 	}
-
-	/* Newline */
-	fprintf(fp,"\n");
+	fprintf(fp, "E\n");
 
 	/* Print data */
 	for (i = 0; i < data->points; i++) {
 		vector* v = (data->v)+i;
-		double t = data->t[i];
+		double t = data->T[i];
+		double E = data->E[i];
 
+		/* Time coordinate */
 		fprintf(fp, "%e", t);
 
-		/*Print all elements in vector i */
+		/* Print all elements in vector v */
 		for (j = 0; j < data->nvars; j++) {
 			fprintf(fp, "%c%e", type, v->val[j]);
 		}
-	
-		/* Newline */
-		fprintf(fp,"\n");
+
+		/* Print energy */
+		fprintf(fp, "%c%e\n", type, E);
 	}
 
 	fclose(fp);
@@ -52,7 +52,7 @@ void ctsv_write(char *filename, char type, ctsv_input *data) {
 void ctsv_test(void) {
 	unsigned int i,j;
 	/* Write different parameters */
-	ctsv_input* inp = malloc(sizeof(ctsv_input));
+	ctsv_data* inp = malloc(sizeof(ctsv_data));
 
 	inp->points = 10;
 	inp->nvars = 2;
@@ -63,11 +63,19 @@ void ctsv_test(void) {
 		inp->labels[i][1] = 0;
 	}
 
-	inp->t = malloc(sizeof(double)*inp->points);
+	/* Initialize t */
+	inp->T = malloc(sizeof(double)*inp->points);
 	for (i = 0; i < inp->points; i++) {
-		inp->t[i] = 0.1*i;
+		inp->T[i] = 0.1*i;
 	}
 
+	/* Initialize E */
+	inp->E = malloc(sizeof(double)*inp->points);
+	for (i = 0; i < inp->points; i++) {
+		inp->E[i] = 3.14159*inp->T[i];
+	}
+
+	/* Initialize vector coordinates */
 	inp->v = malloc(sizeof(vector)*inp->points);
 	for (i = 0; i < inp->points; i++) {
 		inp->v[i].val = malloc(sizeof(double)*inp->nvars);
@@ -78,6 +86,7 @@ void ctsv_test(void) {
 		}
 	}
 
+	/* Write output to two different files */
 	ctsv_write("test.csv", ',', inp);
 	ctsv_write("test.tsv", '\t', inp);
 }
