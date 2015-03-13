@@ -12,16 +12,18 @@
 #include "magnetic_field.h"
 #include "ode.h"
 #include "readfile.h"
+#include "solution_data.h"
 
 #define NUMBER_OF_POINTS 1000
-#define REFERENCE_POINT_X 6 //4.79839
-#define REFERENCE_POINT_Y 0 //1.78125
+/* Reference point to check if initial position is inside domain */
+#define REFERENCE_POINT_X 6 
+#define REFERENCE_POINT_Y 0 
 
 int main(int argc, char *argv[]) {
   /* Variable declarations */
   arguments *args;
   domain *dom;
-  magnetic_field *mf;
+  magnetic_field *B;
   vector *solution;
   ode_solution *solver_object;
   particle *part;
@@ -34,18 +36,20 @@ int main(int argc, char *argv[]) {
   /* Load domain */
   dom = domain_load(args->domain_file);
   /* Load magnetic field */
-  mf = magnetic_field_load(args->magfield_file);
+  B = magnetic_field_load(args->magfield_file);
   /* Initialize particle */
   part = malloc(sizeof(particle));
   part->mass = args->particle_mass;
   part->charge = args->particle_charge;
 
-  /* Initialization */
-  interp2_init_interpolation(mf);
+  /* Initialization of interpolation and equation */
+  interp2_init_interpolation(B);
   equation_init(part);
 
-  /* Solve */
+  /* Allocate memory for solution vector */
   solution = malloc(sizeof(vector)*points);
+  /* solver_object of type ode_solution contains solution points, optimal
+   * step size, and flag indicating ok step. */
   solver_object = malloc(sizeof(ode_solution));
   solver_object->step = 1e-10; /* Initial step size */
   
@@ -127,7 +131,7 @@ int main(int argc, char *argv[]) {
   printf("Number of points: %d\n", i);
 
   /* Output data */
-  ctsv_data output;
+  solution_data output;
   output.T=t;
   output.E=E;
   output.v=solution;
