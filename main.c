@@ -11,10 +11,10 @@
 #include "interp2.h"
 #include "magnetic_field.h"
 #include "ode.h"
-#include "readfile.h"
+#include "readfile.h"gs
 #include "solution_data.h"
 
-#define NUMBER_OF_POINTS 1000
+#define NUMBER_OF_POINTS 1000 // number of data points to start with
 /* Reference point to check if initial position is inside domain */
 #define REFERENCE_POINT_X 6 
 #define REFERENCE_POINT_Y 0 
@@ -28,9 +28,10 @@ int main(int argc, char *argv[]) {
   ode_solution *solver_object;
   particle *part;
   args = parse_args(argc, argv);
-  unsigned int points, i;
   double vx,vy,vz;
-
+  unsigned int i;
+  
+  unsigned int points;
   points = NUMBER_OF_POINTS;
 
   /* Load domain */
@@ -52,7 +53,8 @@ int main(int argc, char *argv[]) {
    * step size, and flag indicating ok step. */
   solver_object = malloc(sizeof(ode_solution));
   solver_object->step = 1e-10; /* Initial step size */
-  
+
+  /* initial velocity from input file pi. TODO: Load input data to particle object, pass particle to solver function. Edit the particle type first. */
   vx = args->v0[0];
   vy = args->v0[1];
   vz = args->v0[2];
@@ -87,20 +89,20 @@ int main(int argc, char *argv[]) {
 
   if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
     printf("Particle starts outside reactor!\n");
-	exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
   }
 
   i = 0;
   while (t[i] < args->tend) {
-	/* Check if we have enough points */
-	if (i+2 >= points) {
-		unsigned int np = 2 * points;
-		solution = realloc(solution, np*(sizeof(vector)));
-		t = realloc(t, np*sizeof(double));
-		E = realloc(E, np*sizeof(double));
+    /* Check if we have enough points */
+    if (i+2 >= points) {
+      unsigned int np = 2 * points;
+      solution = realloc(solution, np*(sizeof(vector)));
+      t = realloc(t, np*sizeof(double));
+      E = realloc(E, np*sizeof(double));
 
-		points = np;
-	}
+      points = np;
+    }
 
     solver_object->Z = solution+i;
     do {
@@ -108,24 +110,24 @@ int main(int argc, char *argv[]) {
       ode_solve(equation_particle, solver_object, t[i]);
     } while (solver_object->flag == REDO_STEP);
 
-	x = solution[i].val[0];
-	y = solution[i].val[1];
-	z = solution[i].val[2];
-	vx= solution[i].val[0];
-	vy= solution[i].val[1];
-	vz= solution[i].val[2];
-	r = sqrt(x*x + y*y);
-	E[i+1] = part->mass/2 * (vx*vx + vy*vy + vz*vz);
+    x = solution[i].val[0];
+    y = solution[i].val[1];
+    z = solution[i].val[2];
+    vx= solution[i].val[0];
+    vy= solution[i].val[1];
+    vz= solution[i].val[2];
+    r = sqrt(x*x + y*y);
+    E[i+1] = part->mass/2 * (vx*vx + vy*vy + vz*vz);
 
-	/* Move on to next iteration */
-	i++;
+    /* Move on to next iteration */
+    i++;
 
-	R[0] = R[1]; Z[0] = Z[1];
-	R[1] = r;    Z[1] = z;
-	if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
+    R[0] = R[1]; Z[0] = Z[1];
+    R[1] = r;    Z[1] = z;
+    if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
       printf("Particle collided with reactor wall!\n");
-	  break;
-	}
+      break;
+    }
   }
 
   printf("Number of points: %d\n", i);
