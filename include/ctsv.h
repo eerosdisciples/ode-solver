@@ -2,7 +2,6 @@
 #define _CTSV_H
 
 #include "solution_data.h"
-#include "vector.h"
 
 //typedef struct {
 //	double* t;				/* Time points */
