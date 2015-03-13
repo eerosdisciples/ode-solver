@@ -11,44 +11,50 @@
 #include "interp2.h"
 #include "magnetic_field.h"
 #include "ode.h"
-#include "readfile.h"
+#include "readfile.h"gs
+#include "solution_data.h"
 
-#define NUMBER_OF_POINTS 1000
-#define REFERENCE_POINT_X 6 //4.79839
-#define REFERENCE_POINT_Y 0 //1.78125
+#define NUMBER_OF_POINTS 1000 // number of data points to start with
+/* Reference point to check if initial position is inside domain */
+#define REFERENCE_POINT_X 6 
+#define REFERENCE_POINT_Y 0 
 
 int main(int argc, char *argv[]) {
   /* Variable declarations */
   arguments *args;
   domain *dom;
-  magnetic_field *mf;
+  magnetic_field *B;
   vector *solution;
   ode_solution *solver_object;
   particle *part;
   args = parse_args(argc, argv);
-  unsigned int points, i;
   double vx,vy,vz;
-
+  unsigned int i;
+  
+  unsigned int points;
   points = NUMBER_OF_POINTS;
 
   /* Load domain */
   dom = domain_load(args->domain_file);
   /* Load magnetic field */
-  mf = magnetic_field_load(args->magfield_file);
+  B = magnetic_field_load(args->magfield_file);
   /* Initialize particle */
   part = malloc(sizeof(particle));
   part->mass = args->particle_mass;
   part->charge = args->particle_charge;
 
-  /* Initialization */
-  interp2_init_interpolation(mf);
+  /* Initialization of interpolation and equation */
+  interp2_init_interpolation(B);
   equation_init(part);
 
-  /* Solve */
+  /* Allocate memory for solution vector */
   solution = malloc(sizeof(vector)*points);
+  /* solver_object of type ode_solution contains solution points, optimal
+   * step size, and flag indicating ok step. */
   solver_object = malloc(sizeof(ode_solution));
   solver_object->step = 1e-10; /* Initial step size */
-  
+
+  /* initial velocity from input file pi. TODO: Load input data to particle object, pass particle to solver function. Edit the particle type first. */
   vx = args->v0[0];
   vy = args->v0[1];
   vz = args->v0[2];
@@ -83,20 +89,20 @@ int main(int argc, char *argv[]) {
 
   if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
     printf("Particle starts outside reactor!\n");
-	exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
   }
 
   i = 0;
   while (t[i] < args->tend) {
-	/* Check if we have enough points */
-	if (i+2 >= points) {
-		unsigned int np = 2 * points;
-		solution = realloc(solution, np*(sizeof(vector)));
-		t = realloc(t, np*sizeof(double));
-		E = realloc(E, np*sizeof(double));
+    /* Check if we have enough points */
+    if (i+2 >= points) {
+      unsigned int np = 2 * points;
+      solution = realloc(solution, np*(sizeof(vector)));
+      t = realloc(t, np*sizeof(double));
+      E = realloc(E, np*sizeof(double));
 
-		points = np;
-	}
+      points = np;
+    }
 
     solver_object->Z = solution+i;
     do {
@@ -104,30 +110,30 @@ int main(int argc, char *argv[]) {
       ode_solve(equation_particle, solver_object, t[i]);
     } while (solver_object->flag == REDO_STEP);
 
-	x = solution[i].val[0];
-	y = solution[i].val[1];
-	z = solution[i].val[2];
-	vx= solution[i].val[0];
-	vy= solution[i].val[1];
-	vz= solution[i].val[2];
-	r = sqrt(x*x + y*y);
-	E[i+1] = part->mass/2 * (vx*vx + vy*vy + vz*vz);
+    x = solution[i].val[0];
+    y = solution[i].val[1];
+    z = solution[i].val[2];
+    vx= solution[i].val[0];
+    vy= solution[i].val[1];
+    vz= solution[i].val[2];
+    r = sqrt(x*x + y*y);
+    E[i+1] = part->mass/2 * (vx*vx + vy*vy + vz*vz);
 
-	/* Move on to next iteration */
-	i++;
+    /* Move on to next iteration */
+    i++;
 
-	R[0] = R[1]; Z[0] = Z[1];
-	R[1] = r;    Z[1] = z;
-	if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
+    R[0] = R[1]; Z[0] = Z[1];
+    R[1] = r;    Z[1] = z;
+    if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
       printf("Particle collided with reactor wall!\n");
-	  break;
-	}
+      break;
+    }
   }
 
   printf("Number of points: %d\n", i);
 
   /* Output data */
-  ctsv_data output;
+  solution_data output;
   output.T=t;
   output.E=E;
   output.v=solution;
