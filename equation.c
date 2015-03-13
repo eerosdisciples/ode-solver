@@ -9,17 +9,25 @@
 
 particle* equation_partobj;
 
-/*Initializes interpolator
- */
+/**
+Initializes equation for particle object:
+* saves particle in local variable. 
+*/
 void equation_init(particle *p) {
 	equation_partobj = p;
 }
 /* Equation functions */
 
 /**
- * Function for the Charged particle motion
- * x
- * RETURNS: vector of values of function in point 'arguments'
+ * Equation for the charged particle motion
+ * Lorentz force, only magnetic field.
+ * 
+ * T: time, not used here but needed for ode.c
+ * Z: Pointer to vector containing particle position
+ * coordinates in the first three values, and particle
+ * velocity in the next three.
+ *
+ * RETURNS: vector of values of function f 
  */
 vector * equation_particle(double T, vector* Z){
   /*TODO Change from vector to particle + arbitrary parametrs m,e */
@@ -35,10 +43,10 @@ vector * equation_particle(double T, vector* Z){
   xyz->val[1]=Z->val[1];
   xyz->val[2]=Z->val[2];
 
-  /* Save last 3 values of Z */
-  double z4=Z->val[3],
+  /* Save  particle velocity*/
+  double v1=Z->val[3],
     z5=Z->val[4],
-    z6=Z->val[5];
+    v3=Z->val[5];
 
   /* Get magnetic field in point of particle */
   vector *B = magnetic_field_get(xyz);
@@ -48,12 +56,12 @@ vector * equation_particle(double T, vector* Z){
     B2=B->val[1],
     B3=B->val[2];
   /* Calculate each function (f) value */
-  double f1=z4,
-    f2=z5,
-    f3=z6,
-    f4=(e/m)*(z5*B3-z6*B2),
-    f5=(e/m)*(z6*B1-z4*B3),
-    f6=(e/m)*(z4*B2-z5*B1);
+  double f1=v1,
+    f2=v2,
+    f3=v3,
+    f4=(e/m)*(v2*B3-v3*B2),
+    f5=(e/m)*(v3*B1-v1*B3),
+    f6=(e/m)*(v1*B2-v2*B1);
    
   vfree(xyz);
   vfree(B);
