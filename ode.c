@@ -1,11 +1,11 @@
 /* ODE Solver */
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
+#include "ctsv.h"
+#include "equation.h"
 #include "ode.h"
 #include "vector.h"
-#include <math.h>
-#include "equation.h"
-#include "ctsv.h"
 
 #define EPS0 1e-5                /* error tolerance */
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
@@ -290,7 +290,7 @@ void ode_test(void) {
     if (param->flag!=0) i=i-1; // Redo step with new calculated h in param
   }
 
-  ctsv_data output;
+  solution_data output;
   output.T=t;
   output.E=E;
   output.v=coordinates;

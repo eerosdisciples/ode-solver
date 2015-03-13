@@ -1,6 +1,7 @@
 #ifndef _CTSV_H
 #define _CTSV_H
 
+#include "solution_data.h"
 #include "vector.h"
 
 //typedef struct {
@@ -12,7 +13,7 @@
 //} ctsv_input;
 
 /* Write data to CSV or TSV file */
-void ctsv_write(char*, char, ctsv_data*);
+void ctsv_write(char*, char, solution_data*);
 
 /* Test function for this module */
 void ctsv_test(void);

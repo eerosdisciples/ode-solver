@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ctsv.h"
+#include "solution_data.h"
 #include "vector.h"
 
 /**
@@ -12,7 +13,7 @@
  * type: If 'c', use CSV format. If 't', use TSV format.
  * data: Data to write
  */
-void ctsv_write(char *filename, char type, ctsv_data* data) {
+void ctsv_write(char *filename, char type, solution_data* data) {
 	/**
 	 * Test function for this module
 	 */
@@ -52,7 +53,7 @@ void ctsv_write(char *filename, char type, ctsv_data* data) {
 void ctsv_test(void) {
 	unsigned int i,j;
 	/* Write different parameters */
-	ctsv_data* inp = malloc(sizeof(ctsv_data));
+	solution_data* inp = malloc(sizeof(solution_data));
 
 	inp->points = 10;
 	inp->nvars = 2;

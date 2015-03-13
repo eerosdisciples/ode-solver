@@ -11,7 +11,7 @@
 #include "interp2.h"
 #include "magnetic_field.h"
 #include "ode.h"
-#include "readfile.h"gs
+#include "readfile.h"
 #include "solution_data.h"
 
 #define NUMBER_OF_POINTS 1000 // number of data points to start with
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
   while (t[i] < args->tend) {
     /* Check if we have enough points */
     if (i+2 >= points) {
-      unsigned int np = 2 * points;
+      unsigned int np = (unsigned int)ceil(points * args->tend/t[i]);
       solution = realloc(solution, np*(sizeof(vector)));
       t = realloc(t, np*sizeof(double));
       E = realloc(E, np*sizeof(double));
