@@ -7,7 +7,7 @@
 #include "equation.h"
 #include "ctsv.h"
 
-#define EPS0 0.1                /* error tolerance */
+#define EPS0 1e-5                /* error tolerance */
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 5000 /* for ode_test */
 /**
@@ -24,10 +24,14 @@
  * RETURNS a solution to the equation as a defined type ode_solution consisting of Z,step, flag
  */
 ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *parameters,double T){
-  double B[2][6]={
+	double B[2][6] = {
+		{25.0/216.0, 0, 1408.0/2565.0, 2197.0/4104.0, -1.0/5.0, 0},
+		{16.0/135.0, 0, 6656.0/12825.0,28561.0/56430.0,-9.0/50.0,2.0/55.0}
+	};
+/*  double B[2][6]={
     {37.0/378,0,250.0/621,125.0/594,512.0/1771,0},
     {2825.0/27648,0,18575.0/48384,13525.0/55296,277.0/14336,1.0/4}
-  }; /* Stores Cash Carp coefficients. Contains
+  };*/ /* Stores Cash Carp coefficients. Contains
         b in first row and bhat in second */
   /* Choose order of iteration */
   unsigned int order1=4;
@@ -152,13 +156,21 @@ ode_solution* ode_solve( vector *(equation)(double, vector*),ode_solution *param
  *Which-to choose b or bhat CHANGE
  * RETURNS array with K values
  */
-double A[6][6]={
+/*double A[6][6]={
   {0,0,0,0,0,0},
-  {1.0/5,0,0,0,0,0}, /* Stores Cash Carp coefficients */
+  {1.0/5,0,0,0,0,0}, / * Stores Cash Carp coefficients * /
   {3.0/40,9.0/40,0,0,0,0},
   {3.0/10,-9.0/10,6.0/5,0,0,0},
   {-11.0/54,5.0/2,-70.0/27,35.0/27,0,0},
   {1631.0/55296,175.0/512,575.0/13828,44275.0/110592,253.0/4096,0},
+};*/
+double A[6][6] = {
+	{0,0,0,0,0,0},
+	{1.0/4.0,0,0,0,0,0},
+	{3.0/32.0,9/32.0,0,0,0,0},
+	{1932.0/2197.0, -7200.0/2197.0, 7296.0/2197.0, 0, 0, 0},
+	{439.0/216.0, -8.0, 3680.0/513.0, -845.0/4104.0, 0, 0},
+	{-8.0/27.0, 2.0, -3544.0/2565.0, 1859.0/4104.0, -11.0/40.0, 0}
 };
 vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, double T,unsigned int order){
   double alpha[]={1.0/5,3.0/10,1,7.0/8};/* Stores Cash Carp coefficients, if explicit time dependence */
