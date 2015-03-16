@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "arguments.h"
 #include "ctsv.h"
 #include "solution_data.h"
 #include "vector.h"
@@ -12,22 +13,42 @@
  * filename: Name of file to write data to
  * type: If 'c', use CSV format. If 't', use TSV format.
  * data: Data to write
+ * args: Input arguments passed to the program
  */
-void ctsv_write(char *filename, char type, solution_data* data) {
+void ctsv_write(char *filename, char type, solution_data* data, arguments* args) {
 	/**
 	 * Test function for this module
 	 */
 	FILE *fp;
 	fp = fopen(filename, "w");
 
+	if (fp == NULL) {
+		perror("ERROR");
+		fprintf(stderr, "ERROR: Unable to read file: '%s'\n", filename);
+		exit(EXIT_FAILURE);
+	}
+
 	unsigned int i, j;
+
+	/* Print settings? */
+	if (args != NULL && args->print_settings) {
+		fprintf(fp, "t0=%e\n", args->tstart);
+		fprintf(fp, "tend=%e\n", args->tend);
+		fprintf(fp, "r0=%e,%e,%e\n", args->r0[0], args->r0[1], args->r0[2]);
+		fprintf(fp, "v0=%e,%e,%e\n", args->v0[0], args->v0[1], args->v0[2]);
+		fprintf(fp, "mass=%e\n", args->particle_mass);
+		fprintf(fp, "charge=%e\n", args->particle_charge);
+
+		/* Insert empty line */
+		fprintf(fp, "\n");
+	}
 
 	/* Write labels */
 	fprintf(fp, "T");
 	for (i = 0; i < data->nvars; i++) {
 		fprintf(fp, "%c%s", type, data->labels[i]);
 	}
-	fprintf(fp, "E\n");
+	fprintf(fp, ",E\n");
 
 	/* Print data */
 	for (i = 0; i < data->points; i++) {
@@ -88,6 +109,6 @@ void ctsv_test(void) {
 	}
 
 	/* Write output to two different files */
-	ctsv_write("test.csv", ',', inp);
-	ctsv_write("test.tsv", '\t', inp);
+	ctsv_write("test.csv", ',', inp, NULL);
+	ctsv_write("test.tsv", '\t', inp, NULL);
 }

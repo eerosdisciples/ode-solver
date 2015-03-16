@@ -19,12 +19,7 @@ arguments *input_read(char *filename) {
 	}
 
 	/* Initialize args */
-	args = malloc(sizeof(arguments));
-	args->r0 = args->v0 = NULL;
-	args->magfield_file = args->domain_file = NULL;
-	args->particle_mass = 0;
-	args->particle_charge = 0;
-	args->tstart = args->tend = 0;
+	args = arguments_default();
 
 	int line = 1;
 
@@ -56,12 +51,18 @@ arguments *input_read(char *filename) {
 			buf = readfile_word(f);
 			args->domain_file = malloc(strlen(buf)+1);
 			strcpy(args->domain_file, buf);
+		} else if (!strcmp(buf, "output_file")) {
+			buf = readfile_word(f);
+			args->output_file = malloc(strlen(buf)+1);
+			strcpy(args->output_file, buf);
 		} else if (!strcmp(buf, "mass")) {
 			buf = readfile_word(f);
 			args->particle_mass = atof(buf);
 		} else if (!strcmp(buf, "charge")) {
 			buf = readfile_word(f);
 			args->particle_charge = atof(buf);
+		} else if (!strcmp(buf, "print_settings!")) {
+			args->print_settings = 1;
 		} else {
 			fprintf(stderr, "ERROR: Invalid syntax in input, line %d\n", line);
 			exit(EXIT_FAILURE);

@@ -25,12 +25,11 @@
  * solution: Vector with particle parameters and initial values to function giving the equation,
  */
 
-void main_solve(domain *dom,initial_data initial, particle *part){
+solution_data* main_solve(domain *dom,initial_data *initial, particle *part){
     unsigned int i;
     double vx,vy,vz;
     vector *solution;
     ode_solution *solver_object;
-	
   
     unsigned int points;
     points = NUMBER_OF_POINTS;
@@ -44,16 +43,25 @@ void main_solve(domain *dom,initial_data initial, particle *part){
 		
     solution->n = 6;
     solution->val = malloc(sizeof(double)*6);
-    solution->val[0] = initial.x0; 
-    solution->val[1] = initial.y0;
-    solution->val[2] = initial.z0; 
-    solution->val[3] = initial.vx0;
-    solution->val[4] = initial.vy0;
-    solution->val[5] = initial.vz0;
+    solution->val[0] = initial->x0; 
+    solution->val[1] = initial->y0;
+    solution->val[2] = initial->z0; 
+    solution->val[3] = initial->vx0;
+    solution->val[4] = initial->vy0;
+    solution->val[5] = initial->vz0;
 	
+	/* initial velocity from input file pi.
+	 * TODO: Load input data to particle object,
+	 * pass particle to solver function.
+	 * Edit the particle type first.
+	 */
+	vx = initial->vx0;
+	vy = initial->vy0;
+	vz = initial->vz0;
+
     /* For storing time */
     double *t = malloc(sizeof(double)*(points+1));
-	t[0]=initial.t0;
+	t[0]=initial->t0;
     /* For storing energy */
     double *E = malloc(sizeof(double)*(points+1));
     E[0] = part->mass/2*(vx*vx + vy*vy + vz*vz);
@@ -75,10 +83,10 @@ void main_solve(domain *dom,initial_data initial, particle *part){
     }
 
     i = 0;
-    while (t[i] < initial.tmax) {
+    while (t[i] < initial->tmax) {
       /* Check if we have enough points */
       if (i+2 >= points) {
-        unsigned int np = (unsigned int)ceil(points * initial.tmax/t[i]);
+        unsigned int np = (unsigned int)ceil(points * initial->tmax/t[i]);
         solution = realloc(solution, np*(sizeof(vector)));
         t = realloc(t, np*sizeof(double));
         E = realloc(E, np*sizeof(double));
@@ -95,9 +103,9 @@ void main_solve(domain *dom,initial_data initial, particle *part){
       x = solution[i].val[0];
       y = solution[i].val[1];
       z = solution[i].val[2];
-      vx= solution[i].val[0];
-      vy= solution[i].val[1];
-      vz= solution[i].val[2];
+      vx= solution[i].val[3];
+      vy= solution[i].val[4];
+      vz= solution[i].val[5];
       r = sqrt(x*x + y*y);
       E[i+1] = part->mass/2 * (vx*vx + vy*vy + vz*vz);
 
@@ -115,22 +123,22 @@ void main_solve(domain *dom,initial_data initial, particle *part){
     printf("Number of points: %d\n", i);
 
     /* Output data */
-    solution_data output;
-    output.T=t;
-    output.E=E;
-    output.v=solution;
-    output.labels=malloc(sizeof(char *)*6);
-    output.labels[0]="x";
-    output.labels[1]="y";
-    output.labels[2]="z";
-    output.labels[3]="vx";
-    output.labels[4]="vy";
-    output.labels[5]="vz";
-    output.points=i;
-    output.nvars=6;
-	
-    ctsv_write("particle.csv",',',&output);
-	
+    solution_data *output;
+    output = malloc(sizeof(solution_data));
+    output->T=t;
+    output->E=E;
+    output->v=solution;
+    output->labels=malloc(sizeof(char *)*6);
+    output->labels[0]="x";
+    output->labels[1]="y";
+    output->labels[2]="z";
+    output->labels[3]="vx";
+    output->labels[4]="vy";
+    output->labels[5]="vz";
+    output->points=i;
+    output->nvars=6;
+    
+    return output;
 }
 
 
@@ -141,8 +149,7 @@ int main(int argc, char *argv[]) {
   magnetic_field *B;
   particle *part;
   args = parse_args(argc, argv);
-  initial_data initial;
-  double vx,vy,vz;
+  initial_data *initial;
  
   /* Load domain */
   dom = domain_load(args->domain_file);
@@ -157,26 +164,22 @@ int main(int argc, char *argv[]) {
   interp2_init_interpolation(B);
   equation_init(part);
 
-  /* initial velocity from input file pi. TODO: Load input data to particle object, pass particle to solver function. Edit the particle type first. */
-  vx = args->v0[0];
-  vy = args->v0[1];
-  vz = args->v0[2];
-
   /* Set initial values */
-    
-  initial.x0 = args->r0[0];
-  initial.y0 = args->r0[1];
-  initial.z0 = args->r0[2];
+  initial = malloc(sizeof(initial_data)); 
+  initial->x0 = args->r0[0];
+  initial->y0 = args->r0[1];
+  initial->z0 = args->r0[2];
   
-  initial.vx0 = vx;
-  initial.vy0 = vy;
-  initial.vz0 = vz;
+  initial->vx0 = args->v0[0];
+  initial->vy0 = args->v0[1];
+  initial->vz0 = args->v0[2];
 	  
-  initial.t0 = args->tstart;
-  initial.tmax= args->tend;
-	  
+  initial->t0 = args->tstart;
+  initial->tmax= args->tend;
   
-  main_solve(dom,initial,part);
+  solution_data *output = main_solve(dom,initial,part);
+  
+  ctsv_write(args->output_file,',',output, args);
 
   return 0;
 }
