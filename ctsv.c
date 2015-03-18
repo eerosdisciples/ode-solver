@@ -57,15 +57,15 @@ void ctsv_write(char *filename, char type, solution_data* data, arguments* args)
 		double E = data->E[i];
 
 		/* Time coordinate */
-		fprintf(fp, "%e", t);
+		fprintf(fp, "%.15e", t);
 
 		/* Print all elements in vector v */
 		for (j = 0; j < data->nvars; j++) {
-			fprintf(fp, "%c%e", type, v->val[j]);
+			fprintf(fp, "%c%.15e", type, v->val[j]);
 		}
 
 		/* Print energy */
-		fprintf(fp, "%c%e\n", type, E);
+		fprintf(fp, "%c%.15e\n", type, E);
 	}
 
 	fclose(fp);

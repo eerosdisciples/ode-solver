@@ -1,7 +1,10 @@
 *.o
+*~
 solver
 tests/ctsv
 tests/domain
 tests/magnetic_field
 tests/input
 tests/ode
+*.csv
+*.tsv
