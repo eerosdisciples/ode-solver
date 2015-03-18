@@ -3,7 +3,7 @@
 
 #include "arguments.h"
 
-arguments *input_read(char*);
+arguments *input_read(char*, arguments*);
 void input_test(void);
 
 #endif/*_INPUT_H*/

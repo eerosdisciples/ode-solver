@@ -158,7 +158,7 @@ arguments *parse_args(int argc, char *argv[]) {
 
 	/* Handle remaining input arguments */
 	while (optind < argc) {
-		args = input_read(argv[optind++]);
+		args = input_read(argv[optind++], args);
 	}
 
 	if (args->domain_file == NULL)

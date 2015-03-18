@@ -300,5 +300,5 @@ void ode_test(void) {
   output.points=points;
   output.nvars=2;
 
-  ctsv_write("Output.csv",',',&output);
+  ctsv_write("Output.csv",',',&output, NULL);
 }

@@ -5,4 +5,5 @@ v0=-9.5487e5,-7.7664e5,-4.1652e5
 magnetic_field=tests/iter2d.bkg
 domain_file=tests/iter.wall_2d
 mass=4
-charge=2
+charge=4
+print_settings!

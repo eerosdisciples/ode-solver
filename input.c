@@ -6,8 +6,7 @@
 #include "arguments.h"
 #include "readfile.h"
 
-arguments *input_read(char *filename) {
-	arguments *args;
+arguments *input_read(char *filename, arguments *args) {
 	char *buf;
 	FILE *f;
 	f = fopen(filename, "r");
@@ -19,7 +18,8 @@ arguments *input_read(char *filename) {
 	}
 
 	/* Initialize args */
-	args = arguments_default();
+	if (args == NULL)
+		args = arguments_default();
 
 	int line = 1;
 
@@ -92,7 +92,7 @@ arguments *input_read(char *filename) {
 
 void input_test(void) {
 	arguments *args;
-	args = input_read("testinput.input");
+	args = input_read("testinput.input", NULL);
 
 	printf("ARGUMENTS READ:\n\n");
 
