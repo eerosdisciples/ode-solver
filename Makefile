@@ -9,7 +9,7 @@ LD=gcc
 
 LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 TARGET=solver
-OBJECTS=arguments.o ctsv.o domain.o equation_predprey.o equation_particle.o input.o interp2.o main.o magnetic_field.o ode.o readfile.o vector.o
+OBJECTS=arguments.o ctsv.o domain.o equation_predprey.o equation_particle.o input.o interp2.o main.o magnetic_field.o rkf45.o readfile.o vector.o
 
 all: $(TARGET)
 

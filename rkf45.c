@@ -3,9 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "ctsv.h"
-#include "equation_particle.h"
-#include "equation_predprey.h"
-#include "ode.h"
+#include "equations.h"
+#include "rkf45.h"
 #include "vector.h"
 
 #define EPS0 1e-5                /* error tolerance */
@@ -28,6 +27,8 @@
     {37.0/378,0,250.0/621,125.0/594,512.0/1771,0},
     {2825.0/27648,0,18575.0/48384,13525.0/55296,277.0/14336,1.0/4}
     };*/
+/* Stores Cash Carp coefficients , used if explicit time dependence */
+   double c[]={1.0/5,3.0/10,1,7.0/8};
 
 /* Stores Fehlberg coefficients A */
 double A[6][6] = {
@@ -50,17 +51,21 @@ double B[2][6] = {
  * equation: Pointer to function giving the equation,
  * that is f in "z' = f(t,z)" where t is time
  * (scalar) and z is the unknown (vector)
- * t0: Initial time
- * z0: Initial values
- * n: Number of points to calculate
- * T: time
- * Z: vector containing values from previous iteration
  *
- * RETURNS a solution to the equation as a defined type ode_solution consisting of Z, step, flag
+ * solver_object: pointer to a defined type ode_solution consisting 
+ * of Z, step, flag.
+ * Z contains the solution values from the previous iteration.
+ * step is the optimal step size. flag indicates REDO_STEP (1) or OK_STEP (0).
+ *
+ * T: time
+ *
+ * RETURNS a solution to the equation as a pointer to an ode_solution consisting
+ * of Z, step, flag.
+ * Now Z contains the new solution points, new step size and new flag value.
  *
  * Called from main
  */
-ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *parameters, double T){
+ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver_object, double T){
 
   /* Choose order of iteration */
   unsigned int order1=4;
@@ -68,21 +73,19 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *parame
   double eps0=EPS0; // Tolerance parameter
   double beta=SAFETY_FACTOR; // Safety parameter
   /* Stores flag indicating whether the the iteration should be redone */
-  int flag;
+  int flag = solver_object->flag;
+  /* current solution points */
+  vector* Z = solver_object->Z;
+  /* current step size */
+  double h=solver_object->step;
   
-  vector* Z;
-
-  Z=parameters->Z;
-  double h=parameters->step;
-
-  /* Variables used in loop*/
-  unsigned int i;
-
   /* To store optimal steplenght*/
   double hopt;
 
+  unsigned int i; // loop variable
+
   /* Calculate next point */
-  vector* K = ode_step(equation, parameters,T,order2);
+  vector* K = ode_step(equation, solver_object, T, order2);
 
   /* Calculate sum to be used in next point for Z_next and Zhat */
   
@@ -144,14 +147,9 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *parame
   }
 
   /* Save and return calculated values */
-  /* To be removed? */
-  /*ode_solution *solution;
-    solution.Z=vinit(2);
-    solution.Z->val[0]=Z_next->val[0];
-    solution.Z->val[1]=Z_next->val[1];*/
-  parameters->step = hopt;
-  parameters->flag = flag;
-  vector* Zp1 = parameters->Z+1;
+  solver_object->step = hopt;
+  solver_object->flag = flag;
+  vector* Zp1 = solver_object->Z+1;
   Zp1->val = Z_next->val;
   Zp1->n = Z_next->n;
 
@@ -170,22 +168,34 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *parame
   free(K);
 
   /* Return the solver object */
-  return parameters;
+  return solver_object;
 }
 /**
- * Calculates the next point depending on the order
+ * Calculates new solution points
  *
- * Same arguments as in ode_solve
- * Z: vector containing values from previous iteration
- *Which-to choose b or bhat CHANGE
+ * equation: Pointer to function giving the equation,
+ * that is f in "z' = f(t,z)" where t is time
+ * (scalar) and z is the unknown (vector)
+ *
+ * solver_object: pointer to a defined type ode_solution consisting 
+ * of Z, step, flag.
+ * Z contains the solution values from the previous iteration.
+ * step is the optimal step size. flag indicates REDO_STEP (1) or OK_STEP (0).
+ *
+ * T: time
+ *
+ * order: order of RK-algorithm
+ *
  * RETURNS array with K values
+ *
+ * Called from ode_solve.
  */
 
-vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, double T,unsigned int order){
-  double alpha[]={1.0/5,3.0/10,1,7.0/8};/* Stores Cash Carp coefficients, if explicit time dependence */
+vector * ode_step(vector *(equation)(double, vector*),ode_solution *solver_object, double T, unsigned int order){
+  
   vector* Z;
-  Z=parameters->Z;
-  double h=parameters->step;
+  Z=solver_object->Z;
+  double h=solver_object->step;
 
   /* loop variables*/
   unsigned int i;
@@ -226,7 +236,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *parameters, 
 
     /* Calculate K */
     vaddf(sum, Z);
-    vec=equation(T+alpha[i]*h,sum);
+    vec=equation(T+c[i]*h,sum);
     K[i].val = vec->val;
 
     free(vec);
@@ -284,7 +294,7 @@ void ode_test(void) {
 
     /* Iterate once */
     param->Z = coordinates+i;
-    ode_solve(equation_predator_prey, param, t[i]);
+    //    ode_solve(equation_predator_prey, param, t[i]);
 
     /* Check if iteration needs to be re-done */
     /* flag=0 -> ok -> continue */	

@@ -7,11 +7,10 @@
 #include "arguments.h"
 #include "ctsv.h"
 #include "domain.h"
-#include "equation_particle.h"
-#include "equation_predprey.h"
+#include "equations.h"
 #include "interp2.h"
 #include "magnetic_field.h"
-#include "ode.h"
+#include "rkf45.h"
 #include "readfile.h"
 #include "IO_data.h"
 
