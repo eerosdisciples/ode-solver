@@ -201,7 +201,7 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *solver_objec
   unsigned int i;
   unsigned int j;
 
-  /* Array to store K-values CHANGE IF PARTICLE TYPE
+  /* Array to store K-values 
      Allocate memory for each vector*/
   vector *K;
   K = malloc(sizeof(vector)*(order+1));

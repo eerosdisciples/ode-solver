@@ -19,6 +19,10 @@
 /* Reference point to check if initial position is inside domain */
 #define REFERENCE_POINT_R 6 
 #define REFERENCE_POINT_Z 0
+/* conversion from atomic mass units to kg */
+#define AMU_TO_KG 1.66053886e-27
+/* elementary charge in Coloumbs */
+#define CHARGE 1.60217657e-19
 
 /* global variable containing particle initial values defined in main */
 initial_data *initial;
@@ -38,6 +42,7 @@ solution_data* main_solve(domain *dom){
   double vx,vy,vz;// velocity, cartesian
   vector *solution;
   ode_solution *solver_object;
+  
   
   unsigned int points;
   points = NUMBER_OF_POINTS;
@@ -164,6 +169,7 @@ int main(int argc, char *argv[]) {
   arguments *args;
   domain *dom;
   magnetic_field *B;
+  
   args = parse_args(argc, argv);
  
   /* Load domain */
@@ -187,8 +193,8 @@ int main(int argc, char *argv[]) {
   initial->t0 = args->tstart;
   initial->tmax= args->tend;
 
-  initial->mass = args->particle_mass;
-  initial->charge = args->particle_charge;
+  initial->mass = args->particle_mass*AMU_TO_KG;
+  initial->charge = args->particle_charge*CHARGE;
 
   /* solve */
   solution_data *output = main_solve(dom);
