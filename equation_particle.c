@@ -7,16 +7,8 @@
 #include "IO_data.h"
 #include <math.h>
 
-initial_data* equation_partobj;
-
-/**
-Initializes equation for particle object:
-* saves particle in local variable. 
-*/
-void equation_init(initial_data *p) {
-	equation_partobj = p;
-}
-/* Equation functions */
+/* Global variable containing particle initial values defined in main */
+initial_data* initial;
 
 /**
  * Equation for the charged particle motion
@@ -32,12 +24,10 @@ void equation_init(initial_data *p) {
  * Used as the first argument to ode_solve in ode.c
  */
 vector * equation_particle(double T, vector* Z){
-  /*TODO Change from vector to particle + arbitrary parametrs m,e */
-  /* Define needed parameters */
   double amu_to_kg=1.66053886e-27;
   double ev=1.60217657e-19;
-  double m=equation_partobj->mass*amu_to_kg;
-  double e=equation_partobj->charge*ev;
+  double m=initial->mass*amu_to_kg;
+  double e=initial->charge*ev;
 
   /* Save xyz coordinates of particle*/
   vector *xyz=vnew(3);
