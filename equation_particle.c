@@ -4,16 +4,16 @@
 #include "magnetic_field.h"
 #include "readfile.h"
 #include "interp2.h"
-#include "particle.h"
+#include "IO_data.h"
 #include <math.h>
 
-particle* equation_partobj;
+initial_data* equation_partobj;
 
 /**
 Initializes equation for particle object:
 * saves particle in local variable. 
 */
-void equation_init(particle *p) {
+void equation_init(initial_data *p) {
 	equation_partobj = p;
 }
 /* Equation functions */

@@ -25,7 +25,7 @@
  * solution: Vector with particle parameters and initial values to function giving the equation,
  */
 
-solution_data* main_solve(domain *dom,initial_data *initial, particle *part){
+solution_data* main_solve(domain *dom,initial_data *initial){
     unsigned int i;
     double vx,vy,vz;
     vector *solution;
@@ -64,7 +64,7 @@ solution_data* main_solve(domain *dom,initial_data *initial, particle *part){
 	t[0]=initial->t0;
     /* For storing energy */
     double *E = malloc(sizeof(double)*(points+1));
-    E[0] = part->mass/2*(vx*vx + vy*vy + vz*vz);
+    E[0] = initial->mass/2*(vx*vx + vy*vy + vz*vz);
 
     /* For checking domain */
     double x,y,z,r;
@@ -107,7 +107,7 @@ solution_data* main_solve(domain *dom,initial_data *initial, particle *part){
       vy= solution[i].val[4];
       vz= solution[i].val[5];
       r = sqrt(x*x + y*y);
-      E[i+1] = part->mass/2 * (vx*vx + vy*vy + vz*vz);
+      E[i+1] = initial->mass/2 * (vx*vx + vy*vy + vz*vz);
 
       /* Move on to next iteration */
       i++;
@@ -147,22 +147,17 @@ int main(int argc, char *argv[]) {
   arguments *args;
   domain *dom;
   magnetic_field *B;
-  particle *part;
-  args = parse_args(argc, argv);
+    args = parse_args(argc, argv);
   initial_data *initial;
  
   /* Load domain */
   dom = domain_load(args->domain_file);
   /* Load magnetic field */
   B = magnetic_field_load(args->magfield_file);
-  /* Initialize particle */
-  part = malloc(sizeof(particle));
-  part->mass = args->particle_mass;
-  part->charge = args->particle_charge;
+ ;
 
   /* Initialization of interpolation and equation */
   interp2_init_interpolation(B);
-  equation_init(part);
 
   /* Set initial values */
   initial = malloc(sizeof(initial_data)); 
@@ -176,8 +171,13 @@ int main(int argc, char *argv[]) {
 	  
   initial->t0 = args->tstart;
   initial->tmax= args->tend;
-  
-  solution_data *output = main_solve(dom,initial,part);
+
+  initial->mass = args->particle_mass;
+  initial->charge = args->particle_charge;
+
+    equation_init(initial);
+
+  solution_data *output = main_solve(dom,initial);
   
   ctsv_write(args->output_file,',',output, args);
 

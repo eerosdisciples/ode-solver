@@ -4,7 +4,6 @@
 #include "magnetic_field.h"
 #include "readfile.h"
 #include "interp2.h"
-#include "particle.h"
 #include <math.h>
 
 /**
