@@ -23,6 +23,8 @@
 #define AMU_TO_KG 1.66053886e-27
 /* elementary charge in Coloumbs */
 #define CHARGE 1.60217657e-19
+/* conversion from joule to eV */
+#define ENERGY 6.24150934e18
 
 /* global variable containing particle initial values defined in main */
 initial_data *initial;
@@ -84,7 +86,7 @@ solution_data* main_solve(domain *dom){
   t[0]=initial->t0;
   /* For storing energy */
   double *E = malloc(sizeof(double)*(points+1));
-  E[0] = initial->mass/2*(vx*vx + vy*vy + vz*vz);
+  E[0] = initial->mass/2*(vx*vx + vy*vy + vz*vz)*ENERGY;
 
   /* domain check of initial position */
   double R[2] = {REFERENCE_POINT_R,r};
@@ -122,7 +124,7 @@ solution_data* main_solve(domain *dom){
     vz= solution[i].val[5];
     r = sqrt(x*x + y*y);
     /* store new energy */
-    E[i+1] = initial->mass/2 * (vx*vx + vy*vy + vz*vz);
+    E[i+1] = initial->mass/2 * (vx*vx + vy*vy + vz*vz)*ENERGY;
 
     /* Move on to next iteration */
     i++;
