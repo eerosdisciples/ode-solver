@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "ctsv.h"
-#include "equation.h"
+#include "equation_particle.h"
+#include "equation_predprey.h"
 #include "ode.h"
 #include "vector.h"
 

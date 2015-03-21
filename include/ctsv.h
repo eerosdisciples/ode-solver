@@ -2,15 +2,7 @@
 #define _CTSV_H
 
 #include "arguments.h"
-#include "solution_data.h"
-
-//typedef struct {
-//	double* t;				/* Time points */
-//	vector *v;				/* List of values to output */
-//	char **labels;			/* List of labels belonging to vectors `v' */
-//	unsigned int points;	/* Number of points */
-//	unsigned int nvars;		/* Number of variables (or columns) */
-//} ctsv_input;
+#include "IO_data.h"
 
 /* Write data to CSV or TSV file */
 void ctsv_write(char*, char, solution_data*, arguments*);

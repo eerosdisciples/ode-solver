@@ -13,7 +13,7 @@
 #include "magnetic_field.h"
 #include "ode.h"
 #include "readfile.h"
-#include "solution_data.h"
+#include "IO_data.h"
 
 #define NUMBER_OF_POINTS 1000 // number of data points to start with
 /* Reference point to check if initial position is inside domain */
