@@ -97,7 +97,7 @@ solution_data* main_solve(domain *dom){
     exit(EXIT_FAILURE);
   }
   
-  /* I'd like a comment here */
+  /* Main loop. Loop until the final time has been reached */
   i = 0;
   while (t[i] < initial->tmax) {
     /* Check if we have enough points */
@@ -109,7 +109,12 @@ solution_data* main_solve(domain *dom){
 
       points = np;
     }
-    /* and a comment here */
+	
+	/* Our solution vector 'solution' has been pre-allocated. We
+	 * simply point our pointer object solution vector 'Z' to the
+	 * pre-allocated array. Since 'ode_solve' only gives us one
+	 * step at a time this allows to fill the solution array gradually
+	 */
     solver_object->Z = solution+i;
     do {
       t[i+1] = t[i] + solver_object->step;
