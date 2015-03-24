@@ -11,7 +11,11 @@ typedef struct {
 	double particle_charge;	/* Charge of particle */
 	char print_settings;	/* Wether or not to print settings at top
 							   of output file */
+	char problem;			/* Which problem to solve (GC or PC) */
 } arguments;
+
+#define PROBLEM_GC 1		/* Solve the guiding center problem */
+#define PROBLEM_NO_GC 0 	/* Solve the particle motion problem */
 
 double *atodp3(const char*);
 arguments *arguments_default(void);

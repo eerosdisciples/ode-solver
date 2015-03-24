@@ -63,6 +63,8 @@ arguments *input_read(char *filename, arguments *args) {
 			args->particle_charge = atof(buf);
 		} else if (!strcmp(buf, "print_settings!")) {
 			args->print_settings = 1;
+		} else if (!strcmp(buf, "no_guiding_center!")) {
+			args->problem = PROBLEM_NO_GC;
 		} else {
 			fprintf(stderr, "ERROR: Invalid syntax in input, line %d\n", line);
 			exit(EXIT_FAILURE);
