@@ -66,6 +66,7 @@ arguments *arguments_default(void) {
 	args->tend = 0.;
 	args->r0 = args->v0 = NULL;
 	args->print_settings = 0;
+	args->problem = PROBLEM_GC;
 	
 	return args;
 }
@@ -83,6 +84,7 @@ arguments *parse_args(int argc, char *argv[]) {
 			{"B-field-file", 	required_argument, 	0, 'f'},
 			{"help", 			no_argument, 		0, 0},
 			{"particle-mass",	required_argument,	0, 'm'},
+			{"no-guiding-center",no_argument,		0, 'n'},
 			{"output-file",		required_argument,	0, 'o'},
 			{"print-settings",	no_argument,		0, 'p'},
 			{"r0",				required_argument,	0, 'r'},
@@ -94,7 +96,7 @@ arguments *parse_args(int argc, char *argv[]) {
 		};
 
 		option_index = 0;
-		c = getopt_long(argc, argv, "c:d:f:m:o:pr:t:v:",
+		c = getopt_long(argc, argv, "c:d:f:m:no:pr:t:v:",
 				long_options, &option_index);
 
 		if (c == -1)
@@ -126,6 +128,9 @@ arguments *parse_args(int argc, char *argv[]) {
 				break;
 			case 'm':
 				args->particle_mass = atof(optarg);
+				break;
+			case 'n':
+				args->problem = PROBLEM_NO_GC;
 				break;
 			case 'o':
 				args->output_file = optarg;

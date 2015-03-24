@@ -27,7 +27,8 @@
 /* conversion from joule to eV */
 #define ENERGY 6.24150934e18
 
-/* global variable containing particle initial values defined in main */
+/* global variable containing particle initial values defined in main.
+ declared in IO_data.h */
 initial_data *initial;
 
 /**
