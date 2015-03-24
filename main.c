@@ -8,6 +8,7 @@
 #include "ctsv.h"
 #include "domain.h"
 #include "equations.h"
+#include "equation_GCM.h"
 #include "interp2.h"
 #include "magnetic_field.h"
 #include "rkf45.h"
@@ -40,11 +41,12 @@ initial_data *initial;
  * Called from main
  */
 
-solution_data* main_solve(domain *dom){
+solution_data* main_solve(domain *dom, arguments *args){
   unsigned int i; // loop variable
   double x,y,z,r; // coordinates, cartesian and cylindrical
   double vx,vy,vz;// velocity, cartesian
   vector *solution;  
+  ode_solution *solver_object;
   
   unsigned int points;
   points = NUMBER_OF_POINTS;
@@ -57,16 +59,28 @@ solution_data* main_solve(domain *dom){
    */
   solution = malloc(sizeof(vector)*points);
   
-  solution->n = 6;
-  solution->val = malloc(sizeof(double)*6);
-  /* store initial values in solution vector */
-  solution->val[0] = initial->x0; 
-  solution->val[1] = initial->y0;
-  solution->val[2] = initial->z0; 
-  solution->val[3] = initial->vx0;
-  solution->val[4] = initial->vy0;
-  solution->val[5] = initial->vz0;
-	
+  /* Choose problem to solve */
+  if (args->problem == PROBLEM_GC) {
+	  solution->n = 5;
+	  solution->val = malloc(sizeof(double)*6);
+		
+	  /* Initialize data */
+	  solver_object = equation_GCM_init(initial, solution);
+  } else {
+	  solution->n = 6;
+	  solution->val = malloc(sizeof(double)*6);
+
+	  solution->val[0] = initial->x0; 
+	  solution->val[1] = initial->y0;
+	  solution->val[2] = initial->z0; 
+	  solution->val[3] = initial->vx0;
+	  solution->val[4] = initial->vy0;
+	  solution->val[5] = initial->vz0;
+
+	  solver_object = malloc(sizeof(ode_solution));
+	  solver_object->step = 1e-10; 
+  }
+
   /* speeds are needed separately for calculations */
   vx = initial->vx0;
   vy = initial->vy0;
@@ -76,10 +90,6 @@ solution_data* main_solve(domain *dom){
   y = initial->y0;
   z = initial->z0;
   r = sqrt(x*x + y*y);
-  
-
-  /* Initialize data */
-   ode_solution* solver_object = predator_init(initial);
 
   /* For storing time */
   double *t = malloc(sizeof(double)*(points+1));
@@ -118,18 +128,35 @@ solution_data* main_solve(domain *dom){
     solver_object->Z = solution+i;
     do {
       t[i+1] = t[i] + solver_object->step;
-      ode_solve(equation_particle, solver_object, t[i]);
+	  if (args->problem == PROBLEM_GC)
+        ode_solve(equation_GCM, solver_object, t[i]);
+	  else
+		ode_solve(equation_particle, solver_object, t[i]);
     } while (solver_object->flag == REDO_STEP);
-    /* store new position and velocity */
-    x = solution[i].val[0];
-    y = solution[i].val[1];
-    z = solution[i].val[2];
-    vx= solution[i].val[3];
-    vy= solution[i].val[4];
-    vz= solution[i].val[5];
-    r = sqrt(x*x + y*y);
-    /* store new energy */
-    E[i+1] = initial->mass/2 * (vx*vx + vy*vy + vz*vz)*ENERGY;
+
+	if (args->problem == PROBLEM_GC) {
+		double u=solution[i].val[0];
+		x = solution[i].val[1];
+		y = solution[i].val[2];
+		z = solution[i].val[3];
+		r = sqrt(x*x + y*y);
+
+		/* This is wrong at the moment, but I'm
+		 * not quite sure what this should be... */
+		E[i+1] = (initial->mass/2 * u*u) * ENERGY;
+	} else {
+		/* get new position and velocity */
+		x = solution[i].val[0];
+		y = solution[i].val[1];
+		z = solution[i].val[2];
+		vx= solution[i].val[3];
+		vy= solution[i].val[4];
+		vz= solution[i].val[5];
+		r = sqrt(x*x + y*y);
+		
+		/* store new energy */
+		E[i+1] = initial->mass/2 * (vx*vx + vy*vy + vz*vz)*ENERGY;
+	}
 
     /* Move on to next iteration */
     i++;
@@ -138,11 +165,13 @@ solution_data* main_solve(domain *dom){
     R[1] = r;    Z[1] = z;
     if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
       printf("Particle collided with reactor wall!\n");
+	  printf("  r = %e\n  z = %e\n", r, z);
       break;
     }
   }
 
   printf("Number of points: %d\n", i);
+  printf("t = %e\n", t[i]);
 
   /* Output data */
   solution_data *output;
@@ -150,15 +179,26 @@ solution_data* main_solve(domain *dom){
   output->T=t;
   output->E=E;
   output->v=solution;
-  output->labels=malloc(sizeof(char *)*6);
-  output->labels[0]="x";
-  output->labels[1]="y";
-  output->labels[2]="z";
-  output->labels[3]="vx";
-  output->labels[4]="vy";
-  output->labels[5]="vz";
   output->points=i;
-  output->nvars=6;
+
+  if (args->problem == PROBLEM_GC) {
+	  output->labels = malloc(sizeof(char*)*5);
+	  output->labels[0] = "u";
+	  output->labels[1] = "X";
+	  output->labels[2] = "Y";
+	  output->labels[3] = "Z";
+	  output->labels[4] = "mu";
+	  output->nvars = 5;
+  } else {
+	  output->labels=malloc(sizeof(char *)*6);
+	  output->labels[0]="x";
+	  output->labels[1]="y";
+	  output->labels[2]="z";
+	  output->labels[3]="vx";
+	  output->labels[4]="vy";
+	  output->labels[5]="vz";
+	  output->nvars=6;
+  }
     
   return output;
 }
@@ -204,7 +244,7 @@ int main(int argc, char *argv[]) {
   initial->charge = args->particle_charge*CHARGE;
 
   /* solve */
-  solution_data *output = main_solve(dom);
+  solution_data *output = main_solve(dom, args);
   /* write solution data to file specified in input file */
   ctsv_write(args->output_file,',',output, args);
 

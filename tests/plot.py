@@ -18,5 +18,5 @@ with open('Output.csv', 'rb') as f:
         y.append(float(row[2]))
 
 plt.plot(t,x,t,y)
-plt.xlim([0,20])
+#plt.xlim([0,20])
 plt.show()

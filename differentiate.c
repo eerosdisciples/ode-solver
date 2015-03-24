@@ -4,6 +4,7 @@
 #include <gsl/gsl_deriv.h>
 #include <math.h>
 #include "magnetic_field.h"
+#include "interp2.h"
 
 /**
  * Calculate ||B|| and allow GSL to vary
@@ -64,13 +65,13 @@ vector *differentiate_Bhat(double x, double y, double z) {
  */
 double bhaty_var_x(double x, void *yz) {
 	vector *res = differentiate_Bhat(x, ((double*)yz)[0], ((double*)yz)[1]);
-	double by = res->val[0];
+	double by = res->val[1];
 	vfree(res);
 	return by;
 }
 double bhatz_var_x(double x, void *yz) {
 	vector *res = differentiate_Bhat(x, ((double*)yz)[0], ((double*)yz)[1]);
-	double bz = res->val[0];
+	double bz = res->val[2];
 	vfree(res);
 	return bz;
 }
@@ -82,7 +83,7 @@ double bhatx_var_y(double y, void *xz) {
 }
 double bhatz_var_y(double y, void *xz) {
 	vector *res = differentiate_Bhat(((double*)xz)[0], y, ((double*)xz)[1]);
-	double bz = res->val[0];
+	double bz = res->val[2];
 	vfree(res);
 	return bz;
 }
@@ -94,7 +95,7 @@ double bhatx_var_z(double z, void *xy) {
 }
 double bhaty_var_z(double z, void *xy) {
 	vector *res = differentiate_Bhat(((double*)xy)[0], ((double*)xy)[1], z);
-	double by = res->val[0];
+	double by = res->val[1];
 	vfree(res);
 	return by;
 }
@@ -157,8 +158,10 @@ vector *differentiate_rotBhat(vector *xyz) {
 
 	gsl_deriv_central(&Fdbx_dy, xyz->val[0], 1e-8, &dbx_dy, &abserr);
 	gsl_deriv_central(&Fdbx_dz, xyz->val[0], 1e-8, &dbx_dz, &abserr);
+
 	gsl_deriv_central(&Fdby_dx, xyz->val[1], 1e-8, &dby_dx, &abserr);
 	gsl_deriv_central(&Fdby_dz, xyz->val[1], 1e-8, &dby_dz, &abserr);
+
 	gsl_deriv_central(&Fdbz_dx, xyz->val[2], 1e-8, &dbz_dx, &abserr);
 	gsl_deriv_central(&Fdbz_dy, xyz->val[2], 1e-8, &dbz_dy, &abserr);
 
@@ -167,4 +170,18 @@ vector *differentiate_rotBhat(vector *xyz) {
 	res->val[2] = dby_dx - dbx_dy;
 
 	return res;
+}
+
+void differentiate_test(void) {
+	magnetic_field *magf = magnetic_field_load("iter2d.bkg");
+	interp2_init_interpolation(magf);
+
+	vector *xyz = vinit(3, 8, 0, 0.2);
+	vector *B = magnetic_field_get(xyz);
+	double Babs = sqrt(vdot(B,B));
+	vector *b = vinit(3, B->val[0]/Babs, B->val[1]/Babs, B->val[2]/Babs);
+
+	printf("bhat = %e, %e, %e\n", b->val[0], b->val[1], b->val[2]);
+	vector *rot = differentiate_rotBhat(xyz);
+	printf("curl bhat = %e, %e, %e\n", rot->val[0], rot->val[1], rot->val[2]);
 }

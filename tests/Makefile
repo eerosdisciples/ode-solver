@@ -9,10 +9,11 @@ OCTSV=ctsv.o ../ctsv.o ../vector.o
 ODOMAIN=domain.o ../domain.o ../readfile.o
 OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vector.o
 OINPUT=input.o ../arguments.o ../input.o ../readfile.o
-OODE=../ctsv.o ode.o ../ode.o ../vector.o ../equation.o ../magnetic_field.o ../interp2.o ../readfile.o
+OODE=../ctsv.o ode.o ../rkf45.o ../vector.o ../equation_predprey.o ../magnetic_field.o ../interp2.o ../readfile.o
 OFFG=../fieldFineGrid.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
+ODIFF=diff.o ../differentiate.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
 
-all: ctsv domain magnetic_field input ode fieldFineGrid
+all: ctsv diff domain magnetic_field input ode
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -22,6 +23,10 @@ all: ctsv domain magnetic_field input ode fieldFineGrid
 
 ctsv: $(OCTSV)
 	$(LD) $(OCTSV) $(LFLAGS) -o $@ 
+
+diff:
+	$(LD) $(ODIFF) $(LFLAGS) -o $@
+
 domain: $(ODOMAIN)
 	$(LD) $(ODOMAIN) $(LFLAGS) -o $@ 
 

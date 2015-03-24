@@ -9,7 +9,4 @@
 /* Test equation */
 vector * equation_predator_prey(double, vector*);
 
-ode_solution* predator_init(initial_data *);
-
-
 #endif/*_EQUATION_PREDPREY_H*/

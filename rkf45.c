@@ -7,7 +7,7 @@
 #include "rkf45.h"
 #include "vector.h"
 
-#define EPS0 1e-7                /* error tolerance */
+#define EPS0 1e-9                /* error tolerance */
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 5000 /* for ode_test */
 
@@ -84,6 +84,8 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
 
   unsigned int i; // loop variable
 
+  vector *temp = equation(0, solver_object->Z);
+
   /* Calculate next point */
   vector* K = ode_step(equation, solver_object, T, order2);
 
@@ -125,13 +127,12 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
    * save the largest error value */
   double eps, epst;
   vector *error_Z;
-  vmulsf(-1, Z_next);
-  error_Z = vadd(Zhat,Z_next);	/* error_Z = Zhat - Z_next */
-  vmulsf(-1, Z_next);   /* restore sign for Z_next */
+  error_Z = vmuls(-1, Z_next);
+  vaddf(error_Z, Zhat);	/* error_Z = Zhat - Z_next */
 
-  eps = fabs(error_Z->val[0] /  fabs(Zhat->val[0]));
+  eps = fabs(error_Z->val[0]) /  fabs(Z_next->val[0]);
   for (i = 1; i < error_Z->n; i++) {
-    epst = fabs(error_Z->val[i]) / fabs(Zhat->val[i]);
+    epst = fabs(error_Z->val[i]) / fabs(Z_next->val[i]);
     if (epst > eps) {
       eps = epst;
     }
@@ -142,6 +143,9 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
     flag=REDO_STEP;
+  } else if (eps == 0) {
+	  hopt = 1/beta*h;
+	  flag=OK_STEP;
   } else {
     hopt=h*pow(eps0/eps,0.25);
     flag=OK_STEP;

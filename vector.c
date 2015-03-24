@@ -177,3 +177,18 @@ double vdot(vector *v, vector *u) {
 
 	return scalar;
 }
+
+/**
+ * Clone a vector
+ *
+ * v: Vector to clone
+ */
+vector *vclone(vector *v) {
+	vector *p = vnew(v->n);
+	unsigned int i;
+	for (i = 0; i < v->n; i++) {
+		p->val[i] = v->val[i];
+	}
+
+	return p;
+}
