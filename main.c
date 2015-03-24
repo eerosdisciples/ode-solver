@@ -11,6 +11,7 @@
 #include "interp2.h"
 #include "magnetic_field.h"
 #include "rkf45.h"
+#include "equation_predprey.h"
 #include "readfile.h"
 #include "IO_data.h"
 
@@ -42,9 +43,7 @@ solution_data* main_solve(domain *dom){
   unsigned int i; // loop variable
   double x,y,z,r; // coordinates, cartesian and cylindrical
   double vx,vy,vz;// velocity, cartesian
-  vector *solution;
-  ode_solution *solver_object;
-  
+  vector *solution;  
   
   unsigned int points;
   points = NUMBER_OF_POINTS;
@@ -56,11 +55,7 @@ solution_data* main_solve(domain *dom){
    *
    */
   solution = malloc(sizeof(vector)*points);
-  /* solver_object of type ode_solution contains solution points, optimal
-   * step size, and flag indicating ok step. */
-  solver_object = malloc(sizeof(ode_solution));
-  solver_object->step = 1e-10; /* Initial step size */
-		
+  
   solution->n = 6;
   solution->val = malloc(sizeof(double)*6);
   /* store initial values in solution vector */
@@ -80,6 +75,10 @@ solution_data* main_solve(domain *dom){
   y = initial->y0;
   z = initial->z0;
   r = sqrt(x*x + y*y);
+  
+
+  /* Initialize data */
+   ode_solution* solver_object = predator_init(initial);
 
   /* For storing time */
   double *t = malloc(sizeof(double)*(points+1));
