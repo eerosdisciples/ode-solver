@@ -10,6 +10,9 @@
 /* Global variable containing particle initial values defined in main */
 initial_data* initial;
 
+double m=initial->mass; // particle mass
+double e=initial->charge; // particle charge
+
 /**
  * Equation for the charged particle motion
  * Lorentz force, only magnetic field.
@@ -24,8 +27,6 @@ initial_data* initial;
  * Used as the first argument to ode_solve in ode.c
  */
 vector * equation_particle(double T, vector* Z){
-  double m=initial->mass;
-  double e=initial->charge;
 
   /* Save xyz coordinates of particle*/
   vector *xyz=vnew(3);

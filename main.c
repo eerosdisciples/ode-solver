@@ -8,11 +8,9 @@
 #include "ctsv.h"
 #include "domain.h"
 #include "equations.h"
-#include "equation_GCM.h"
 #include "interp2.h"
 #include "magnetic_field.h"
 #include "rkf45.h"
-#include "equation_predprey.h"
 #include "readfile.h"
 #include "IO_data.h"
 
@@ -62,10 +60,10 @@ solution_data* main_solve(domain *dom, arguments *args){
   /* Choose problem to solve */
   if (args->problem == PROBLEM_GC) {
 	  solution->n = 5;
-	  solution->val = malloc(sizeof(double)*6);
-		
-	  /* Initialize data */
-	  solver_object = equation_GCM_init(initial, solution);
+	  solution->val = malloc(sizeof(double)*6);		
+	  /* Get initial values for guiding center from 
+          * particle initial values, store in solver_object */
+	  solver_object = equation_GCM_init(solution);
   } else {
 	  solution->n = 6;
 	  solution->val = malloc(sizeof(double)*6);

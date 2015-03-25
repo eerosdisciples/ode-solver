@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "differentiate.h"
-#include "equation_predprey.h"
+#include "equation_GCM.h"
 #include "interp2.h"
 #include "IO_data.h"
 #include "magnetic_field.h"
@@ -11,30 +11,40 @@
 #include "rkf45.h"
 #include "vector.h"
 
-/* Function to initialize data for the GCM
- * Input: (initial_data object
- * Output: ode_solution pointer
- */
+#define c 299792458 //  speed of light in m/s
 
-ode_solution* equation_GCM_init(initial_data *initial, vector *solution){
-	/* Calculate mu */
-	double m=initial->mass;
-	double vx = initial->vx0,
-	       vy = initial->vy0,
-	       vz = initial->vz0;
-		   
-	double x = initial->x0,
-		   y = initial->y0,
-		   z = initial->z0;
-	double e = initial->charge;
+/* Global variable containing particle initial values defined in main */
+initial_data *initial;
+
+double m=initial->mass; // particle mass
+double e = initial->charge; // particle charge
+
+/* initial particle position */
+double x = initial->x0,
+  y = initial->y0,
+  z = initial->z0;
+
+/* initial particle velocity */
+double vx = initial->vx0,
+  vy = initial->vy0,
+  vz = initial->vz0;
+
+/**
+ * Function to initialize data for the GCM
+ * Input: (initial_data object. men njä
+ * Output: ode_solution pointer
+ *
+ * kommentera mera
+ */
+ode_solution* equation_GCM_init(vector *solution){
 		   		   
-	/* Create x-vector */
-	vector *xyz=vinit(3,x,y,z);
+	/* Create particle position vector, x */
+	vector *x=vinit(3,x,y,z);
 	/* Create velocity vector  */
 	vector *v=vinit(3,vx,vy,vz);
 
 	/* Get magnetic field */
-	vector *B = magnetic_field_get(xyz);
+	vector *B = magnetic_field_get(x);
 		   
 	double Bx=B->val[0],   
 		   By=B->val[1],
@@ -49,31 +59,32 @@ ode_solution* equation_GCM_init(initial_data *initial, vector *solution){
 		   by=bhat->val[1],
 		   bz=bhat->val[2];
 		   
-	/* Calculate absolute value paralell velocity */
+	/* Calculate absolute value of parallell velocity */
 	double vpar_abs=vdot(bhat,v);
 			   
-	/* Calculate absolute value of perpendicular velocity */
-	//double vperp_abs= sqrt(vdot(v,v)-vpar*vpar);
+	/*  perpendicular velocity */
+        vector *vperp= vadd(v,vmuls(-vpar_abs,bhat));
+        double vperp_x=vperp->val[0], vperp_y=vperp->val[1], vperp_z=vperp->val[2];
 					  
-	/* XXX Memory leak here!  */
-	vector * w=vadd(v,vmuls(-vpar_abs,bhat));
-	double wx=w->val[0], wy=w->val[1], wz=w->val[2];
+	/* XXX Memory leak here!  
+         edit: is there still a leak? */
+        
 	/* Calculate mu */
-	double mu=m/(2*B_abs)*(wx*wx + wy*wy + wz*wz);
+	double mu=m*vdot(vperp,vperp)/(2*B_abs);
 //	mu = 9.9896e-14;
 
-	double omega = e*B_abs/m;
+        /* angular velocity Omega */
+	double Omega = e*B_abs/(m*c);
 	
-	/* Allocate and  calculate rho */
+	/* Allocate and calculate Larmour vector rho */
 	vector *rho=vnew(3);
-	rho->val[0]=by*wz-bz*wy;
-	rho->val[1]=bz*wx-bx*wz;
-	rho->val[2]=bx*wy-by*wx;
-	vmulsf(-1/omega, rho);
+	rho->val[0]=by*vperp_z-bz*vperp_y;
+	rho->val[1]=bz*vperp_x-bx*vperp_z;
+	rho->val[2]=bx*vperp_y-by*vperp_x;
+	vmulsf(-1/Omega, rho);
 
-	/* Calculate position vector X */
-	vector *X=vadd(xyz,rho);
-	//vector *X = xyz;
+	/* Calculate guiding center position vector X */
+	vector *X=vadd(x,rho);
 			  
 	/* solver_object of type ode_solution contains solution points, optimal
 	 * step size, and flag indicating ok step. */
@@ -95,25 +106,27 @@ ode_solution* equation_GCM_init(initial_data *initial, vector *solution){
 	return solver_object;
 }
 
+/**
+ * COMMENT THIS FUNCTION!!
+ * what does Z contain?? 
+ */
 vector *equation_GCM(double T, vector *Z) {
 	vector *value = vnew(5);
 	vector *xyz = vinit(3, Z->val[1], Z->val[2], Z->val[3]);
-	double udot, Xdot1, Xdot2, Xdot3, mu,
-		   m = initial->mass,
-		   e = initial->charge;
+	double udot, Xdot1, Xdot2, Xdot3, mu;
 
 	mu = Z->val[4];
 
 	/***************************
 	 * Calculate udot          *
 	 ***************************/
-	/* Calculate B and b^ */
+	/* Calculate B and bhat */
 	vector *B = magnetic_field_get(xyz);
 	vector *bhat = vmuls(1/sqrt(vdot(B, B)), B);
 
-	/* Calculate grad B and rot b^ */
-	vector *rotBhat = differentiate_rotBhat(xyz);
+	/* Calculate grad B and rot bhat */
 	vector *gradB = differentiate_gradB(xyz);
+        vector *rotBhat = differentiate_rotBhat(xyz);
 
 	/* Calculate B* (effective B-field) */
 	//vector *B_eff = vaddf(B, vmulsf(m/e*Z->val[0], rotBhat));
