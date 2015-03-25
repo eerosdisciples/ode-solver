@@ -54,7 +54,7 @@ ode_solution* equation_GCM_init(vector *solution) {
 	double B_abs=sqrt(Bx*Bx + By*By + Bz*Bz);
 		   
 	/* Calculate bhat */
-	vector *bhat=vmuls(1/B_abs,B);
+	vector *bhat=vmulsf(1/B_abs,B);
 	double bx=bhat->val[0],
 		   by=bhat->val[1],
 		   bz=bhat->val[2];
@@ -63,13 +63,12 @@ ode_solution* equation_GCM_init(vector *solution) {
 	double vpar_abs=vdot(bhat,v);
 			   
 	/*  perpendicular velocity */
-	/* XXX Memory leak here! */
-    vector *vperp= vadd(v,vmuls(-vpar_abs,bhat));
+	vector *bhat_vpar = vmuls(-vpar_abs,bhat);
+    vector *vperp= vadd(v,bhat_vpar);
     double vperp_x=vperp->val[0], vperp_y=vperp->val[1], vperp_z=vperp->val[2];
         
 	/* Calculate mu */
 	double mu=m*vdot(vperp,vperp)/(2*B_abs);
-//	mu = 9.9896e-14;
 
     /* angular velocity Omega */
     /* And NO! There should NOT be a 'c' here!! */
@@ -83,7 +82,7 @@ ode_solution* equation_GCM_init(vector *solution) {
 	vmulsf(-1/Omega, rho);
 
 	/* Calculate guiding center position vector X */
-	vector *X=vadd(r,rho);
+	vector *X=vaddf(r,rho);
 			  
 	/* solver_object of type ode_solution contains solution points, optimal
 	 * step size, and flag indicating ok step. */
@@ -96,11 +95,18 @@ ode_solution* equation_GCM_init(vector *solution) {
 	solver_object->Z=solution;
 	
 	solution->val[0] = vdot(bhat, v);
-//	solution->val[0] = 6.4970e6;
 	solution->val[1] = X->val[0];
 	solution->val[2] = X->val[1];
 	solution->val[3] = X->val[2];
 	solution->val[4] = mu;
+
+	/* Free up some memory */
+	vfree(bhat_vpar);
+	vfree(r);
+	vfree(v);
+	vfree(vperp);
+	vfree(bhat);
+	vfree(rho);
  
 	return solver_object;
 }

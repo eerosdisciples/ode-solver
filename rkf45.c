@@ -7,7 +7,9 @@
 #include "rkf45.h"
 #include "vector.h"
 
-#define EPS0 1e-9                /* error tolerance */
+/* 1e-7 seems pretty much the best.
+ */
+#define EPS0 1e-7                /* error tolerance */
 #define SAFETY_FACTOR 0.9	/* Safety factor beta */
 #define NUMBER_OF_TESTPOINTS 5000 /* for ode_test */
 
@@ -84,13 +86,10 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
 
   unsigned int i; // loop variable
 
-  vector *temp = equation(0, solver_object->Z);
-
   /* Calculate next point */
   vector* K = ode_step(equation, solver_object, T, order2);
 
   /* Calculate sum to be used in next point for Z_next and Zhat */
-  
   /* Help variables */
   vector *sum1, *sum2;
   sum1=vnew(Z->n);
@@ -126,13 +125,11 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
   /* calculate relative error epsilon for each component,
    * save the largest error value */
   double eps, epst;
-  vector *error_Z;
-  error_Z = vmuls(-1, Z_next);
-  vaddf(error_Z, Zhat);	/* error_Z = Zhat - Z_next */
 
-  eps = fabs(error_Z->val[0]) /  fabs(Z_next->val[0]);
-  for (i = 1; i < error_Z->n; i++) {
-    epst = fabs(error_Z->val[i]) / fabs(Z_next->val[i]);
+  /* Calculate the maximum error made */
+  eps = fabs((Zhat->val[0] - Z_next->val[0]) /  Z_next->val[0]);
+  for (i = 1; i < Z_next->n; i++) {
+    epst = fabs((Zhat->val[i] - Z_next->val[i]) / Z_next->val[i]);
     if (epst > eps) {
       eps = epst;
     }
@@ -143,9 +140,6 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
     flag=REDO_STEP;
-  } else if (eps == 0) {
-	  hopt = 1/beta*h;
-	  flag=OK_STEP;
   } else {
     hopt=h*pow(eps0/eps,0.25);
     flag=OK_STEP;
@@ -158,7 +152,6 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
   Zp1->val = Z_next->val;
   Zp1->n = Z_next->n;
 
-  //printf("hopt is %f", hopt);
   /* NOTE: We do not want to do a
    * vfree on Z, since `val' is now
    * used in Zp1!. Zhat however is
@@ -246,6 +239,8 @@ vector * ode_step(vector *(equation)(double, vector*),ode_solution *solver_objec
 
     free(vec);
   }
+
+  vfree(sum);
 
   return K;
 }

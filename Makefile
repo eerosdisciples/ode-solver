@@ -2,7 +2,7 @@
 
 CC=gcc
 # Flags for debuggable program
-CFLAGS=-Wall -Wextra -pg -O0 -c -I include
+CFLAGS=-Wall -Wextra -g -pg -O0 -c -I include
 # Flags for optimized program
 #CFLAGS=-Wall -Wextra -O2 -c -I include
 LD=gcc
