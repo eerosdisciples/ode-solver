@@ -2,14 +2,14 @@
 
 CC=gcc
 # Flags for debuggable program
-CFLAGS=-Wall -Wextra -g -O0 -c -I include
+CFLAGS=-Wall -Wextra -pg -O0 -c -I include
 # Flags for optimized program
 #CFLAGS=-Wall -Wextra -O2 -c -I include
 LD=gcc
 
 LFLAGS=/usr/local/lib/libinterp2d.a -lgsl -lgslcblas -lm
 TARGET=solver
-OBJECTS=arguments.o ctsv.o differentiate.o domain.o equation_GCM.o equation_predprey.o equation_particle.o input.o interp2.o main.o magnetic_field.o rkf45.o readfile.o vector.o
+OBJECTS=arguments.o ctsv.o diff.o domain.o equation_GCM.o equation_predprey.o equation_particle.o input.o interp2.o main.o magnetic_field.o rkf45.o readfile.o vector.o
 
 all: $(TARGET)
 

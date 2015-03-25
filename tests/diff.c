@@ -1,7 +1,7 @@
 /* Diff */
-#include "differentiate.h"
+#include "diff.h"
 
 int main(void) {
-	differentiate_test();
+	diff_test();
 	return 0;
 }

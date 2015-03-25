@@ -11,7 +11,7 @@ OMAGFIELD=magnetic_field.o ../interp2.o ../magnetic_field.o ../readfile.o ../vec
 OINPUT=input.o ../arguments.o ../input.o ../readfile.o
 OODE=../ctsv.o ode.o ../rkf45.o ../vector.o ../equation_predprey.o ../magnetic_field.o ../interp2.o ../readfile.o
 OFFG=../fieldFineGrid.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
-ODIFF=diff.o ../differentiate.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
+ODIFF=diff.o ../diff.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
 
 all: ctsv diff domain magnetic_field input ode
 
@@ -24,7 +24,7 @@ all: ctsv diff domain magnetic_field input ode
 ctsv: $(OCTSV)
 	$(LD) $(OCTSV) $(LFLAGS) -o $@ 
 
-diff:
+diff: $(ODIFF)
 	$(LD) $(ODIFF) $(LFLAGS) -o $@
 
 domain: $(ODOMAIN)

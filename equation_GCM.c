@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include "differentiate.h"
+#include "diff.h"
 #include "equation_GCM.h"
 #include "interp2.h"
 #include "IO_data.h"
@@ -11,23 +11,11 @@
 #include "rkf45.h"
 #include "vector.h"
 
-#define c 299792458 //  speed of light in m/s
+/* We won't be needing this, trust me! */
+//#define c 299792458 //  speed of light in m/s
 
 /* Global variable containing particle initial values defined in main */
-initial_data *initial;
-
-double m=initial->mass; // particle mass
-double e = initial->charge; // particle charge
-
-/* initial particle position */
-double x = initial->x0,
-  y = initial->y0,
-  z = initial->z0;
-
-/* initial particle velocity */
-double vx = initial->vx0,
-  vy = initial->vy0,
-  vz = initial->vz0;
+extern initial_data *initial;
 
 /**
  * Function to initialize data for the GCM
@@ -36,15 +24,27 @@ double vx = initial->vx0,
  *
  * kommentera mera
  */
-ode_solution* equation_GCM_init(vector *solution){
+ode_solution* equation_GCM_init(vector *solution) {
+	double m=initial->mass; // particle mass
+	double e = initial->charge; // particle charge
+
+	/* initial particle position */
+	double x = initial->x0,
+	  y = initial->y0,
+	  z = initial->z0;
+
+	/* initial particle velocity */
+	double vx = initial->vx0,
+	  vy = initial->vy0,
+	  vz = initial->vz0;
 		   		   
-	/* Create particle position vector, x */
-	vector *x=vinit(3,x,y,z);
+	/* Create particle position vector, r */
+	vector *r=vinit(3,x,y,z);
 	/* Create velocity vector  */
 	vector *v=vinit(3,vx,vy,vz);
 
 	/* Get magnetic field */
-	vector *B = magnetic_field_get(x);
+	vector *B = magnetic_field_get(r);
 		   
 	double Bx=B->val[0],   
 		   By=B->val[1],
@@ -63,18 +63,17 @@ ode_solution* equation_GCM_init(vector *solution){
 	double vpar_abs=vdot(bhat,v);
 			   
 	/*  perpendicular velocity */
-        vector *vperp= vadd(v,vmuls(-vpar_abs,bhat));
-        double vperp_x=vperp->val[0], vperp_y=vperp->val[1], vperp_z=vperp->val[2];
-					  
-	/* XXX Memory leak here!  
-         edit: is there still a leak? */
+	/* XXX Memory leak here! */
+    vector *vperp= vadd(v,vmuls(-vpar_abs,bhat));
+    double vperp_x=vperp->val[0], vperp_y=vperp->val[1], vperp_z=vperp->val[2];
         
 	/* Calculate mu */
 	double mu=m*vdot(vperp,vperp)/(2*B_abs);
 //	mu = 9.9896e-14;
 
-        /* angular velocity Omega */
-	double Omega = e*B_abs/(m*c);
+    /* angular velocity Omega */
+    /* And NO! There should NOT be a 'c' here!! */
+	double Omega = e*B_abs/m;
 	
 	/* Allocate and calculate Larmour vector rho */
 	vector *rho=vnew(3);
@@ -84,7 +83,7 @@ ode_solution* equation_GCM_init(vector *solution){
 	vmulsf(-1/Omega, rho);
 
 	/* Calculate guiding center position vector X */
-	vector *X=vadd(x,rho);
+	vector *X=vadd(r,rho);
 			  
 	/* solver_object of type ode_solution contains solution points, optimal
 	 * step size, and flag indicating ok step. */
@@ -111,6 +110,9 @@ ode_solution* equation_GCM_init(vector *solution){
  * what does Z contain?? 
  */
 vector *equation_GCM(double T, vector *Z) {
+	double m = initial->mass;
+	double e = initial->charge;
+	
 	vector *value = vnew(5);
 	vector *xyz = vinit(3, Z->val[1], Z->val[2], Z->val[3]);
 	double udot, Xdot1, Xdot2, Xdot3, mu;
@@ -120,36 +122,40 @@ vector *equation_GCM(double T, vector *Z) {
 	/***************************
 	 * Calculate udot          *
 	 ***************************/
-	/* Calculate B and bhat */
+	diff_data *dd = diff(xyz);
+
+	/* Calculate B and bhat * /
 	vector *B = magnetic_field_get(xyz);
 	vector *bhat = vmuls(1/sqrt(vdot(B, B)), B);
 
-	/* Calculate grad B and rot bhat */
+	/ * Calculate grad B and rot bhat * /
 	vector *gradB = differentiate_gradB(xyz);
-        vector *rotBhat = differentiate_rotBhat(xyz);
+	vector *rotBhat = differentiate_rotBhat(xyz);*/
+	vector *bhat = vmuls(1/dd->Babs, dd->B);
 
 	/* Calculate B* (effective B-field) */
+	vector *B_eff = vaddf(dd->B, vmulsf(m/e*Z->val[0], dd->curlB));
 	//vector *B_eff = vaddf(B, vmulsf(m/e*Z->val[0], rotBhat));
-	vector *B_eff = B;
+	//vector *B_eff = B;
 
 	/* Get value of B* parallel to b^ */
 	double Beff_par = vdot(B_eff, bhat);
 
 	/* == > */
-	udot = -mu/(m*Beff_par) * vdot(gradB, B_eff);
+	udot = -mu/(m*Beff_par) * vdot(dd->gradB, B_eff);
 
 	/***************************
 	 * Calculate Xdot1         *
 	 ***************************/
-	Xdot1 = 1/Beff_par * (-mu/e*(gradB->val[1]*bhat->val[2] - gradB->val[2]*bhat->val[1]) + Z->val[0] * B_eff->val[0]);
+	Xdot1 = 1/Beff_par * (-mu/e*(dd->gradB->val[1]*bhat->val[2] - dd->gradB->val[2]*bhat->val[1]) + Z->val[0] * B_eff->val[0]);
 	/***************************
 	 * Calculate Xdot2         *
 	 ***************************/
-	Xdot2 = 1/Beff_par * (-mu/e*(gradB->val[2]*bhat->val[0] - gradB->val[0]*bhat->val[2]) + Z->val[0] * B_eff->val[1]);
+	Xdot2 = 1/Beff_par * (-mu/e*(dd->gradB->val[2]*bhat->val[0] - dd->gradB->val[0]*bhat->val[2]) + Z->val[0] * B_eff->val[1]);
 	/***************************
 	 * Calculate Xdot3         *
 	 ***************************/
-	Xdot3 = 1/Beff_par * (-mu/e*(gradB->val[0]*bhat->val[1] - gradB->val[1]*bhat->val[0]) + Z->val[0] * B_eff->val[2]);
+	Xdot3 = 1/Beff_par * (-mu/e*(dd->gradB->val[0]*bhat->val[1] - dd->gradB->val[1]*bhat->val[0]) + Z->val[0] * B_eff->val[2]);
 
 	value->val[0] = udot;
 	value->val[1] = Xdot1;
@@ -159,9 +165,10 @@ vector *equation_GCM(double T, vector *Z) {
 
 	vfree(xyz);
 	vfree(bhat);
-	vfree(rotBhat);
-	vfree(gradB);
-	vfree(B_eff);
+	vfree(dd->curlB);
+	vfree(dd->gradB);
+	vfree(dd->B);
+	free(dd);
 
 	return value;
 }
