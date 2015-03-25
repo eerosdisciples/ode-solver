@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "vector.h"
-#include "equation_predprey.h"
+#includme "equation_predprey.h"
 #include "magnetic_field.h"
 #include "readfile.h"
 #include "interp2.h"
