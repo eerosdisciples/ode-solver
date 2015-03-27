@@ -130,19 +130,11 @@ vector *equation_GCM(double T, vector *Z) {
 	 ***************************/
 	diff_data *dd = diff(xyz);
 
-	/* Calculate B and bhat * /
-	vector *B = magnetic_field_get(xyz);
-	vector *bhat = vmuls(1/sqrt(vdot(B, B)), B);
-
-	/ * Calculate grad B and rot bhat * /
-	vector *gradB = differentiate_gradB(xyz);
-	vector *rotBhat = differentiate_rotBhat(xyz);*/
+	/* Calculate bhat */
 	vector *bhat = vmuls(1/dd->Babs, dd->B);
 
 	/* Calculate B* (effective B-field) */
 	vector *B_eff = vaddf(dd->B, vmulsf(m/e*Z->val[0], dd->curlB));
-	//vector *B_eff = vaddf(B, vmulsf(m/e*Z->val[0], rotBhat));
-	//vector *B_eff = B;
 
 	/* Get value of B* parallel to b^ */
 	double Beff_par = vdot(B_eff, bhat);
@@ -167,7 +159,7 @@ vector *equation_GCM(double T, vector *Z) {
 	value->val[1] = Xdot1;
 	value->val[2] = Xdot2;
 	value->val[3] = Xdot3;
-	value->val[4] = mu;
+	value->val[4] = 0;
 
 	vfree(xyz);
 	vfree(bhat);

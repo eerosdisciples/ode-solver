@@ -139,9 +139,19 @@ solution_data* main_solve(domain *dom, arguments *args){
 		z = solution[i].val[3];
 		r = sqrt(x*x + y*y);
 
+		vector xyz;
+		xyz.val = (double[]){x,y,z};
+		xyz.n = 3;
+		vector *B = magnetic_field_get(&xyz);
+		double Babs = sqrt(
+			B->val[0]*B->val[0] +
+			B->val[1]*B->val[1] +
+			B->val[2]*B->val[2]
+		);
+
 		/* This is wrong at the moment, but I'm
 		 * not quite sure what this should be... */
-		E[i+1] = (initial->mass/2 * u*u) * ENERGY;
+		E[i+1] = (initial->mass/2 * u*u + solution[i].val[4]*Babs) * ENERGY;
 	} else {
 		/* get new position and velocity */
 		x = solution[i].val[0];
