@@ -120,6 +120,7 @@ double **interp2_jacobian(vector *xyz) {
 	vector *B = magnetic_field_get(xyz);
 
 	double cylJ[3][2] = {{0.,0.}, {0.,0.}, {0.,0.}};
+	double e = 0;
 	/* dBr/dr */
 	cylJ[0][0] = interp2d_spline_eval_deriv_y(Br, z, r, za, ra);
 	/* dBr/dz */
@@ -138,29 +139,32 @@ double **interp2_jacobian(vector *xyz) {
 	jacobian[1] = malloc(3*sizeof(double));
 	jacobian[2] = malloc(3*sizeof(double));
 
-	double y_div_r = y/r;	/* Cache this value for faster computations */
-
 	double
-		dr_dx = x/r,  dr_dy = y_div_r,
+		sin0 = y/r, cos0 = x/r, sin20 = sin0*sin0, cos20 = cos0*cos0, sc0 = sin0*cos0,
+		dsin0_dx = -sc0/r,  dcos0_dx = sin20/r,
+		dsin0_dy = cos20/r, dcos0_dy = -sc0/r,
 		/* Partial derivatives of cylindrical components */
-		dBr_dx = cylJ[0][0]*dr_dx, dBr_dy = cylJ[0][0]*dr_dy,
-		dB0_dx = cylJ[1][0]*dr_dx, dB0_dy = cylJ[1][0]*dr_dy,
+		/*dBr_dx = cylJ[0][0]*cos0, dBr_dy = cylJ[0][0]*sin0, dBr_dz = cylJ[1][1],
+		dB0_dx = cylJ[1][0]*cos0, dB0_dy = cylJ[1][0]*sin0, dB0_dz = cylJ[1][1],
+		dBz_dx = cylJ[2][0]*cos0, dBz_dy = cylJ[2][0]*sin0, dBz_dz = cylJ[2][1],*/
+		dBr_dr = cylJ[0][0], dBr_dz = cylJ[0][1],
+		dB0_dr = cylJ[1][0], dB0_dz = cylJ[1][1],
+		dBz_dr = cylJ[2][0], dBz_dz = cylJ[2][1],
 		/* Make B components more readable */
-		Br = B->val[0], B0 = B->val[1], Bz = B->val[2],
-		/* Cache jacobian component factors */
-		sin0 = y_div_r, cos0 = sqrt(1-y_div_r*y_div_r),
-		dsin0_dx = -y_div_r*x/(r*r), dcos0_dx = (y_div_r*y_div_r)/(x*x*r),
-		dsin0_dy = 0, dcos0_dy = 0;
+		Br = B->val[0], B0 = B->val[1], Bz = B->val[2];
 
-	jacobian[0][0] = dBr_dx*cos0 + Br*dcos0_dx - dB0_dx*sin0 - B0*dsin0_dx;
-	jacobian[0][1] = dBr_dy*cos0 + Br*dcos0_dy - dB0_dy*sin0 - B0*dsin0_dy;
-	jacobian[0][2] = cylJ[0][1]*cos0 - cylJ[1][1]*sin0;
-	jacobian[1][0] = dBr_dx*sin0 + Br*dsin0_dx + dB0_dx*cos0 - B0*dcos0_dx;
-	jacobian[1][1] = dBr_dy*sin0 + Br*dsin0_dy + dB0_dy*cos0 - B0*dcos0_dy;
-	jacobian[1][2] = cylJ[0][1]*sin0 + cylJ[1][1]*cos0;
-	jacobian[2][0] = cylJ[2][0]*dr_dx;
-	jacobian[2][1] = cylJ[2][1]*dr_dy;
-	jacobian[2][2] = cylJ[2][1];
+	/* Bx */
+	jacobian[0][0] = cos20*dBr_dr + Br*dcos0_dx - sc0  *dB0_dr - B0*dsin0_dx;
+	jacobian[0][1] = sc0  *dBr_dr + Br*dcos0_dy - sin20*dB0_dr - B0*dsin0_dy;
+	jacobian[0][2] = cos0 *dBr_dz - sin0 *dB0_dz;
+	/* By */
+	jacobian[1][0] = sc0  *dBr_dr + Br*dsin0_dx + cos20*dB0_dr + B0*dcos0_dx;
+	jacobian[1][1] = sin20*dBr_dr + Br*dsin0_dy + sc0  *dB0_dr + B0*dcos0_dy;
+	jacobian[1][2] = sin0 *dBr_dz + cos0 *dB0_dz;
+	/* Bz */
+	jacobian[2][0] = cos0*dBz_dr;
+	jacobian[2][1] = sin0*dBz_dr;
+	jacobian[2][2] = dBz_dz;
 
 	return jacobian;
 }
