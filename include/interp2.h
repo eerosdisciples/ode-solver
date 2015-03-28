@@ -8,4 +8,6 @@ vector* interp2_interpolate(vector*);
 /* Must be used before interpolation! */
 void interp2_init_interpolation(magnetic_field*);
 
+double **interp2_jacobian(vector*);
+
 #endif/*_INTERP2_H*/

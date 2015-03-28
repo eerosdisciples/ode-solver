@@ -20,6 +20,7 @@ interp2d_spline *Bphi;
 interp2d_spline *Bz;
 
 double rmin, rmax, zmin, zmax;
+
 /**
  * Initializatlize magnetic_field for interpolation.
  * This is to prepare GSL for what's to come.
@@ -48,10 +49,10 @@ void interp2_init_interpolation(magnetic_field *B) {
   zmin = B->zmin;
   zmax = B->zmax;
 }
+
 /**
  * main interpolation function
  *
- * B: The magnetic field
  * xyz: The point (in cartesian coordinates) in which the field
  * strength should be evaluated.
  */
@@ -68,14 +69,11 @@ vector* interp2_interpolate(vector *xyz) {
 	double  r = sqrt(x*x + y*y);
 	
 	/* Make sure the point is within our definied are */
-	if (r < rmin)
-		r = rmin;
-	else if (r > rmax)
-		r = rmax;
-	if (z < zmin)
-		z = zmin;
-	else if (z > zmax)
-		z = zmax;
+	if (r < rmin) r = rmin;
+	else if (r > rmax) r = rmax;
+
+	if (z < zmin) z = zmin;
+	else if (z > zmax) z = zmax;
   /*
    * Interpolate
    */
@@ -94,4 +92,75 @@ vector* interp2_interpolate(vector *xyz) {
   vector *B_interp = vinit(3, B_x_interp, B_y_interp, B_z_interp);
  
   return B_interp;
+}
+
+/**
+ * Calculate the Jacobian of the B-field
+ * at the given point
+ *
+ * xyz: The point (in cartesian coordinates) in which the field
+ * strength should be evaluated.
+ */
+double **interp2_jacobian(vector *xyz) {
+ 	double x = xyz->val[0],
+    y = xyz->val[1],
+    z = xyz->val[2];
+
+	/* Transform vector coordinates from cartesian to cylindrical */
+	double  r = sqrt(x*x + y*y);
+	
+	/* Make sure the point is within our definied are */
+	if (r < rmin) r = rmin;
+	else if (r > rmax) r = rmax;
+
+	if (z < zmin) z = zmin;
+	else if (z > zmax) z = zmax;
+
+	/* Get magnetic field for future transform use */
+	vector *B = magnetic_field_get(xyz);
+
+	double cylJ[3][2] = {{0.,0.}, {0.,0.}, {0.,0.}};
+	/* dBr/dr */
+	cylJ[0][0] = interp2d_spline_eval_deriv_y(Br, z, r, za, ra);
+	/* dBr/dz */
+	cylJ[0][1] = interp2d_spline_eval_deriv_x(Br, z, r, za, ra);
+	/* dB0/dr */
+	cylJ[1][0] = interp2d_spline_eval_deriv_y(Bphi, z, r, za, ra);
+	/* dB0/dz */
+	cylJ[1][1] = interp2d_spline_eval_deriv_x(Bphi, z, r, za, ra);
+	/* dBz/dr (probably not used) */
+	cylJ[2][0] = interp2d_spline_eval_deriv_y(Bz, z, r, za, ra);
+	/* dBz/dz */
+	cylJ[2][1] = interp2d_spline_eval_deriv_x(Bz, z, r, za, ra);
+
+	double **jacobian = malloc(3*sizeof(double*));
+	jacobian[0] = malloc(3*sizeof(double));
+	jacobian[1] = malloc(3*sizeof(double));
+	jacobian[2] = malloc(3*sizeof(double));
+
+	double y_div_r = y/r;	/* Cache this value for faster computations */
+
+	double
+		dr_dx = x/r,  dr_dy = y_div_r,
+		/* Partial derivatives of cylindrical components */
+		dBr_dx = cylJ[0][0]*dr_dx, dBr_dy = cylJ[0][0]*dr_dy,
+		dB0_dx = cylJ[1][0]*dr_dx, dB0_dy = cylJ[1][0]*dr_dy,
+		/* Make B components more readable */
+		Br = B->val[0], B0 = B->val[1], Bz = B->val[2],
+		/* Cache jacobian component factors */
+		sin0 = y_div_r, cos0 = sqrt(1-y_div_r*y_div_r),
+		dsin0_dx = -y_div_r*x/(r*r), dcos0_dx = (y_div_r*y_div_r)/(x*x*r),
+		dsin0_dy = 0, dcos0_dy = 0;
+
+	jacobian[0][0] = dBr_dx*cos0 + Br*dcos0_dx - dB0_dx*sin0 - B0*dsin0_dx;
+	jacobian[0][1] = dBr_dy*cos0 + Br*dcos0_dy - dB0_dy*sin0 - B0*dsin0_dy;
+	jacobian[0][2] = cylJ[0][1]*cos0 - cylJ[1][1]*sin0;
+	jacobian[1][0] = dBr_dx*sin0 + Br*dsin0_dx + dB0_dx*cos0 - B0*dcos0_dx;
+	jacobian[1][1] = dBr_dy*sin0 + Br*dsin0_dy + dB0_dy*cos0 - B0*dcos0_dy;
+	jacobian[1][2] = cylJ[0][1]*sin0 + cylJ[1][1]*cos0;
+	jacobian[2][0] = cylJ[2][0]*dr_dx;
+	jacobian[2][1] = cylJ[2][1]*dr_dy;
+	jacobian[2][2] = cylJ[2][1];
+
+	return jacobian;
 }
