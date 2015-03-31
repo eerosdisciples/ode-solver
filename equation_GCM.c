@@ -128,7 +128,7 @@ vector *equation_GCM(double T, vector *Z) {
 	/***************************
 	 * Calculate udot          *
 	 ***************************/
-	diff_data *dd = diff(xyz);
+	diff_data *dd = ndiff(xyz);
 
 	/* Calculate bhat */
 	vector *bhat = vmuls(1/dd->Babs, dd->B);

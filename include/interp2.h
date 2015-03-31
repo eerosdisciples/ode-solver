@@ -9,5 +9,6 @@ vector* interp2_interpolate(vector*);
 void interp2_init_interpolation(magnetic_field*);
 
 double **interp2_jacobian(vector*);
+double diff_BrDr(double);
 
 #endif/*_INTERP2_H*/
