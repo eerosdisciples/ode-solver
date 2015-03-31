@@ -44,7 +44,7 @@ int quantities_define(char *name) {
  * value: The value of the quantity
  */
 void quantities_report(int quant, double value) {
-	quantities[quant].values[current_index]= value;
+	quantities[quant].values[current_index+1]= value;
 }
 void quantities_expand(int newsize) {
 	int i;

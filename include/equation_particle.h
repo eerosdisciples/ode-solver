@@ -5,7 +5,7 @@
 #include "vector.h"
 
 /* Save input particle in local variable in equation */
-void equation_init(initial_data*);
+void equation_particle_init(void);
 
 /* Equation for the charged particle motion. Lorentz force, magnetic field only. */
 vector * equation_particle(double, vector* );

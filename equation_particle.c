@@ -13,6 +13,11 @@ initial_data* initial;
 
 int PARTICLE_QUANTITY_ENERGY;
 
+void equation_particle_init(void) {
+	PARTICLE_QUANTITY_ENERGY = quantities_define("Energy");
+	quantities_report(PARTICLE_QUANTITY_ENERGY, 0.0);
+}
+
 /**
  * Equation for the charged particle motion
  * Lorentz force, only magnetic field.
@@ -30,8 +35,6 @@ vector * equation_particle(double T, vector* Z){
 
   double m=initial->mass; // particle mass
   double e=initial->charge; // particle charge
-
-  PARTICLE_QUANTITY_ENERGY = quantities_define("Energy");
 
   /* Save xyz coordinates of particle*/
   vector *xyz=vnew(3);

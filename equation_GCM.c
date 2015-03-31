@@ -18,7 +18,7 @@ extern initial_data *initial;
 
 /* Indices to the quantity array. Initialized
  * in `equation_GCM_init'. */
-int GCM_QUANTITY_ENERGY, GCM_QUANTITY_XI;
+int GCM_QUANTITY_MU, GCM_QUANTITY_ENERGY, GCM_QUANTITY_XI;
 
 /**
  * Function to initialize data for the GCM
@@ -33,6 +33,7 @@ ode_solution* equation_GCM_init(vector *solution) {
 
 	/* Define the additional quantities we will
 	 * calculate during simulation */
+	GCM_QUANTITY_MU     = quantities_define("mu");
 	GCM_QUANTITY_ENERGY = quantities_define("Energy");
 	GCM_QUANTITY_XI     = quantities_define("Xi");
 
@@ -108,10 +109,13 @@ ode_solution* equation_GCM_init(vector *solution) {
 	solution->val[3] = X->val[2];
 	solution->val[4] = mu;
 
+	/* Report mu */
+	quantities_report(GCM_QUANTITY_MU, mu);
 	/* Calculate energy */
 	double v2 = (v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2]);
 	double E = (m/2*v2)*ENERGY;
 	quantities_report(GCM_QUANTITY_ENERGY, E);
+	printf("%e\n", E);
 	/* Calculate Xi */
 	double xi = vpar_abs / sqrt(v2);
 	quantities_report(GCM_QUANTITY_XI, xi);
@@ -177,6 +181,8 @@ vector *equation_GCM(double T, vector *Z) {
 	value->val[3] = Xdot3;
 	value->val[4] = 0;
 
+	/* Report mu */
+	quantities_report(GCM_QUANTITY_MU, mu);
 	/* Calculate energy */
 	double v2 = Z->val[0]*Z->val[0];
 	double E = (m/2*v2 + mu*dd->Babs)*ENERGY;

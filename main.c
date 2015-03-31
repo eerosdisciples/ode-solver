@@ -8,6 +8,7 @@
 #include "ctsv.h"
 #include "domain.h"
 #include "equations.h"
+#include "equation_particle.h"
 #include "interp2.h"
 #include "IO_data.h"
 #include "global.h"
@@ -23,7 +24,7 @@
 /* global variable containing particle initial values defined in main.
  declared in IO_data.h */
 initial_data *initial;
-unsigned int current_index;
+unsigned int current_index=-1;
 
 /**
  * Calculates saves the values of the particle motion with given parameters
@@ -53,7 +54,7 @@ solution_data* main_solve(domain *dom, arguments *args){
   /* Choose problem to solve */
   if (args->problem == PROBLEM_GC) {
 	  solution->n = 5;
-	  solution->val = malloc(sizeof(double)*6);		
+	  solution->val = malloc(sizeof(double)*5);
 	  /* Get initial values for guiding center from 
           * particle initial values, store in solver_object */
 	  solver_object = equation_GCM_init(solution);
@@ -67,6 +68,8 @@ solution_data* main_solve(domain *dom, arguments *args){
 	  solution->val[3] = initial->vx0;
 	  solution->val[4] = initial->vy0;
 	  solution->val[5] = initial->vz0;
+
+	  equation_particle_init();
 
 	  solver_object = malloc(sizeof(ode_solution));
 	  solver_object->step = 1e-10; 
@@ -117,41 +120,6 @@ solution_data* main_solve(domain *dom, arguments *args){
 	  else
 		ode_solve(equation_particle, solver_object, t[current_index]);
     } while (solver_object->flag == REDO_STEP);
-
-	/*
-	if (args->problem == PROBLEM_GC) {
-		double u=solution[i].val[0];
-		x = solution[i].val[1];
-		y = solution[i].val[2];
-		z = solution[i].val[3];
-		r = sqrt(x*x + y*y);
-
-		vector xyz;
-		xyz.val = (double[]){x,y,z};
-		xyz.n = 3;
-		vector *B = magnetic_field_get(&xyz);
-		double Babs = sqrt(
-			B->val[0]*B->val[0] +
-			B->val[1]*B->val[1] +
-			B->val[2]*B->val[2]
-		);
-
-		/ * This is wrong at the moment, but I'm
-		 * not quite sure what this should be... * /
-		E[i+1] = (initial->mass/2 * u*u + solution[i].val[4]*Babs) * ENERGY;
-	} else {
-		/ * get new position and velocity * /
-		x = solution[i].val[0];
-		y = solution[i].val[1];
-		z = solution[i].val[2];
-		vx= solution[i].val[3];
-		vy= solution[i].val[4];
-		vz= solution[i].val[5];
-		r = sqrt(x*x + y*y);
-		
-		/ * store new energy * /
-		E[i+1] = initial->mass/2 * (vx*vx + vy*vy + vz*vz)*ENERGY;
-	}*/
 
     /* Move on to next iteration */
     current_index++;
