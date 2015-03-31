@@ -4,18 +4,21 @@
 #include <stdlib.h>
 #include "diff.h"
 #include "equation_GCM.h"
+#include "global.h"
 #include "interp2.h"
 #include "IO_data.h"
 #include "magnetic_field.h"
+#include "quantities.h"
 #include "readfile.h"
 #include "rkf45.h"
 #include "vector.h"
 
-/* We won't be needing this, trust me! */
-//#define c 299792458 //  speed of light in m/s
-
 /* Global variable containing particle initial values defined in main */
 extern initial_data *initial;
+
+/* Indices to the quantity array. Initialized
+ * in `equation_GCM_init'. */
+int GCM_QUANTITY_ENERGY, GCM_QUANTITY_XI;
 
 /**
  * Function to initialize data for the GCM
@@ -27,6 +30,11 @@ extern initial_data *initial;
 ode_solution* equation_GCM_init(vector *solution) {
 	double m=initial->mass; // particle mass
 	double e = initial->charge; // particle charge
+
+	/* Define the additional quantities we will
+	 * calculate during simulation */
+	GCM_QUANTITY_ENERGY = quantities_define("Energy");
+	GCM_QUANTITY_XI     = quantities_define("Xi");
 
 	/* initial particle position */
 	double x = initial->x0,
@@ -100,6 +108,14 @@ ode_solution* equation_GCM_init(vector *solution) {
 	solution->val[3] = X->val[2];
 	solution->val[4] = mu;
 
+	/* Calculate energy */
+	double v2 = (v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2]);
+	double E = (m/2*v2)*ENERGY;
+	quantities_report(GCM_QUANTITY_ENERGY, E);
+	/* Calculate Xi */
+	double xi = vpar_abs / sqrt(v2);
+	quantities_report(GCM_QUANTITY_XI, xi);
+
 	/* Free up some memory */
 	vfree(bhat_vpar);
 	vfree(r);
@@ -160,6 +176,14 @@ vector *equation_GCM(double T, vector *Z) {
 	value->val[2] = Xdot2;
 	value->val[3] = Xdot3;
 	value->val[4] = 0;
+
+	/* Calculate energy */
+	double v2 = Z->val[0]*Z->val[0];
+	double E = (m/2*v2 + mu*dd->Babs)*ENERGY;
+	quantities_report(GCM_QUANTITY_ENERGY, E);
+	/* Calculate Xi */
+	double xi = Z->val[0] / sqrt(v2);
+	quantities_report(GCM_QUANTITY_XI, xi);
 
 	vfree(xyz);
 	vfree(bhat);

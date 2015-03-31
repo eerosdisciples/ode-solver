@@ -303,7 +303,6 @@ void ode_test(void) {
 
   solution_data output;
   output.T=t;
-  output.E=E;
   output.v=coordinates;
   output.labels=malloc(sizeof(char *)*2);
   output.labels[0]="x";

@@ -5,10 +5,13 @@
 #include "readfile.h"
 #include "interp2.h"
 #include "IO_data.h"
+#include "quantities.h"
 #include <math.h>
 
 /* Global variable containing particle initial values defined in main */
 initial_data* initial;
+
+int PARTICLE_QUANTITY_ENERGY;
 
 /**
  * Equation for the charged particle motion
@@ -27,6 +30,8 @@ vector * equation_particle(double T, vector* Z){
 
   double m=initial->mass; // particle mass
   double e=initial->charge; // particle charge
+
+  PARTICLE_QUANTITY_ENERGY = quantities_define("Energy");
 
   /* Save xyz coordinates of particle*/
   vector *xyz=vnew(3);
@@ -53,6 +58,10 @@ vector * equation_particle(double T, vector* Z){
     f4=(e/m)*(v2*B3-v3*B2),
     f5=(e/m)*(v3*B1-v1*B3),
     f6=(e/m)*(v1*B2-v2*B1);
+
+  /* Calculate energy */
+  double E = m/2*(v1*v1 + v2*v2 + v3*v3);
+  quantities_report(PARTICLE_QUANTITY_ENERGY, E);
    
   vfree(xyz);
   vfree(B);

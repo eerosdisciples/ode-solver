@@ -5,6 +5,7 @@
 #include "arguments.h"
 #include "ctsv.h"
 #include "IO_data.h"
+#include "quantities.h"
 #include "vector.h"
 
 /**
@@ -48,13 +49,15 @@ void ctsv_write(char *filename, char type, solution_data* data, arguments* args)
 	for (i = 0; i < data->nvars; i++) {
 		fprintf(fp, "%c%s", type, data->labels[i]);
 	}
-	fprintf(fp, ",E\n");
+	for (i = 0; i < data->no_quantities; i++) {
+		fprintf(fp, "%c%s", type, data->quantities[i].name);
+	}
+	fprintf(fp, "\n");
 
 	/* Print data */
 	for (i = 0; i < data->points; i++) {
 		vector* v = (data->v)+i;
 		double t = data->T[i];
-		double E = data->E[i];
 
 		/* Time coordinate */
 		fprintf(fp, "%.15e", t);
@@ -64,8 +67,12 @@ void ctsv_write(char *filename, char type, solution_data* data, arguments* args)
 			fprintf(fp, "%c%.15e", type, v->val[j]);
 		}
 
-		/* Print energy */
-		fprintf(fp, "%c%.15e\n", type, E);
+		/* Print quantities */
+		for (j = 0; j < data->no_quantities; j++) {
+			fprintf(fp, "%c%.15e", type, data->quantities[j].values[i]);
+		}
+
+		fprintf(fp, "\n");
 	}
 
 	fclose(fp);
@@ -89,12 +96,6 @@ void ctsv_test(void) {
 	inp->T = malloc(sizeof(double)*inp->points);
 	for (i = 0; i < inp->points; i++) {
 		inp->T[i] = 0.1*i;
-	}
-
-	/* Initialize E */
-	inp->E = malloc(sizeof(double)*inp->points);
-	for (i = 0; i < inp->points; i++) {
-		inp->E[i] = 3.14159*inp->T[i];
 	}
 
 	/* Initialize vector coordinates */

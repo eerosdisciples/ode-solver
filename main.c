@@ -9,26 +9,21 @@
 #include "domain.h"
 #include "equations.h"
 #include "interp2.h"
-#include "magnetic_field.h"
-#include "rkf45.h"
-#include "readfile.h"
 #include "IO_data.h"
+#include "global.h"
+#include "magnetic_field.h"
+#include "readfile.h"
+#include "rkf45.h"
+#include "quantities.h"
 
-/* number of data points to start with */
-#define NUMBER_OF_POINTS 1000 
 /* Reference point to check if initial position is inside domain */
 #define REFERENCE_POINT_R 6 
 #define REFERENCE_POINT_Z 0
-/* conversion from atomic mass units to kg */
-#define AMU_TO_KG 1.66053886e-27
-/* elementary charge in Coloumbs */
-#define CHARGE 1.60217657e-19
-/* conversion from joule to eV */
-#define ENERGY 6.24150934e18
 
 /* global variable containing particle initial values defined in main.
  declared in IO_data.h */
 initial_data *initial;
+unsigned int current_index;
 
 /**
  * Calculates saves the values of the particle motion with given parameters
@@ -40,14 +35,12 @@ initial_data *initial;
  */
 
 solution_data* main_solve(domain *dom, arguments *args){
-  unsigned int i; // loop variable
   double x,y,z,r; // coordinates, cartesian and cylindrical
-  double vx,vy,vz;// velocity, cartesian
   vector *solution;  
   ode_solution *solver_object;
   
   unsigned int points;
-  points = NUMBER_OF_POINTS;
+  points = NUMBER_OF_SIMULATION_POINTS;
 	
   /* Allocate memory for solution vector 
    *
@@ -79,10 +72,6 @@ solution_data* main_solve(domain *dom, arguments *args){
 	  solver_object->step = 1e-10; 
   }
 
-  /* speeds are needed separately for calculations */
-  vx = initial->vx0;
-  vy = initial->vy0;
-  vz = initial->vz0;
   /* for domain check of initial position */
   x = initial->x0;
   y = initial->y0;
@@ -92,9 +81,6 @@ solution_data* main_solve(domain *dom, arguments *args){
   /* For storing time */
   double *t = malloc(sizeof(double)*(points+1));
   t[0]=initial->t0;
-  /* For storing energy */
-  double *E = malloc(sizeof(double)*(points+1));
-  E[0] = initial->mass/2*(vx*vx + vy*vy + vz*vz)*ENERGY;
 
   /* domain check of initial position */
   double R[2] = {REFERENCE_POINT_R,r};
@@ -106,14 +92,14 @@ solution_data* main_solve(domain *dom, arguments *args){
   }
   
   /* Main loop. Loop until the final time has been reached */
-  i = 0;
-  while (t[i] < initial->tmax) {
+  current_index = 0;
+  while (t[current_index] < initial->tmax) {
     /* Check if we have enough points */
-    if (i+2 >= points) {
-      unsigned int np = (unsigned int)ceil(points * initial->tmax/t[i]);
+    if (current_index+2 >= points) {
+      unsigned int np = (unsigned int)ceil(points * initial->tmax/t[current_index]);
       solution = realloc(solution, np*(sizeof(vector)));
       t = realloc(t, np*sizeof(double));
-      E = realloc(E, np*sizeof(double));
+	  quantities_expand(np);
 
       points = np;
     }
@@ -123,15 +109,16 @@ solution_data* main_solve(domain *dom, arguments *args){
 	 * pre-allocated array. Since 'ode_solve' only gives us one
 	 * step at a time this allows to fill the solution array gradually
 	 */
-    solver_object->Z = solution+i;
+    solver_object->Z = solution+current_index;
     do {
-      t[i+1] = t[i] + solver_object->step;
+      t[current_index+1] = t[current_index] + solver_object->step;
 	  if (args->problem == PROBLEM_GC)
-        ode_solve(equation_GCM, solver_object, t[i]);
+        ode_solve(equation_GCM, solver_object, t[current_index]);
 	  else
-		ode_solve(equation_particle, solver_object, t[i]);
+		ode_solve(equation_particle, solver_object, t[current_index]);
     } while (solver_object->flag == REDO_STEP);
 
+	/*
 	if (args->problem == PROBLEM_GC) {
 		double u=solution[i].val[0];
 		x = solution[i].val[1];
@@ -149,11 +136,11 @@ solution_data* main_solve(domain *dom, arguments *args){
 			B->val[2]*B->val[2]
 		);
 
-		/* This is wrong at the moment, but I'm
-		 * not quite sure what this should be... */
+		/ * This is wrong at the moment, but I'm
+		 * not quite sure what this should be... * /
 		E[i+1] = (initial->mass/2 * u*u + solution[i].val[4]*Babs) * ENERGY;
 	} else {
-		/* get new position and velocity */
+		/ * get new position and velocity * /
 		x = solution[i].val[0];
 		y = solution[i].val[1];
 		z = solution[i].val[2];
@@ -162,12 +149,12 @@ solution_data* main_solve(domain *dom, arguments *args){
 		vz= solution[i].val[5];
 		r = sqrt(x*x + y*y);
 		
-		/* store new energy */
+		/ * store new energy * /
 		E[i+1] = initial->mass/2 * (vx*vx + vy*vy + vz*vz)*ENERGY;
-	}
+	}*/
 
     /* Move on to next iteration */
-    i++;
+    current_index++;
     /* check if new position is inside domain */
     R[0] = R[1]; Z[0] = Z[1];
     R[1] = r;    Z[1] = z;
@@ -178,16 +165,17 @@ solution_data* main_solve(domain *dom, arguments *args){
     }
   }
 
-  printf("Number of points: %d\n", i);
-  printf("t = %e\n", t[i]);
+  printf("Number of points: %d\n", current_index);
+  printf("t = %e\n", t[current_index]);
 
   /* Output data */
   solution_data *output;
   output = malloc(sizeof(solution_data));
   output->T=t;
-  output->E=E;
+  output->quantities = quantities_get();
+  output->no_quantities = quantities_get_no();
   output->v=solution;
-  output->points=i;
+  output->points=current_index;
 
   if (args->problem == PROBLEM_GC) {
 	  output->labels = malloc(sizeof(char*)*5);

@@ -1,6 +1,7 @@
 #ifndef _IO_DATA_H
 #define _IO_DATA_H
 
+#include "quantities.h"
 #include "vector.h"
 
 /**
@@ -9,11 +10,12 @@
  */
 typedef struct {
   double* T; 				// Time points
-  double* E;  			// Energy 
+  quantity *quantities;		// List of interesting quantities
   vector *v;			// List of coordinates to output 
   char **labels;			//List of labels 
   unsigned int points;	// Number of points 
   unsigned int nvars;		// Number of coordinate-variables (or columns) 
+  unsigned int no_quantities;	// Number of quantities
 } solution_data;
 
 
