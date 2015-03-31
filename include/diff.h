@@ -11,6 +11,5 @@ typedef struct {
 } diff_data;
 
 diff_data* diff(vector*);
-diff_data *ndiff(vector*);
 
 #endif/*_DIFF_H*/

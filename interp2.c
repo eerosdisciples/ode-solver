@@ -50,10 +50,10 @@ void interp2_init_interpolation(magnetic_field *B) {
   zmin = B->zmin;
   zmax = B->zmax;
 
-	jacobian = malloc(3*sizeof(double*));
-	jacobian[0] = malloc(3*sizeof(double));
-	jacobian[1] = malloc(3*sizeof(double));
-	jacobian[2] = malloc(3*sizeof(double));
+  jacobian = malloc(3*sizeof(double*));
+  jacobian[0] = malloc(3*sizeof(double));
+  jacobian[1] = malloc(3*sizeof(double));
+  jacobian[2] = malloc(3*sizeof(double));
 }
 
 /**
@@ -100,10 +100,6 @@ vector* interp2_interpolate(vector *xyz) {
   return B_interp;
 }
 
-double diff_BrDr(double r, void* params) {
-	return interp2d_spline_eval(Br, 0.2, r, za, ra);
-}
-
 /**
  * Calculate the Jacobian of the B-field
  * at the given point
@@ -111,7 +107,7 @@ double diff_BrDr(double r, void* params) {
  * xyz: The point (in cartesian coordinates) in which the field
  * strength should be evaluated.
  */
-double **interp2_jacobian(vector *xyz) {
+double ** interp2_jacobian(vector *xyz) {
  	double x = xyz->val[0],
     y = xyz->val[1],
     z = xyz->val[2];
@@ -125,9 +121,6 @@ double **interp2_jacobian(vector *xyz) {
 
 	if (z < zmin) z = zmin;
 	else if (z > zmax) z = zmax;
-
-	/* Get magnetic field for future transform use */
-	vector *B = magnetic_field_get(xyz);
 
 	double cylJ[3][2] = {{0.,0.}, {0.,0.}, {0.,0.}};
 	/* dBr/dr */
@@ -153,9 +146,7 @@ double **interp2_jacobian(vector *xyz) {
 		dBz_dr = cylJ[2][0], dBz_dz = cylJ[2][1],
 		/* Make B components more readable */
 		_Br = interp2d_spline_eval(Br, z, r, za, ra),
-		_B0 = interp2d_spline_eval(Bphi, z, r, za, ra),
-		_Bz = interp2d_spline_eval(Bz, z, r, za, ra);
-		//Br = B->val[0], B0 = B->val[1], Bz = B->val[2];
+		_B0 = interp2d_spline_eval(Bphi, z, r, za, ra);
 
 	/* Bx */
 	jacobian[0][0] = cos20*dBr_dr + _Br*dcos0_dx - sc0  *dB0_dr - _B0*dsin0_dx;
