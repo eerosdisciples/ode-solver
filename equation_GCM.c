@@ -112,10 +112,9 @@ ode_solution* equation_GCM_init(vector *solution) {
 	/* Report mu */
 	quantities_report(GCM_QUANTITY_MU, mu);
 	/* Calculate energy */
-	double v2 = (v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2]);
+	double v2 = (v->val[0]*v->val[0]+v->val[1]*v->val[1]+v->val[2]*v->val[2]);
 	double E = (m/2*v2)*ENERGY;
 	quantities_report(GCM_QUANTITY_ENERGY, E);
-	printf("%e\n", E);
 	/* Calculate Xi */
 	double xi = vpar_abs / sqrt(v2);
 	quantities_report(GCM_QUANTITY_XI, xi);
@@ -184,7 +183,7 @@ vector *equation_GCM(double T, vector *Z) {
 	/* Report mu */
 	quantities_report(GCM_QUANTITY_MU, mu);
 	/* Calculate energy */
-	double v2 = Z->val[0]*Z->val[0];
+	double v2 = Z->val[0]*Z->val[0] + 2*dd->Babs*mu/m;
 	double E = (m/2*v2 + mu*dd->Babs)*ENERGY;
 	quantities_report(GCM_QUANTITY_ENERGY, E);
 	/* Calculate Xi */
