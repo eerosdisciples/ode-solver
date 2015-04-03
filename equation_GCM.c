@@ -33,7 +33,6 @@ ode_solution* equation_GCM_init(vector *solution) {
 
 	/* Define the additional quantities we will
 	 * calculate during simulation */
-	GCM_QUANTITY_MU     = quantities_define("mu");
 	GCM_QUANTITY_ENERGY = quantities_define("Energy");
 	GCM_QUANTITY_XI     = quantities_define("Xi");
 
@@ -109,8 +108,6 @@ ode_solution* equation_GCM_init(vector *solution) {
 	solution->val[3] = X->val[2];
 	solution->val[4] = mu;
 
-	/* Report mu */
-	quantities_report(GCM_QUANTITY_MU, mu);
 	/* Calculate energy */
 	double v2 = (v->val[0]*v->val[0]+v->val[1]*v->val[1]+v->val[2]*v->val[2]);
 	double E = (m/2*v2)*ENERGY;
@@ -184,7 +181,7 @@ vector *equation_GCM(double T, vector *Z) {
 	quantities_report(GCM_QUANTITY_MU, mu);
 	/* Calculate energy */
 	double v2 = Z->val[0]*Z->val[0] + 2*dd->Babs*mu/m;
-	double E = (m/2*v2 + mu*dd->Babs)*ENERGY;
+	double E = (m/2*v2)*ENERGY;
 	quantities_report(GCM_QUANTITY_ENERGY, E);
 	/* Calculate Xi */
 	double xi = Z->val[0] / sqrt(v2);
