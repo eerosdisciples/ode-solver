@@ -3,6 +3,8 @@
 #include "rkf45.h"
 #include "equations.h"
 #include <stdlib.h>
+#include "problem_functions.h"
+#include "arguments.h"
 
 /**
  * Output labels for GCM.
@@ -70,4 +72,22 @@ ode_solution* solve_no_GCM(vector* solution, initial_data* initial) {
   solver_object->step = 1e-10;
 
   return solver_object;
-} 
+}
+/**
+ * Select which problem to solve 
+ */
+problem* use_problem(arguments *args) {
+  problem *prob = malloc(sizeof(problem));
+  
+  if (args->problem == PROBLEM_GC) {
+    prob->solve = solve_GCM;
+    prob->output = output_GCM;
+    prob->equation = equation_GCM;
+  }
+  else {
+    prob->solve = solve_no_GCM;
+    prob->output = output_no_GCM;
+    prob->equation = equation_particle;
+  }
+  return prob;
+}

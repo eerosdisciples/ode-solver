@@ -39,34 +39,13 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
   
   unsigned int points;
   points = NUMBER_OF_SIMULATION_POINTS;
-	
-  /* Allocate memory for solution vector 
-   *
-   * solution vector will contain position in cartesian coordinates
-   * and velocity: (x,y,z,vx,vy,vz)
-   *
-   * functions from problem_functions.c
-   */
- solution = malloc(sizeof(vector)*points);
-  
-   if (args->problem == PROBLEM_GC)
-     solver_object = solve_GCM(solution, initial);
-  else
-    solver_object = solve_no_GCM(solution, initial); 
-  
- 
 
-  /* for domain check of initial position */
+  /* domain check of initial position */
   x = initial->x0;
   y = initial->y0;
   z = initial->z0;
   r = sqrt(x*x + y*y);
-
-  /* For storing time */
-  double *t = malloc(sizeof(double)*(points+1));
-  t[0]=initial->t0;
-
-  /* domain check of initial position */
+  
   double R[2] = {REFERENCE_POINT_R,r};
   double Z[2] = {REFERENCE_POINT_Z,z};
 
@@ -75,6 +54,23 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
     exit(EXIT_FAILURE);
   }
   
+  /* Allocate memory for solution vector 
+   *
+   * solution vector will contain position in cartesian coordinates
+   * and velocity: (x,y,z,vx,vy,vz)
+   */
+  solution = malloc(sizeof(vector)*points);
+
+  /* Select which problem to use from now on, GCM or regular particle motion */
+  problem *prob =  use_problem(args);
+
+  /* Store initial values in solver_object */ 
+  solver_object = prob->solve(solution, initial);
+
+  /* For storing time */
+  double *t = malloc(sizeof(double)*(points+1));
+  t[0]=initial->t0;
+
   /* Main loop. Loop until the final time has been reached */
   current_index = 0;
   while (t[current_index] < initial->tmax) {
@@ -96,10 +92,7 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
     solver_object->Z = solution+current_index;
     do {
       t[current_index+1] = t[current_index] + solver_object->step;
-      if (args->problem == PROBLEM_GC)
-        ode_solve(equation_GCM, solver_object, t[current_index]);
-      else
-        ode_solve(equation_particle, solver_object, t[current_index]);
+        ode_solve(prob->equation, solver_object, t[current_index]);
     } while (solver_object->flag == REDO_STEP);
 
     /* Move on to next iteration */
@@ -126,14 +119,11 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
   output->v=solution;
   output->points=current_index;
 
-  if (args->problem == PROBLEM_GC)
-    output = output_GCM(output);
-  else
-    output = output_no_GCM(output);     
+  /* Set labels for output data, according to problem */
+  output = prob->output(output);   
     
   return output;
 }
-
 
 /**
  * Store initial particle data in an "initial_data" data type.
