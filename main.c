@@ -15,6 +15,7 @@
 #include "readfile.h"
 #include "rkf45.h"
 #include "quantities.h"
+#include "problem_functions.h"
 
 /* Reference point to check if initial position is inside domain */
 #define REFERENCE_POINT_R 6 
@@ -44,32 +45,16 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
    * solution vector will contain position in cartesian coordinates
    * and velocity: (x,y,z,vx,vy,vz)
    *
+   * functions from problem_functions.c
    */
-  solution = malloc(sizeof(vector)*points);
+ solution = malloc(sizeof(vector)*points);
   
-  /* Choose problem to solve */
-  if (args->problem == PROBLEM_GC) {
-	  solution->n = 5;
-	  solution->val = malloc(sizeof(double)*5);
-	  /* Get initial values for guiding center from 
-          * particle initial values, store in solver_object */
-	  solver_object = equation_GCM_init(solution, initial);
-  } else {
-	  solution->n = 6;
-	  solution->val = malloc(sizeof(double)*6);
-
-	  solution->val[0] = initial->x0; 
-	  solution->val[1] = initial->y0;
-	  solution->val[2] = initial->z0; 
-	  solution->val[3] = initial->vx0;
-	  solution->val[4] = initial->vy0;
-	  solution->val[5] = initial->vz0;
-
-	  equation_particle_init();
-
-	  solver_object = malloc(sizeof(ode_solution));
-	  solver_object->step = 1e-10; 
-  }
+   if (args->problem == PROBLEM_GC)
+     solver_object = solve_GCM(solution, initial);
+  else
+    solver_object = solve_no_GCM(solution, initial); 
+  
+ 
 
   /* for domain check of initial position */
   x = initial->x0;
@@ -98,23 +83,23 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
       unsigned int np = (unsigned int)ceil(points * initial->tmax/t[current_index]);
       solution = realloc(solution, np*(sizeof(vector)));
       t = realloc(t, np*sizeof(double));
-	  quantities_expand(np);
+      quantities_expand(np);
 
       points = np;
     }
 	
-	/* Our solution vector 'solution' has been pre-allocated. We
-	 * simply point our pointer object solution vector 'Z' to the
-	 * pre-allocated array. Since 'ode_solve' only gives us one
-	 * step at a time this allows to fill the solution array gradually
-	 */
+    /* Our solution vector 'solution' has been pre-allocated. We
+     * simply point our pointer object solution vector 'Z' to the
+     * pre-allocated array. Since 'ode_solve' only gives us one
+     * step at a time this allows to fill the solution array gradually
+     */
     solver_object->Z = solution+current_index;
     do {
       t[current_index+1] = t[current_index] + solver_object->step;
-	  if (args->problem == PROBLEM_GC)
+      if (args->problem == PROBLEM_GC)
         ode_solve(equation_GCM, solver_object, t[current_index]);
-	  else
-		ode_solve(equation_particle, solver_object, t[current_index]);
+      else
+        ode_solve(equation_particle, solver_object, t[current_index]);
     } while (solver_object->flag == REDO_STEP);
 
     /* Move on to next iteration */
@@ -124,7 +109,7 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
     R[1] = r;    Z[1] = z;
     if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
       printf("Particle collided with reactor wall!\n");
-	  printf("  r = %e\n  z = %e\n", r, z);
+      printf("  r = %e\n  z = %e\n", r, z);
       break;
     }
   }
@@ -141,24 +126,10 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
   output->v=solution;
   output->points=current_index;
 
-  if (args->problem == PROBLEM_GC) {
-	  output->labels = malloc(sizeof(char*)*5);
-	  output->labels[0] = "u";
-	  output->labels[1] = "X";
-	  output->labels[2] = "Y";
-	  output->labels[3] = "Z";
-	  output->labels[4] = "mu";
-	  output->nvars = 5;
-  } else {
-	  output->labels=malloc(sizeof(char *)*6);
-	  output->labels[0]="x";
-	  output->labels[1]="y";
-	  output->labels[2]="z";
-	  output->labels[3]="vx";
-	  output->labels[4]="vy";
-	  output->labels[5]="vz";
-	  output->nvars=6;
-  }
+  if (args->problem == PROBLEM_GC)
+    output = output_GCM(output);
+  else
+    output = output_no_GCM(output);     
     
   return output;
 }
@@ -216,7 +187,6 @@ int main(int argc, char *argv[]) {
   /* Initialization of interpolation */
   interp2_init_interpolation(B);
 
-
   /* solve */
   solution_data *output = main_solve(dom, args, initial);
   /* write solution data to file specified in input file */
@@ -224,4 +194,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
