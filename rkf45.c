@@ -29,7 +29,8 @@
     {37.0/378,0,250.0/621,125.0/594,512.0/1771,0},
     {2825.0/27648,0,18575.0/48384,13525.0/55296,277.0/14336,1.0/4}
     };*/
-/* Stores Cash Carp coefficients , used if explicit time dependence */
+/* Stores Cash Carp coefficients */
+/* used if explicit time dependence */
 double c[]={1.0/5,3.0/10,1,7.0/8};
 
 /* Stores Fehlberg coefficients A */

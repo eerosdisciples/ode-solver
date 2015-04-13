@@ -38,9 +38,4 @@ typedef struct {
   double charge; // particle charge 
 } initial_data;
 
-/**
- EXTERNAL VARIABLE CONTAINING PARTICLE INITIAL VALUES 
-**/
-extern initial_data* initial;
-
 #endif/*_IO_DATA_H*/

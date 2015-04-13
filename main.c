@@ -8,7 +8,6 @@
 #include "ctsv.h"
 #include "domain.h"
 #include "equations.h"
-#include "equation_particle.h"
 #include "interp2.h"
 #include "IO_data.h"
 #include "global.h"
@@ -21,9 +20,6 @@
 #define REFERENCE_POINT_R 6 
 #define REFERENCE_POINT_Z 0
 
-/* global variable containing particle initial values defined in main.
- declared in IO_data.h */
-initial_data *initial;
 unsigned int current_index=-1;
 
 /**
@@ -35,7 +31,7 @@ unsigned int current_index=-1;
  * Called from main
  */
 
-solution_data* main_solve(domain *dom, arguments *args){
+solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
   double x,y,z,r; // coordinates, cartesian and cylindrical
   vector *solution;  
   ode_solution *solver_object;
@@ -57,7 +53,7 @@ solution_data* main_solve(domain *dom, arguments *args){
 	  solution->val = malloc(sizeof(double)*5);
 	  /* Get initial values for guiding center from 
           * particle initial values, store in solver_object */
-	  solver_object = equation_GCM_init(solution);
+	  solver_object = equation_GCM_init(solution, initial);
   } else {
 	  solution->n = 6;
 	  solution->val = malloc(sizeof(double)*6);
@@ -167,30 +163,14 @@ solution_data* main_solve(domain *dom, arguments *args){
   return output;
 }
 
+
 /**
- * main function: stores initial values in global variable initial of
- * type initial_data. Also stores domain, magnetic field 
- * and initializes interpolation of the magnetic field.
- *
- * calls main_solve.
- * uses ctsv_write to write solution data to file.
+ * Store initial particle data in an "initial_data" data type.
+ * RETURNS initial values
  */
-int main(int argc, char *argv[]) {
-  /* Variable declarations */
-  arguments *args;
-  domain *dom;
-  magnetic_field *B;
-  
-  args = parse_args(argc, argv);
- 
-  /* Load domain */
-  dom = domain_load(args->domain_file);
-  /* Load magnetic field */
-  B = magnetic_field_load(args->magfield_file);
+initial_data* set_initial_values(arguments *args) {
 
-  /* Initialization of interpolation */
-  interp2_init_interpolation(B);
-
+  initial_data *initial;
   /* Set initial values */
   initial = malloc(sizeof(initial_data)); 
   initial->x0 = args->r0[0];
@@ -207,8 +187,38 @@ int main(int argc, char *argv[]) {
   initial->mass = args->particle_mass*AMU_TO_KG;
   initial->charge = args->particle_charge*CHARGE;
 
+  return initial;
+}
+
+/**
+ * main function: stores initial values in global variable initial of
+ * type initial_data. Also stores domain, magnetic field 
+ * and initializes interpolation of the magnetic field.
+ *
+ * calls main_solve.
+ * uses ctsv_write to write solution data to file.
+ */
+int main(int argc, char *argv[]) {
+  arguments *args;
+  initial_data *initial;
+  domain *dom;
+  magnetic_field *B;
+ 
+  
+  args = parse_args(argc, argv); 
+  initial = set_initial_values(args);
+    
+  /* Load domain */
+  dom = domain_load(args->domain_file);
+  /* Load magnetic field */
+  B = magnetic_field_load(args->magfield_file);
+
+  /* Initialization of interpolation */
+  interp2_init_interpolation(B);
+
+
   /* solve */
-  solution_data *output = main_solve(dom, args);
+  solution_data *output = main_solve(dom, args, initial);
   /* write solution data to file specified in input file */
   ctsv_write(args->output_file,',',output, args);
 
