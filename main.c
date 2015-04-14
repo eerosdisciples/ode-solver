@@ -61,7 +61,7 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
    */
   solution = malloc(sizeof(vector)*points);
 
-  /* Select which problem to use from now on, GCM or regular particle motion */
+  /* Set which problem to use from now on, GCM or regular particle motion */
   problem *prob =  use_problem(args);
 
   /* Store initial values in solver_object */ 
