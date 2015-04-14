@@ -29,7 +29,7 @@ void equation_particle_init(void) {
  *
  * RETURNS: vector of values of function f 
  *
- * Used as the first argument to ode_solve in ode.c
+ * Used as the first argument to ode_solve in ode.c if no GCM is selected
  */
 vector * equation_particle(double T, vector* Z){
 

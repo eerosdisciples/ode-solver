@@ -20,11 +20,13 @@ int GCM_QUANTITY_MU, GCM_QUANTITY_ENERGY, GCM_QUANTITY_XI;
 initial_data *INITIAL;
 
 /**
- * Function to initialize data for the GCM
- * Input: (initial_data object. men njä
- * Output: ode_solution pointer
- *
- * kommentera mera
+ * Function to initialize data for the GCM simulation run:
+ * Stores initial values to solution vector
+ * Converts particle initial values to GC initial values
+ * Input: initial_data object, contains particle initial values
+ * Input: solution vector
+ * 
+ * RETURNS pointer to ode_solution containing initial values for GC
  */
 ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
   INITIAL = initial;
@@ -128,8 +130,16 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
 }
 
 /**
- * COMMENT THIS FUNCTION!!
- * what does Z contain?? 
+ * Equation for the guiding center motion, GCM
+ * 
+ * T: time, not used here but needed for ode.c
+ * Z: Pointer to vector containing particle position
+ * coordinates in the first three values, and particle
+ * velocity in the next three.
+ *
+ * RETURNS: vector of values of function f 
+ *
+ * Used as the first argument to ode_solve in ode.c if GCM is selected
  */
 vector *equation_GCM(double T, vector *Z) {
   initial_data *initial;
