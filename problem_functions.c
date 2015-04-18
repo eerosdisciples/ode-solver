@@ -42,7 +42,7 @@ solution_data* output_no_GCM(solution_data* output) {
 /**
  * choose to solve GCM
  */
-ode_solution* solve_GCM(vector* solution, initial_data* initial) {
+ode_solution* init_GCM(vector* solution, initial_data* initial) {
   solution->n = 5;
   solution->val = malloc(sizeof(double)*5);
   /* Get initial values for guiding center from 
@@ -55,7 +55,7 @@ ode_solution* solve_GCM(vector* solution, initial_data* initial) {
 /**
  * Choose to solve non GCM
  */
-ode_solution* solve_no_GCM(vector* solution, initial_data* initial) { 
+ode_solution* init_no_GCM(vector* solution, initial_data* initial) { 
   solution->n = 6;
   solution->val = malloc(sizeof(double)*6);
 
@@ -80,12 +80,12 @@ problem* use_problem(arguments *args) {
   problem *prob = malloc(sizeof(problem));
   
   if (args->problem == PROBLEM_GC) {
-    prob->solve = solve_GCM;
+    prob->init = init_GCM;
     prob->output = output_GCM;
     prob->equation = equation_GCM;
   }
   else {
-    prob->solve = solve_no_GCM;
+    prob->init = init_no_GCM;
     prob->output = output_no_GCM;
     prob->equation = equation_particle;
   }

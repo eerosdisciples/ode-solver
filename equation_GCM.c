@@ -49,6 +49,7 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
   double vx = initial->vx0,
     vy = initial->vy0,
     vz = initial->vz0;
+
   /* Create initial velocity vector  */
   vector *v=vinit(3,vx,vy,vz);		   		   
 
@@ -66,8 +67,8 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
   double bx=bhat->val[0],
     by=bhat->val[1],
     bz=bhat->val[2];
-		   
-  /* Calculate absolute value of parallel velocity */
+
+    /* Calculate absolute value of parallel velocity */
   double vpar_abs=vdot(bhat,v);
 			   
   /* negative parallel velocity vector, to calculate
@@ -118,6 +119,9 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
   double xi = vpar_abs / sqrt(v2);
   quantities_report(GCM_QUANTITY_XI, xi);
 
+  // Print values
+  printf("xi: %f\n",xi);
+ 
   /* Free up some memory */
   vfree(bhat_vpar);
   vfree(r);

@@ -7,7 +7,7 @@
 
 typedef struct {
   solution_data* (*output)(solution_data*);
-  ode_solution* (*solve)(vector*, initial_data*);
+  ode_solution* (*init)(vector*, initial_data*);
   vector* (*equation)(double, vector*); 
 }problem;
 
@@ -16,7 +16,7 @@ problem* use_problem(arguments*);
 solution_data* output_GCM(solution_data*);
 solution_data* output_no_GCM(solution_data*);
 
-ode_solution* solve_GCM(vector*, initial_data*);
-ode_solution* solve_no_GCM(vector*, initial_data*); 
+ode_solution* init_GCM(vector*, initial_data*);
+ode_solution* init_no_GCM(vector*, initial_data*); 
 
 #endif/*_PROBLEM_FUNCTIONS_H*/
