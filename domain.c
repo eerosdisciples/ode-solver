@@ -116,14 +116,13 @@ int domain_check(domain *d, double *r, double *z) {
     x11=d->r[i+1]-x10;
     y10=d->z[i];
     y11=d->z[i+1]-y10;
-
+	double tol=0;
     /* Check if matrix is zero */
-    if (x00-x10==0 && y00-y10==0)
+    if (fabs(x00-x10)<=tol && fabs(y00-y10)<=tol)
       return DOMAIN_OUTSIDE;
 				
     /* Calculates the determinant */
     det=x11*y01-x01*y11;
-				
     /* Check if determinant is zero */
     if (det==0)
       return DOMAIN_WITHIN;
@@ -131,7 +130,6 @@ int domain_check(domain *d, double *r, double *z) {
     /* Calculates s and t */
     s=(1/det)*((x00-x10)*y01-(y00-y10)*x01);
     t=(1/det)*(-(-(x00-x10)*y11+(y00-y10)*x11));
-				
     /* If s and t are between 0 and 1 => intersection */
     if (s>=0 && s<=1 && t>=0 && t<=1)
       return DOMAIN_OUTSIDE;
@@ -248,7 +246,19 @@ void domain_test(void) {
   printf("Should be %s is %s\n",location[should],location[is]);
   if (should!=is){
     printf("INCORRECT!!!\n"); return;}
-  printf("CORRECT!!!\n\n");								 					
+  printf("CORRECT!!!\n\n");		
+  
+  /* TESTPOINT 8 */
+  r[0]=7.88717;r[1]=7.99016;
+  z[0]=-1.34802;z[1]=-1.16703;
+  should=1;
+  is=domain_check(d, r, z);
+
+  printf("Should be %s is %s\n",location[should],location[is]);
+  if (should!=is){
+    printf("INCORRECT!!!\n"); return;}
+  printf("CORRECT!!!\n\n");	
+  						 					
   /* END OF TEST */	
   printf(" ********* END OF TEST ********\n");
 				

@@ -45,7 +45,6 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
   y = initial->y0;
   z = initial->z0;
   r = sqrt(x*x + y*y);
-  
   double R[2] = {REFERENCE_POINT_R,r};
   double Z[2] = {REFERENCE_POINT_Z,z};
 
@@ -65,7 +64,7 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
   problem *prob =  use_problem(args);
 
   /* Store initial values in solver_object */ 
-  solver_object = prob->solve(solution, initial);
+  solver_object = prob->init(solution, initial);
 
   /* For storing time */
   double *t = malloc(sizeof(double)*(points+1));
@@ -98,11 +97,14 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
     /* Move on to next iteration */
     current_index++;
     /* check if new position is inside domain */
+	x=solver_object->Z->val[1];
+	y=solver_object->Z->val[2];
+	z=solver_object->Z->val[3];
     R[0] = R[1]; Z[0] = Z[1];
-    R[1] = r;    Z[1] = z;
+    R[1] = sqrt(x*x+y*y);    Z[1] = z;
     if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
       printf("Particle collided with reactor wall!\n");
-      printf("  r = %e\n  z = %e\n", r, z);
+      printf("  r = %e\n  z = %e\n", R[1], Z[1]);
       break;
     }
   }
