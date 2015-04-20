@@ -32,7 +32,7 @@ void equation_particle_init(initial_data *initial) {
  * Used as the first argument to ode_solve in ode.c if no GCM is selected
  */
 vector * equation_particle(double T, vector* Z){
-  initial = INITIAL;
+  initial_data *initial = INITIAL;
   double m=initial->mass; // particle mass
   double e=initial->charge; // particle charge
 
