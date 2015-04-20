@@ -66,7 +66,7 @@ ode_solution* init_no_GCM(vector* solution, initial_data* initial) {
   solution->val[4] = initial->vy0;
   solution->val[5] = initial->vz0;
 
-  equation_particle_init();
+  equation_particle_init(initial);
 
   ode_solution *solver_object = malloc(sizeof(ode_solution));
   solver_object->step = 1e-10;

@@ -8,14 +8,14 @@
 #include "quantities.h"
 #include <math.h>
 
-/* Global variable containing particle initial values defined in main */
-initial_data* initial;
-
 int PARTICLE_QUANTITY_ENERGY;
+initial_data *INITIAL;
 
-void equation_particle_init(void) {
+
+void equation_particle_init(initial_data *initial) {
 	PARTICLE_QUANTITY_ENERGY = quantities_define("Energy");
 	quantities_report(PARTICLE_QUANTITY_ENERGY, 0.0);
+        INITIAL = initial;
 }
 
 /**
@@ -32,7 +32,7 @@ void equation_particle_init(void) {
  * Used as the first argument to ode_solve in ode.c if no GCM is selected
  */
 vector * equation_particle(double T, vector* Z){
-
+  initial = INITIAL;
   double m=initial->mass; // particle mass
   double e=initial->charge; // particle charge
 
