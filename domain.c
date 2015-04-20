@@ -117,9 +117,8 @@ int domain_check(domain *d, double *r, double *z) {
     x11=d->r[i+1]-x10;
     y10=d->z[i];
     y11=d->z[i+1]-y10;
-	double tol=0;
     /* Check if matrix is zero */
-    if (fabs(x00-x10)<=tol && fabs(y00-y10)<=tol)
+    if (x00-x10==0 && y00-y10==0)
       return DOMAIN_OUTSIDE;
 				
     /* Calculates the determinant */
