@@ -44,6 +44,8 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
   unsigned int points;
   points = NUMBER_OF_SIMULATION_POINTS;
 
+  /* Variable to use in domain_check depending on problem */
+  int prob_val=args->problem;
   /* domain check of initial position */
   x = initial->x0;
   y = initial->y0;
@@ -101,9 +103,9 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
     /* Move on to next iteration */
     current_index++;
     /* check if new position is inside domain */
-	x=solver_object->Z->val[1];
-	y=solver_object->Z->val[2];
-	z=solver_object->Z->val[3];
+	x=solver_object->Z->val[0+prob_val];
+	y=solver_object->Z->val[1+prob_val];
+	z=solver_object->Z->val[2+prob_val];
     R[0] = R[1]; Z[0] = Z[1];
     R[1] = sqrt(x*x+y*y);    Z[1] = z;
     if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
@@ -176,7 +178,6 @@ int main(int argc, char *argv[]) {
   return_value = 0;		/* Set default return value (SUCCESS) */
   args = parse_args(argc, argv); 
   initial = set_initial_values(args);
-    
   /* Load domain */
   dom = domain_load(args->domain_file);
   /* Load magnetic field */
