@@ -21,7 +21,11 @@
 #define REFERENCE_POINT_R 6 
 #define REFERENCE_POINT_Z 0
 
+#define EXIT_PARTICLE_OUTSIDE 11
+#define EXIT_PARTICLE_START_OUTSIDE 12
+
 unsigned int current_index=-1;
+int return_value;
 
 /**
  * Calculates saves the values of the particle motion with given parameters
@@ -50,7 +54,7 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
 
   if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
     printf("Particle starts outside reactor!\n");
-    exit(EXIT_FAILURE);
+    exit(EXIT_PARTICLE_START_OUTSIDE);
   }
   
   /* Allocate memory for solution vector 
@@ -105,6 +109,7 @@ solution_data* main_solve(domain *dom, arguments *args, initial_data *initial){
     if (domain_check(dom, R, Z) == DOMAIN_OUTSIDE) {
       printf("Particle collided with reactor wall!\n");
       printf("  r = %e\n  z = %e\n", R[1], Z[1]);
+      return_value = EXIT_PARTICLE_OUTSIDE;
       break;
     }
   }
@@ -168,6 +173,7 @@ int main(int argc, char *argv[]) {
   magnetic_field *B;
  
   
+  return_value = 0;		/* Set default return value (SUCCESS) */
   args = parse_args(argc, argv); 
   initial = set_initial_values(args);
     
@@ -184,5 +190,5 @@ int main(int argc, char *argv[]) {
   /* write solution data to file specified in input file */
   ctsv_write(args->output_file,',',output, args);
 
-  return 0;
+  return return_value;
 }
