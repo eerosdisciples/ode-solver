@@ -12,14 +12,18 @@ OINPUT=input.o ../arguments.o ../input.o ../readfile.o
 OODE=../ctsv.o ode.o ../rkf45.o ../vector.o ../equation_predprey.o ../magnetic_field.o ../interp2.o ../readfile.o
 OFFG=../fieldFineGrid.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
 ODIFF=diff.o ../diff.o ../magnetic_field.o ../interp2.o ../readfile.o ../vector.o
+OBHAT=bhat.o ../arguments.o ../magnetic_field.o ../interp2.o ../input.o ../readfile.o ../vector.o
 
-all: ctsv diff domain magnetic_field input ode
+all: bhat ctsv diff domain magnetic_field input ode
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 ../%.o: ../%.c
 	$(CC) $(CFLAGS) -o $@ $<
+
+bhat: $(OBHAT)
+	$(LD) $(OBHAT) $(LFLAGS) -o $@
 
 ctsv: $(OCTSV)
 	$(LD) $(OCTSV) $(LFLAGS) -o $@ 

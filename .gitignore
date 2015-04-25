@@ -1,7 +1,9 @@
 *.o
 *~
 solver
+tests/bhat
 tests/ctsv
+tests/diff
 tests/domain
 tests/magnetic_field
 tests/input

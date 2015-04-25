@@ -16,7 +16,7 @@
 
 /* Indices to the quantity array. Initialized
  * in `equation_GCM_init'. */
-int GCM_QUANTITY_MU, GCM_QUANTITY_ENERGY, GCM_QUANTITY_XI;
+int GCM_QUANTITY_MU, GCM_QUANTITY_ENERGY, GCM_QUANTITY_XI, GCM_QUANTITY_EKIN, GCM_QUANTITY_MUB;
 initial_data *INITIAL;
 
 /**
@@ -37,6 +37,8 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
    * calculate during simulation */
   GCM_QUANTITY_ENERGY = quantities_define("Energy");
   GCM_QUANTITY_XI = quantities_define("Xi");
+  GCM_QUANTITY_EKIN = quantities_define("Ekin");
+  GCM_QUANTITY_MUB = quantities_define("muB");
  
   /* initial particle position */
   double x = initial->x0,
@@ -68,6 +70,8 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
     by=bhat->val[1],
     bz=bhat->val[2];
 
+  printf("bhat = %e, %e, %e\n", bx, by, bz);
+
     /* Calculate absolute value of parallel velocity */
   double vpar_abs=vdot(bhat,v);
 			   
@@ -98,6 +102,8 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
   solution->val[2] = X->val[1]; // Guiding center y-position
   solution->val[3] = X->val[2]; // Guiding center z-position 
   solution->val[4] = mu;        // Magnetic moment mu
+
+  quantities_report(GCM_QUANTITY_MUB, mu*B_abs*ENERGY);
 			  
   /* solver_object of type ode_solution to be returned,
    * contains solution points, optimal
@@ -118,6 +124,7 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
   /* Calculate Xi */
   double xi = vpar_abs / sqrt(v2);
   quantities_report(GCM_QUANTITY_XI, xi);
+  quantities_report(GCM_QUANTITY_EKIN, m/2*vpar_abs*vpar_abs*ENERGY);
 
   // Print values
   printf("xi: %f\n",xi);
@@ -199,6 +206,8 @@ vector *equation_GCM(double T, vector *Z) {
   double v2 = Z->val[0]*Z->val[0] + 2*dd->Babs*mu/m;
   double E = (m/2*v2)*ENERGY;
   quantities_report(GCM_QUANTITY_ENERGY, E);
+  quantities_report(GCM_QUANTITY_EKIN, m/2*Z->val[0]*Z->val[0]*ENERGY);
+  quantities_report(GCM_QUANTITY_MUB, mu*dd->Babs*ENERGY);
   /* Calculate Xi */
   double xi = Z->val[0] / sqrt(v2);
   quantities_report(GCM_QUANTITY_XI, xi);
