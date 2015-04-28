@@ -1,11 +1,12 @@
 #include <stdlib.h>
-#include "vector.h"
 #include "equation_particle.h"
-#include "magnetic_field.h"
-#include "readfile.h"
+#include "global.h"
 #include "interp2.h"
 #include "IO_data.h"
+#include "magnetic_field.h"
 #include "quantities.h"
+#include "readfile.h"
+#include "vector.h"
 #include <math.h>
 
 int PARTICLE_QUANTITY_ENERGY;
@@ -63,7 +64,7 @@ vector * equation_particle(double T, vector* Z){
     f6=(e/m)*(v1*B2-v2*B1);
 
   /* Calculate energy */
-  double E = m/2*(v1*v1 + v2*v2 + v3*v3);
+  double E = m/2*(v1*v1 + v2*v2 + v3*v3)*ENERGY;
   quantities_report(PARTICLE_QUANTITY_ENERGY, E);
    
   vfree(xyz);
