@@ -141,6 +141,9 @@ ode_solution* ode_solve(vector *(equation)(double, vector*),ode_solution *solver
   if (eps >= eps0) {
     hopt=beta*h*pow(eps0/eps,0.20);
     flag=REDO_STEP;
+  } else if (eps == 0) {
+    hopt=h;
+	flag=OK_STEP;
   } else {
     hopt=h*pow(eps0/eps,0.25);
     flag=OK_STEP;
