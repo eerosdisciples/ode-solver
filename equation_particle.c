@@ -9,14 +9,20 @@
 #include "vector.h"
 #include <math.h>
 
-int PARTICLE_QUANTITY_ENERGY;
+int PARTICLE_QUANTITY_ENERGY, PARTICLE_QUANTITY_EPAR, PARTICLE_QUANTITY_EPERP;
 initial_data *INITIAL;
 
 
 void equation_particle_init(initial_data *initial) {
 	PARTICLE_QUANTITY_ENERGY = quantities_define("Energy");
+	PARTICLE_QUANTITY_EPAR   = quantities_define("Epar");
+	PARTICLE_QUANTITY_EPERP  = quantities_define("Eperp");
+
 	quantities_report(PARTICLE_QUANTITY_ENERGY, 0.0);
-        INITIAL = initial;
+	quantities_report(PARTICLE_QUANTITY_EPAR, 0.0);
+	quantities_report(PARTICLE_QUANTITY_EPERP, 0.0);
+
+	INITIAL = initial;
 }
 
 /**
@@ -55,6 +61,13 @@ vector * equation_particle(double T, vector* Z){
   double B1=B->val[0],
     B2=B->val[1],
     B3=B->val[2];
+
+  /* Calculate magnetic field magnitude */
+  double Babs = sqrt(B1*B1 + B2*B2 + B3*B3);
+  double bh1 = B1/Babs,
+    bh2 = B2/Babs,
+	bh3 = B3/Babs;
+
   /* Calculate each function (f) value */
   double f1=v1,
     f2=v2,
@@ -66,6 +79,13 @@ vector * equation_particle(double T, vector* Z){
   /* Calculate energy */
   double E = m/2*(v1*v1 + v2*v2 + v3*v3)*ENERGY;
   quantities_report(PARTICLE_QUANTITY_ENERGY, E);
+
+  double vpar = v1*bh1 + v2*bh2 + v3*bh3;
+  double Epar = m/2*vpar*vpar*ENERGY;
+  double Eperp = E - Epar;
+  quantities_report(PARTICLE_QUANTITY_EPAR, Epar);
+  quantities_report(PARTICLE_QUANTITY_EPERP, Eperp);
+
    
   vfree(xyz);
   vfree(B);

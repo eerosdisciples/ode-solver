@@ -70,8 +70,6 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
     by=bhat->val[1],
     bz=bhat->val[2];
 
-  printf("bhat = %e, %e, %e\n", bx, by, bz);
-
     /* Calculate absolute value of parallel velocity */
   double vpar_abs=vdot(bhat,v);
 			   
@@ -125,9 +123,6 @@ ode_solution* equation_GCM_init(vector *solution, initial_data *initial) {
   double xi = vpar_abs / sqrt(v2);
   quantities_report(GCM_QUANTITY_XI, xi);
   quantities_report(GCM_QUANTITY_EKIN, m/2*vpar_abs*vpar_abs*ENERGY);
-
-  // Print values
-  printf("xi: %f\n",xi);
  
   /* Free up some memory */
   vfree(bhat_vpar);
