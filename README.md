@@ -1,7 +1,7 @@
 # ode-solver
 A tool for simulating charged particle orbits in fusion plasmas.
 
-This tool was developed as part of the Bachelor project TIFX02-15-41 at the department for Engineering Physics, Chalmers University of Technology (2015).
+This tool was developed as part of the Bachelor project TIFX02-15-41 at the department for Applied Physics, Chalmers University of Technology (2015).
 
 ## Description
 When designing a fusion device, knowledge of particle motion with the device is necessary. The aim of this project has been to develop a simulation tool capable of calculating orbits for different kinds of particles, and then to analyze the orbits and explain them.
