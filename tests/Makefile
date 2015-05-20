@@ -48,4 +48,10 @@ fieldFineGrid: $(OFFG)
 
 clean:
 	rm *.o
+	rm bhat
+	rm ctsv
+	rm diff
 	rm domain
+	rm magnetic_field
+	rm input
+	rm ode

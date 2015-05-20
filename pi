@@ -1,9 +1,9 @@
 t0=0
-tend=9.2e-5
+tend=2.6e-5
 r0=8,0,0.3
 v0=-9.5487e6,-7.7664e6,-4.1652e6
 magnetic_field=tests/iter2d.bkg
 domain_file=tests/iter.wall_2d
-mass=4
-charge=2
+mass=1
+charge=1
 print_settings!
