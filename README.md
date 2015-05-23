@@ -8,6 +8,29 @@ When designing a fusion device, knowledge of particle motion with the device is 
 
 The simulation tool utilizes two different methods for simulation: regular particle motion (derived directly from the Lorentz force), and the guiding-center method. These methods have also been compared in the thesis with regard to performance and agreement, and as expected it turns out that the guiding-center method is far superior in both of these.
 
+## Simulating an alpha particle
+The simplest way to simulate an alpha particle is by creating a "pi"-file (for "particle information") in the same directory as the 'solver' executable is located. Add the following contents to the pi-file:
+
+```
+tend=2.6e-5
+r0=8,0,0.3
+v0=-9.5487e6,-7.7664e6,-4.1652e6
+magnetic_field=tests/iter2d.bkg
+domain_file=tests/iter.wall_2d
+mass=4
+charge=2
+output_file=particle.csv
+print_settings!
+```
+
+Next, pass this file to the solver by typing
+
+```
+$ ./solver pi
+```
+
+in a terminal. This will create an output file with the name "particle.csv". The data should be fairly straight-forward to read and plot using for example Matlab.
+
 ## Authors
 The tool was written by:
 - Mathias Hoppe (hoppe)
